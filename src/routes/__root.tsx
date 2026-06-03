@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { supabase } from "@/integrations/supabase/client";
+import { applyProfile, clearState, loadStateForUser } from "@/lib/game-store";
 
 function NotFoundComponent() {
   return (
@@ -76,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" },
       { title: "SAT Swipe" },
       { name: "description", content: "Gamified swipe-based SAT vocabulary trainer." },
-      { name: "theme-color", content: "#1a1a24" },
+      { name: "theme-color", content: "#000000" },
       { property: "og:title", content: "SAT Swipe" },
       { property: "og:description", content: "Master SAT vocab one swipe at a time." },
       { property: "og:type", content: "website" },
@@ -117,11 +119,48 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <AuthBridge />
       <Outlet />
     </QueryClientProvider>
   );
+}
+
+function AuthBridge() {
+  const router = useRouter();
+  const qc = useQueryClient();
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrate(userId: string) {
+      loadStateForUser(userId);
+      const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+      if (cancelled || !data) return;
+      applyProfile({
+        username: data.username,
+        avatar: (data.equipped ?? data.avatar) as never,
+        owned_items: data.owned_items ?? [],
+        xp: data.xp ?? 0,
+        coins: data.coins ?? 0,
+        level: data.level ?? 1,
+      });
+    }
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) hydrate(data.user.id);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session?.user) {
+        hydrate(session.user.id);
+      } else {
+        clearState();
+      }
+      router.invalidate();
+      qc.invalidateQueries();
+    });
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [router, qc]);
+  return null;
 }
