@@ -3,8 +3,9 @@ import { useState } from "react";
 import { ArrowLeft, Coins, Lock, Check } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { XPToast } from "@/components/XPToast";
-import { purchaseItem, useGame } from "@/lib/game-store";
-import { AVATAR_ITEMS, SLOTS, type AvatarSlot } from "@/lib/avatar";
+import { Avatar } from "@/components/Avatar";
+import { purchaseItem, setAvatar, useGame } from "@/lib/game-store";
+import { getShopItems, type ShopItem } from "@/lib/avatar";
 
 export const Route = createFileRoute("/_authenticated/shop")({
   ssr: false,
@@ -20,14 +21,11 @@ const rarityRing: Record<string, string> = {
 
 function Shop() {
   const g = useGame();
-  const [filter, setFilter] = useState<AvatarSlot | "all">("all");
-
-  const items = AVATAR_ITEMS.filter((i) => i.cost > 0).filter((i) =>
-    filter === "all" ? true : i.slot === filter,
-  );
+  const [filter, setFilter] = useState<"all" | "style" | "background" | "preset">("all");
+  const items = getShopItems().filter((i) => filter === "all" || i.kind === filter);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pt-6 pb-4">
+    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-5 pt-6 pb-24">
       <div className="flex items-center gap-3">
         <Link to="/app" className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border">
           <ArrowLeft className="h-4 w-4" />
@@ -40,61 +38,41 @@ function Shop() {
       </div>
 
       <div className="mt-5 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        <FilterChip label="All" active={filter === "all"} onClick={() => setFilter("all")} />
-        {SLOTS.filter((s) => s !== "skin").map((s) => (
-          <FilterChip key={s} label={s} active={filter === s} onClick={() => setFilter(s)} />
+        {(["all", "style", "background", "preset"] as const).map((f) => (
+          <FilterChip key={f} label={f} active={filter === f} onClick={() => setFilter(f)} />
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {items.map((it) => {
           const owned = g.ownedItems.includes(it.id);
           const locked = g.level < it.level;
           const canBuy = !owned && !locked && g.coins >= it.cost;
           const ring = rarityRing[it.rarity ?? "common"];
           return (
-            <div
-              key={it.id}
-              className={`flex flex-col items-stretch overflow-hidden rounded-2xl bg-card ring-1 ${ring}`}
-            >
-              <div
-                className="flex h-24 items-center justify-center text-5xl"
-                style={
-                  it.slot === "clothing" || it.slot === "background"
-                    ? { background: it.visual }
-                    : undefined
-                }
-              >
-                {it.slot === "clothing" || it.slot === "background" ? (
-                  <span className="text-xs font-display uppercase tracking-widest text-white/80">
-                    {it.name}
-                  </span>
-                ) : (
-                  it.visual || "—"
-                )}
-              </div>
+            <div key={it.id} className={`flex flex-col items-stretch overflow-hidden rounded-2xl bg-card ring-1 ${ring}`}>
+              <ItemPreview item={it} />
               <div className="p-3">
                 <p className="font-display text-sm font-bold">{it.name}</p>
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {it.slot} · {it.rarity ?? "common"}
-                </p>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{it.kind} · {it.rarity ?? "common"}</p>
                 {owned ? (
-                  <div className="mt-2 flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-bold text-success">
-                    <Check className="h-3 w-3" /> Owned
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-bold text-success">
+                      <Check className="h-3 w-3" /> Owned
+                    </div>
+                    {(it.kind === "preset") && (
+                      <button onClick={() => setAvatar({ style: it.style, seed: it.seed, backgroundColor: it.backgroundColor, radius: 50 })}
+                        className="rounded-full bg-primary/20 px-2 py-1 text-[10px] font-bold uppercase text-primary">Equip</button>
+                    )}
                   </div>
                 ) : locked ? (
                   <div className="mt-2 flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 text-xs font-bold text-muted-foreground ring-1 ring-border">
                     <Lock className="h-3 w-3" /> Lv {it.level}
                   </div>
                 ) : (
-                  <button
-                    disabled={!canBuy}
-                    onClick={() => {
-                      const r = purchaseItem(it.id, it.level, it.cost);
-                      if (!r.ok && r.reason) alert(r.reason);
-                    }}
-                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-40"
-                  >
+                  <button disabled={!canBuy}
+                    onClick={() => { const r = purchaseItem(it.id, it.level, it.cost); if (!r.ok && r.reason) alert(r.reason); }}
+                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-40">
                     <Coins className="h-3 w-3" /> {it.cost}
                   </button>
                 )}
@@ -110,14 +88,31 @@ function Shop() {
   );
 }
 
+function ItemPreview({ item }: { item: ShopItem }) {
+  if (item.kind === "background") {
+    return (
+      <div className="h-24" style={{ background: `linear-gradient(135deg, ${item.colors.map((c) => "#" + c).join(",")})` }} />
+    );
+  }
+  if (item.kind === "style") {
+    return (
+      <div className="grid h-24 place-items-center bg-surface-2">
+        <Avatar equipped={{ style: item.styleId, seed: "preview-" + item.id, backgroundColor: ["b6e3f4", "c0aede"] }} size={72} />
+      </div>
+    );
+  }
+  // preset
+  return (
+    <div className="grid h-24 place-items-center" style={{ background: `linear-gradient(135deg, ${item.backgroundColor.map((c) => "#" + c).join(",")})` }}>
+      <Avatar equipped={{ style: item.style, seed: item.seed, backgroundColor: item.backgroundColor }} size={72} />
+    </div>
+  );
+}
+
 function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest ring-1 ${
-        active ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 text-muted-foreground ring-border"
-      }`}
-    >
+    <button onClick={onClick}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest ring-1 ${active ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 text-muted-foreground ring-border"}`}>
       {label}
     </button>
   );
