@@ -233,7 +233,7 @@ export function AvatarBuilder({
                 className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-1 transition ${active ? "ring-primary bg-primary/15" : "ring-border bg-surface-2"} ${!unlocked ? "opacity-40" : ""}`}>
                 <Avatar equipped={{ style: s.id as DicebearStyleId, seed: avatar.seed, backgroundColor: avatar.backgroundColor }} size={56} />
                 <span className="text-[9px] uppercase tracking-widest">{s.name}</span>
-                {!unlocked && <span className="text-[9px] text-muted-foreground">Lv {s.level}</span>}
+                {!unlocked && "level" in s && <span className="text-[9px] text-muted-foreground">Lv {s.level}</span>}
               </button>
             );
           })}
