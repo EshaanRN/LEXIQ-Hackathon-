@@ -17,47 +17,62 @@ export type Database = {
       profiles: {
         Row: {
           avatar: Json
+          checkpoint_interval: number
           coins: number
           created_at: string
           equipped: Json
+          exam: string
           id: string
           interests: string[]
+          last_checkpoint_at: string | null
           level: number
+          mastery_scores: Json
           onboarding_complete: boolean
           owned_items: string[]
           starting_rank: string | null
           updated_at: string
           username: string | null
+          words_learned_total: number
           xp: number
         }
         Insert: {
           avatar?: Json
+          checkpoint_interval?: number
           coins?: number
           created_at?: string
           equipped?: Json
+          exam?: string
           id: string
           interests?: string[]
+          last_checkpoint_at?: string | null
           level?: number
+          mastery_scores?: Json
           onboarding_complete?: boolean
           owned_items?: string[]
           starting_rank?: string | null
           updated_at?: string
           username?: string | null
+          words_learned_total?: number
           xp?: number
         }
         Update: {
           avatar?: Json
+          checkpoint_interval?: number
           coins?: number
           created_at?: string
           equipped?: Json
+          exam?: string
           id?: string
           interests?: string[]
+          last_checkpoint_at?: string | null
           level?: number
+          mastery_scores?: Json
           onboarding_complete?: boolean
           owned_items?: string[]
           starting_rank?: string | null
           updated_at?: string
           username?: string | null
+          words_learned_total?: number
           xp?: number
         }
         Relationships: []
