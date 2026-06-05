@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { VOCAB, type VocabWord } from "@/data/vocab";
+import { VOCAB, type VocabWord, type ExamType } from "@/data/vocab";
 import { supabase } from "@/integrations/supabase/client";
-import { defaultAvatar, defaultOwned, type AvatarEquipped } from "@/lib/avatar";
+import { defaultAvatar, defaultOwned, type AvatarConfig } from "@/lib/avatar";
 
 export type Mastery = "unknown" | "learning" | "practicing" | "familiar" | "mastered";
 
@@ -9,9 +9,10 @@ interface WordState {
   mastery: Mastery;
   seen: number;
   correct: number;
-  /** true if user has ever swiped left ("didn't know") on this word */
   wasMissed: boolean;
   lastSeenAt: number;
+  /** 0-100 from checkpoint testing */
+  masteryScore?: number;
 }
 
 interface GameState {
@@ -24,17 +25,22 @@ interface GameState {
   rank: string;
   words: Record<string, WordState>;
   rootStrength: Record<string, number>;
-  /** mastered roots that have already awarded their +100 bonus */
   rootBonusGiven: string[];
-  /** ms of active study time accumulated, used for time-bonus */
   activeMs: number;
-  /** activeMs at last time-bonus payout */
   lastBonusActiveMs: number;
-  /** Date.now() of last interaction (used to debit active time) */
   lastInteractionAt: number;
-  avatar: AvatarEquipped;
+  avatar: AvatarConfig;
   ownedItems: string[];
   username: string | null;
+  exam: ExamType;
+  checkpointInterval: number;
+  /** Total NEW words the user has learned (used to trigger checkpoint prompts) */
+  wordsLearnedTotal: number;
+  /** Count snapshot at last successful checkpoint */
+  wordsAtLastCheckpoint: number;
+  /** Pass count of checkpoints (for rewards) */
+  checkpointsPassed: number;
+  perfectCheckpoints: number;
 }
 
 const RANKS = [
@@ -51,17 +57,13 @@ const RANKS = [
 ];
 
 const MASTERY_ORDER: Mastery[] = ["unknown", "learning", "practicing", "familiar", "mastered"];
-
-// Active-time bonus: +10 XP every 5 minutes of active study
 const BONUS_INTERVAL_MS = 5 * 60 * 1000;
 const BONUS_XP = 10;
-// Cap how much "active time" a single gap counts as (anti-AFK)
 const MAX_GAP_MS = 30 * 1000;
 
 function storageKey(userId: string) {
   return `sat-swipe-state::${userId}`;
 }
-
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -84,13 +86,19 @@ function defaultState(userId: string | null): GameState {
     avatar: defaultAvatar(),
     ownedItems: defaultOwned(),
     username: null,
+    exam: "sat",
+    checkpointInterval: 20,
+    wordsLearnedTotal: 0,
+    wordsAtLastCheckpoint: 0,
+    checkpointsPassed: 0,
+    perfectCheckpoints: 0,
   };
 }
 
 let state: GameState = defaultState(null);
 const listeners = new Set<() => void>();
 type Toast = { id: number; xp?: number; coins?: number; label: string };
-let toastListeners = new Set<(t: Toast) => void>();
+const toastListeners = new Set<(t: Toast) => void>();
 
 function notify() {
   listeners.forEach((l) => l());
@@ -123,6 +131,9 @@ async function syncProfile() {
         avatar: state.avatar as never,
         owned_items: state.ownedItems,
         equipped: state.avatar as never,
+        exam: state.exam,
+        checkpoint_interval: state.checkpointInterval,
+        words_learned_total: state.wordsLearnedTotal,
       })
       .eq("id", state.userId);
   } catch (e) {
@@ -143,20 +154,29 @@ export function loadStateForUser(userId: string) {
 
 export function applyProfile(p: {
   username?: string | null;
-  avatar?: AvatarEquipped;
+  avatar?: AvatarConfig;
   owned_items?: string[];
   xp?: number;
   coins?: number;
   level?: number;
+  exam?: ExamType;
+  checkpoint_interval?: number;
+  words_learned_total?: number;
 }) {
   state = {
     ...state,
     username: p.username ?? state.username,
-    avatar: p.avatar && Object.keys(p.avatar).length ? p.avatar : state.avatar,
+    avatar: p.avatar && p.avatar.style ? p.avatar : state.avatar,
     ownedItems: p.owned_items?.length ? p.owned_items : state.ownedItems,
     xp: typeof p.xp === "number" && p.xp > state.xp ? p.xp : state.xp,
     coins: typeof p.coins === "number" && p.coins > state.coins ? p.coins : state.coins,
     level: typeof p.level === "number" && p.level > state.level ? p.level : state.level,
+    exam: p.exam ?? state.exam,
+    checkpointInterval: p.checkpoint_interval ?? state.checkpointInterval,
+    wordsLearnedTotal:
+      typeof p.words_learned_total === "number" && p.words_learned_total > state.wordsLearnedTotal
+        ? p.words_learned_total
+        : state.wordsLearnedTotal,
   };
   state.rank = rankFor(state.xp);
   notify();
@@ -219,7 +239,6 @@ function addXp(amount: number, label: string, coins = 0) {
   }
 }
 
-/** Tally active study time. Call on every meaningful interaction. */
 export function tickActive() {
   const now = Date.now();
   if (state.lastInteractionAt) {
@@ -227,7 +246,6 @@ export function tickActive() {
     if (gap > 0) state.activeMs += gap;
   }
   state.lastInteractionAt = now;
-  // Award any pending time bonuses
   while (state.activeMs - state.lastBonusActiveMs >= BONUS_INTERVAL_MS) {
     state.lastBonusActiveMs += BONUS_INTERVAL_MS;
     addXp(BONUS_XP, "Study Time Bonus");
@@ -235,19 +253,18 @@ export function tickActive() {
   persist();
 }
 
-/**
- * Called when the user swipes RIGHT on the top of the deck (claims to know).
- * No XP is awarded; mastery nudges up so the algorithm shows it less often.
- */
+function blank(): WordState {
+  return { mastery: "unknown", seen: 0, correct: 0, wasMissed: false, lastSeenAt: 0 };
+}
+
 export function markKnown(word: VocabWord) {
   touchStreak();
   tickActive();
   const prev: WordState = state.words[word.id] ?? blank();
   const idx = MASTERY_ORDER.indexOf(prev.mastery);
-  const nextMastery = MASTERY_ORDER[Math.min(idx + 1, MASTERY_ORDER.length - 1)];
   state.words[word.id] = {
     ...prev,
-    mastery: nextMastery,
+    mastery: MASTERY_ORDER[Math.min(idx + 1, MASTERY_ORDER.length - 1)],
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
@@ -257,10 +274,6 @@ export function markKnown(word: VocabWord) {
   persist();
 }
 
-/**
- * Called when the user swipes LEFT or taps "don't know".
- * No XP yet — XP is only awarded after the user marks it as learned.
- */
 export function markUnknown(word: VocabWord) {
   touchStreak();
   tickActive();
@@ -276,15 +289,7 @@ export function markUnknown(word: VocabWord) {
   persist();
 }
 
-/**
- * The user reviewed the learn sheet for a word they didn't know and
- * indicated they understand it now ("Learned" / double-tap heart / swipe right after review).
- * Awards:
- *   • +25 XP "Learned New Word"
- *   • +50 XP bonus if this word was previously missed and is now mastered
- *   • +100 XP if the root family becomes fully mastered
- */
-export function markLearned(word: VocabWord) {
+export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   touchStreak();
   tickActive();
   const prev: WordState = state.words[word.id] ?? blank();
@@ -292,6 +297,7 @@ export function markLearned(word: VocabWord) {
   const nextMastery = MASTERY_ORDER[Math.min(idx + 1, MASTERY_ORDER.length - 1)];
   const wasMissed = prev.wasMissed;
   const becameMastered = prev.mastery !== "mastered" && nextMastery === "mastered";
+  const wasNew = prev.mastery === "unknown" || prev.mastery === "learning";
 
   state.words[word.id] = {
     ...prev,
@@ -303,11 +309,13 @@ export function markLearned(word: VocabWord) {
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
   addXp(25, "Learned New Word", 5);
-  if (becameMastered && wasMissed) {
-    addXp(50, "Mastered Missed Word", 25);
-  }
+  if (wasNew) state.wordsLearnedTotal += 1;
+  if (becameMastered && wasMissed) addXp(50, "Mastered Missed Word", 25);
   checkRootMastery(word.root);
   persist();
+
+  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
+  return { checkpointDue: since > 0 && since >= state.checkpointInterval };
 }
 
 function checkRootMastery(root: string) {
@@ -321,22 +329,87 @@ function checkRootMastery(root: string) {
   }
 }
 
-function blank(): WordState {
-  return { mastery: "unknown", seen: 0, correct: 0, wasMissed: false, lastSeenAt: 0 };
+/** Pool of words filtered by current exam preference */
+export function examPool(): VocabWord[] {
+  const e = state.exam;
+  return VOCAB.filter((w) => {
+    if (e === "both") return true;
+    return w.exam === e || w.exam === "both";
+  });
 }
 
 export function nextWord(exclude?: string): VocabWord {
-  const scored = VOCAB.filter((w) => w.id !== exclude).map((w) => {
-    const ws = state.words[w.id];
-    const masteryWeight = ws
-      ? { unknown: 5, learning: 6, practicing: 4, familiar: 2, mastered: 0.4 }[ws.mastery]
-      : 5;
-    const rootWeight = Math.max(1, 4 - (state.rootStrength[w.root] ?? 0));
-    const recencyPenalty = ws && Date.now() - ws.lastSeenAt < 30_000 ? 0.1 : 1;
-    return { w, score: masteryWeight * rootWeight * recencyPenalty * Math.random() };
-  });
+  const pool = examPool();
+  const scored = pool
+    .filter((w) => w.id !== exclude)
+    .map((w) => {
+      const ws = state.words[w.id];
+      const masteryWeight = ws
+        ? { unknown: 5, learning: 6, practicing: 4, familiar: 2, mastered: 0.4 }[ws.mastery]
+        : 5;
+      const rootWeight = Math.max(1, 4 - (state.rootStrength[w.root] ?? 0));
+      const recencyPenalty = ws && Date.now() - ws.lastSeenAt < 30_000 ? 0.1 : 1;
+      return { w, score: masteryWeight * rootWeight * recencyPenalty * Math.random() };
+    });
   scored.sort((a, b) => b.score - a.score);
-  return scored[0].w;
+  return scored[0]?.w ?? pool[0] ?? VOCAB[0];
+}
+
+export function setExam(exam: ExamType) {
+  state.exam = exam;
+  persist();
+}
+export function setCheckpointInterval(n: number) {
+  state.checkpointInterval = n;
+  persist();
+}
+
+/** Pick N words for a checkpoint — words the user has learned but not yet
+ * fully mastered, preferring earliest "learning"/"practicing"/"familiar". */
+export function pickCheckpointWords(count: number): VocabWord[] {
+  const pool = examPool();
+  const learned = pool
+    .filter((w) => {
+      const m = state.words[w.id]?.mastery;
+      return m && m !== "unknown";
+    })
+    .sort((a, b) => {
+      const ma = MASTERY_ORDER.indexOf(state.words[a.id].mastery);
+      const mb = MASTERY_ORDER.indexOf(state.words[b.id].mastery);
+      return ma - mb;
+    });
+  return learned.slice(0, count);
+}
+
+/** Record per-word mastery score (0-100) from a checkpoint test. */
+export function applyMasteryScore(wordId: string, score: number) {
+  const prev: WordState = state.words[wordId] ?? blank();
+  let mastery: Mastery = prev.mastery;
+  if (score >= 91) mastery = "mastered";
+  else if (score >= 76) mastery = "familiar";
+  else if (score >= 51) mastery = "practicing";
+  else if (score >= 26) mastery = "learning";
+  state.words[wordId] = { ...prev, mastery, masteryScore: score, lastSeenAt: Date.now() };
+}
+
+export function completeCheckpoint(scores: Record<string, number>, perfect: boolean) {
+  state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
+  state.checkpointsPassed += 1;
+  if (perfect) state.perfectCheckpoints += 1;
+  addXp(100, "Checkpoint Passed", 25);
+  if (perfect) addXp(250, "Perfect Checkpoint!", 75);
+  // milestone rewards
+  const masteredCount = Object.values(state.words).filter((w) => w.mastery === "mastered").length;
+  if (masteredCount >= 10 && masteredCount - Object.keys(scores).length < 10) {
+    addXp(0, "10 Words Mastered", 100);
+  }
+  if (masteredCount >= 25 && masteredCount - Object.keys(scores).length < 25) {
+    addXp(0, "25 Words Mastered — Cosmetic Unlocked", 250);
+  }
+  if (masteredCount >= 100 && masteredCount - Object.keys(scores).length < 100) {
+    addXp(0, "100 Words Mastered — Avatar Item!", 1000);
+  }
+  persist();
 }
 
 /* ---------- Shop / avatar ---------- */
@@ -352,9 +425,8 @@ export function purchaseItem(itemId: string, level: number, cost: number): { ok:
   return { ok: true };
 }
 
-export function equipItem(slot: keyof AvatarEquipped, itemId: string) {
-  if (!state.ownedItems.includes(itemId)) return;
-  state.avatar = { ...state.avatar, [slot]: itemId };
+export function setAvatar(avatar: AvatarConfig) {
+  state.avatar = avatar;
   persist();
 }
 
