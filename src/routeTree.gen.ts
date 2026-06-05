@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCheckpointRouteImport } from './routes/_authenticated/checkpoint'
 import { Route as AuthenticatedAvatarRouteImport } from './routes/_authenticated/avatar'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 
@@ -41,6 +43,16 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCheckpointRoute = AuthenticatedCheckpointRouteImport.update({
+  id: '/checkpoint',
+  path: '/checkpoint',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAvatarRoute = AuthenticatedAvatarRouteImport.update({
   id: '/avatar',
   path: '/avatar',
@@ -57,6 +69,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRoute
   '/avatar': typeof AuthenticatedAvatarRoute
+  '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/shop': typeof AuthenticatedShopRoute
 }
@@ -65,6 +79,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRoute
   '/avatar': typeof AuthenticatedAvatarRoute
+  '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/shop': typeof AuthenticatedShopRoute
 }
@@ -75,14 +91,32 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
+  '/_authenticated/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/app' | '/avatar' | '/onboarding' | '/shop'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/avatar'
+    | '/checkpoint'
+    | '/dashboard'
+    | '/onboarding'
+    | '/shop'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/avatar' | '/onboarding' | '/shop'
+  to:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/avatar'
+    | '/checkpoint'
+    | '/dashboard'
+    | '/onboarding'
+    | '/shop'
   id:
     | '__root__'
     | '/'
@@ -90,6 +124,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/avatar'
+    | '/_authenticated/checkpoint'
+    | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/shop'
   fileRoutesById: FileRoutesById
@@ -137,6 +173,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checkpoint': {
+      id: '/_authenticated/checkpoint'
+      path: '/checkpoint'
+      fullPath: '/checkpoint'
+      preLoaderRoute: typeof AuthenticatedCheckpointRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/avatar': {
       id: '/_authenticated/avatar'
       path: '/avatar'
@@ -157,6 +207,8 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedAvatarRoute: typeof AuthenticatedAvatarRoute
+  AuthenticatedCheckpointRoute: typeof AuthenticatedCheckpointRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
 }
@@ -164,6 +216,8 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedAvatarRoute: AuthenticatedAvatarRoute,
+  AuthenticatedCheckpointRoute: AuthenticatedCheckpointRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
 }
