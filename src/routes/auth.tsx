@@ -19,11 +19,26 @@ const passwordSchema = z
 
 function friendlyError(message: string) {
   const m = message.toLowerCase();
-  if (m.includes("invalid login")) return "Email or password is incorrect.";
-  if (m.includes("already registered") || m.includes("already exists"))
-    return "An account with this email already exists. Try logging in.";
-  if (m.includes("rate")) return "Too many attempts. Please wait a moment and try again.";
-  if (m.includes("network") || m.includes("fetch")) return "Network error. Check your connection.";
+  if (
+    m.includes("invalid login") ||
+    m.includes("invalid credentials") ||
+    m.includes("invalid email or password")
+  )
+    return "That email and password don't match. Double-check and try again.";
+  if (
+    m.includes("already registered") ||
+    m.includes("already exists") ||
+    m.includes("user already") ||
+    m.includes("email exists") ||
+    m.includes("email_exists")
+  )
+    return "An account with this email already exists. Try logging in instead.";
+  if (m.includes("email not confirmed"))
+    return "Please confirm your email before logging in.";
+  if (m.includes("rate") || m.includes("too many"))
+    return "Too many attempts. Please wait a moment and try again.";
+  if (m.includes("network") || m.includes("fetch") || m.includes("failed to fetch"))
+    return "Network error. Check your connection and try again.";
   return message;
 }
 
