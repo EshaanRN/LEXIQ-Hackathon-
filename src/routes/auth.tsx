@@ -19,11 +19,26 @@ const passwordSchema = z
 
 function friendlyError(message: string) {
   const m = message.toLowerCase();
-  if (m.includes("invalid login")) return "Email or password is incorrect.";
-  if (m.includes("already registered") || m.includes("already exists"))
-    return "An account with this email already exists. Try logging in.";
-  if (m.includes("rate")) return "Too many attempts. Please wait a moment and try again.";
-  if (m.includes("network") || m.includes("fetch")) return "Network error. Check your connection.";
+  if (
+    m.includes("invalid login") ||
+    m.includes("invalid credentials") ||
+    m.includes("invalid email or password")
+  )
+    return "That email and password don't match. Double-check and try again.";
+  if (
+    m.includes("already registered") ||
+    m.includes("already exists") ||
+    m.includes("user already") ||
+    m.includes("email exists") ||
+    m.includes("email_exists")
+  )
+    return "An account with this email already exists. Try logging in instead.";
+  if (m.includes("email not confirmed"))
+    return "Please confirm your email before logging in.";
+  if (m.includes("rate") || m.includes("too many"))
+    return "Too many attempts. Please wait a moment and try again.";
+  if (m.includes("network") || m.includes("fetch") || m.includes("failed to fetch"))
+    return "Network error. Check your connection and try again.";
   return message;
 }
 
@@ -69,12 +84,16 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: emailParsed.data,
           password: pwParsed.data,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+        // Supabase returns a user with empty identities array when the email is already registered.
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          throw new Error("An account with this email already exists. Try logging in instead.");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: emailParsed.data,
@@ -83,12 +102,13 @@ function AuthPage() {
         if (error) throw error;
       }
       setHandoff(true);
-      // small delay so the loading screen is visible during route hydration
-      setTimeout(() => navigate({ to: "/", replace: true }), 350);
+      try {
+        sessionStorage.setItem("lexiq:splash-shown", "1");
+      } catch {}
+      navigate({ to: "/", replace: true });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Something went wrong";
       setErr(friendlyError(msg));
-    } finally {
       setLoading(false);
     }
   }
@@ -99,17 +119,26 @@ function AuthPage() {
       setErr("Please accept the Terms and Privacy Policy to continue.");
       return;
     }
+    setLoading(true);
     try {
       const res = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
       if (res.error) {
         setErr(friendlyError(res.error.message ?? "Google sign-in failed"));
+        setLoading(false);
         return;
       }
-      if (!res.redirected) setHandoff(true);
+      if (res.redirected) return; // browser is navigating away
+      // Tokens received & session set — navigate to home which routes by onboarding state.
+      setHandoff(true);
+      try {
+        sessionStorage.setItem("lexiq:splash-shown", "1");
+      } catch {}
+      navigate({ to: "/", replace: true });
     } catch (e: unknown) {
       setErr(friendlyError(e instanceof Error ? e.message : "Google sign-in failed"));
+      setLoading(false);
     }
   }
 

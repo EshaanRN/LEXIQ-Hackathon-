@@ -24,11 +24,11 @@ async function resolveDestination(): Promise<Dest> {
       .select("onboarding_complete")
       .eq("id", user.id)
       .maybeSingle();
-    // Cap the profile lookup at 2.5s — if it stalls, treat as not-onboarded.
+    // Cap the profile lookup at 1.2s — if it stalls, treat as not-onboarded.
     const result = await Promise.race([
       profilePromise,
       new Promise<{ data: null }>((resolve) =>
-        setTimeout(() => resolve({ data: null }), 2500),
+        setTimeout(() => resolve({ data: null }), 1200),
       ),
     ]);
     const profile = (result as { data: { onboarding_complete?: boolean } | null }).data;
