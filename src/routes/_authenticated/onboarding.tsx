@@ -170,7 +170,7 @@ function Onboarding() {
               <p className="mt-4 text-sm text-muted-foreground">You knew {correct} of {quizWords.length}. Let's start mastering the rest.</p>
               <button onClick={finish} disabled={saving}
                 className="mt-10 w-full rounded-full bg-primary py-4 font-display text-base font-bold uppercase tracking-widest text-primary-foreground glow-primary disabled:opacity-60">
-                {saving ? "Preparing your feed..." : "Enter SAT Swipe"}
+                {saving ? "Preparing your feed..." : "Enter Lexiq"}
               </button>
             </div>
           )}
