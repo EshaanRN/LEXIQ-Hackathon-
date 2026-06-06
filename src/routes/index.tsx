@@ -14,7 +14,7 @@ function SplashGate() {
   const navigate = useNavigate();
   const alreadyShown =
     typeof window !== "undefined" && sessionStorage.getItem(SPLASH_SHOWN_KEY) === "1";
-  const [showSplash, setShowSplash] = useState(!alreadyShown);
+  const [tagline, setTagline] = useState("Swipe. Learn. Level up.");
 
   useEffect(() => {
     let cancelled = false;
@@ -22,26 +22,34 @@ function SplashGate() {
     const start = Date.now();
 
     async function go() {
-      const { data } = await supabase.auth.getUser();
-      if (cancelled) return;
       let dest: "/auth" | "/app" | "/onboarding" = "/auth";
-      if (data.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("onboarding_complete")
-          .eq("id", data.user.id)
-          .maybeSingle();
+      try {
+        const { data, error } = await supabase.auth.getUser();
         if (cancelled) return;
-        dest = profile?.onboarding_complete ? "/app" : "/onboarding";
+        if (!error && data.user) {
+          try {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("onboarding_complete")
+              .eq("id", data.user.id)
+              .maybeSingle();
+            if (cancelled) return;
+            dest = profile?.onboarding_complete ? "/app" : "/onboarding";
+          } catch {
+            dest = "/onboarding";
+          }
+        }
+      } catch (e) {
+        console.error("[startup] auth check failed", e);
+        setTagline("Reconnecting…");
       }
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, minDelay - elapsed);
+
+      const wait = Math.max(0, minDelay - (Date.now() - start));
       setTimeout(() => {
         if (cancelled) return;
         try {
           sessionStorage.setItem(SPLASH_SHOWN_KEY, "1");
         } catch {}
-        setShowSplash(false);
         navigate({ to: dest, replace: true });
       }, wait);
     }
@@ -51,5 +59,6 @@ function SplashGate() {
     };
   }, [navigate, alreadyShown]);
 
-  return showSplash ? <Splash /> : null;
+  // Always render splash — never return null so the user never sees a blank screen.
+  return <Splash tagline={tagline} />;
 }
