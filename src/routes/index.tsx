@@ -24,7 +24,7 @@ function SplashGate() {
     async function go() {
       const { data } = await supabase.auth.getUser();
       if (cancelled) return;
-      let dest = "/auth" as const;
+      let dest: "/auth" | "/app" | "/onboarding" = "/auth";
       if (data.user) {
         const { data: profile } = await supabase
           .from("profiles")
@@ -32,7 +32,7 @@ function SplashGate() {
           .eq("id", data.user.id)
           .maybeSingle();
         if (cancelled) return;
-        dest = (profile?.onboarding_complete ? "/app" : "/onboarding") as never;
+        dest = profile?.onboarding_complete ? "/app" : "/onboarding";
       }
       const elapsed = Date.now() - start;
       const wait = Math.max(0, minDelay - elapsed);
