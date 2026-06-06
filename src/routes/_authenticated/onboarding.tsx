@@ -170,7 +170,7 @@ function Onboarding() {
               <p className="mt-4 text-sm text-muted-foreground">You knew {correct} of {quizWords.length}. Let's start mastering the rest.</p>
               <button onClick={finish} disabled={saving}
                 className="mt-10 w-full rounded-full bg-primary py-4 font-display text-base font-bold uppercase tracking-widest text-primary-foreground glow-primary disabled:opacity-60">
-                {saving ? "Preparing your feed..." : "Enter SAT Swipe"}
+                {saving ? "Preparing your feed..." : "Enter Lexiq"}
               </button>
             </div>
           )}
@@ -210,9 +210,16 @@ export function AvatarBuilder({
       <p className="mt-1 text-sm text-muted-foreground">Tap shuffle for a new look. More styles unlock as you level up.</p>
 
       <div className="mt-6 flex flex-col items-center">
-        <Avatar equipped={avatar} size={160} />
+        <motion.div
+          key={`${avatar.style}-${avatar.seed}-${avatar.backgroundColor.join(",")}`}
+          initial={{ scale: 0.9, opacity: 0.6, rotate: -4 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 320, damping: 22 }}
+        >
+          <Avatar equipped={avatar} size={160} />
+        </motion.div>
         <button onClick={() => setAvatar({ ...avatar, seed: randomSeed() })}
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface-2 px-4 py-2 text-sm font-semibold ring-1 ring-border hover:bg-surface">
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface-2 px-4 py-2 text-sm font-semibold ring-1 ring-border transition-all duration-200 hover:bg-surface hover:scale-[1.03] active:scale-95">
           <Shuffle className="h-4 w-4" /> Shuffle look
         </button>
       </div>
@@ -222,40 +229,66 @@ export function AvatarBuilder({
         <TabBtn label="Background" active={tab === "background"} onClick={() => setTab("background")} />
       </div>
 
-      {tab === "style" && (
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {DICEBEAR_STYLES.map((s) => {
-            const unlocked = styleOwned(owned, s.id);
-            const active = avatar.style === s.id;
-            return (
-              <button key={s.id} disabled={!unlocked}
-                onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId })}
-                className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-1 transition ${active ? "ring-primary bg-primary/15" : "ring-border bg-surface-2"} ${!unlocked ? "opacity-40" : ""}`}>
-                <Avatar equipped={{ style: s.id as DicebearStyleId, seed: avatar.seed, backgroundColor: avatar.backgroundColor }} size={56} />
-                <span className="text-[9px] uppercase tracking-widest">{s.name}</span>
-                {!unlocked && "level" in s && <span className="text-[9px] text-muted-foreground">Lv {s.level}</span>}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {tab === "style" && (
+          <motion.div
+            key="style"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="mt-3 grid grid-cols-3 gap-2"
+          >
+            {DICEBEAR_STYLES.map((s) => {
+              const unlocked = styleOwned(owned, s.id);
+              const active = avatar.style === s.id;
+              return (
+                <motion.button
+                  key={s.id}
+                  disabled={!unlocked}
+                  whileHover={unlocked ? { scale: 1.04, y: -2 } : undefined}
+                  whileTap={unlocked ? { scale: 0.95 } : undefined}
+                  onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId })}
+                  className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-1 transition-colors ${active ? "ring-primary bg-primary/15 glow-primary" : "ring-border bg-surface-2 hover:bg-surface"} ${!unlocked ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <Avatar equipped={{ style: s.id as DicebearStyleId, seed: avatar.seed, backgroundColor: avatar.backgroundColor }} size={56} />
+                  <span className="text-[9px] uppercase tracking-widest">{s.name}</span>
+                  {!unlocked && "level" in s && <span className="text-[9px] text-muted-foreground">Lv {s.level}</span>}
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
 
-      {tab === "background" && (
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          {BACKGROUND_PALETTES.map((b) => {
-            const unlocked = bgOwned(owned, b.id);
-            const active = avatar.backgroundColor.join(",") === b.colors.join(",");
-            return (
-              <button key={b.id} disabled={!unlocked}
-                onClick={() => setAvatar({ ...avatar, backgroundColor: b.colors })}
-                className={`flex h-16 flex-col items-center justify-end rounded-2xl p-1 ring-1 ${active ? "ring-primary" : "ring-border"} ${!unlocked ? "opacity-40" : ""}`}
-                style={{ background: `linear-gradient(135deg, ${b.colors.map((c) => "#" + c).join(",")})` }}>
-                <span className="rounded bg-black/50 px-1 text-[8px] uppercase tracking-widest text-white">{b.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+        {tab === "background" && (
+          <motion.div
+            key="bg"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="mt-3 grid grid-cols-4 gap-2"
+          >
+            {BACKGROUND_PALETTES.map((b) => {
+              const unlocked = bgOwned(owned, b.id);
+              const active = avatar.backgroundColor.join(",") === b.colors.join(",");
+              return (
+                <motion.button
+                  key={b.id}
+                  disabled={!unlocked}
+                  whileHover={unlocked ? { scale: 1.05, y: -2 } : undefined}
+                  whileTap={unlocked ? { scale: 0.95 } : undefined}
+                  onClick={() => setAvatar({ ...avatar, backgroundColor: b.colors })}
+                  className={`flex h-16 flex-col items-center justify-end rounded-2xl p-1 ring-2 transition ${active ? "ring-primary glow-primary" : "ring-border"} ${!unlocked ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+                  style={{ background: `linear-gradient(135deg, ${b.colors.map((c) => "#" + c).join(",")})` }}
+                >
+                  <span className="rounded bg-black/50 px-1 text-[8px] uppercase tracking-widest text-white">{b.name}</span>
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {onNext && <NextBtn onClick={onNext} label="Looks Good" />}
     </>
@@ -265,8 +298,9 @@ export function AvatarBuilder({
 function TabBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick}
-      className={`rounded-full py-2 text-[11px] font-semibold uppercase tracking-widest ring-1 ${active ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 text-muted-foreground ring-border"}`}>
+      className={`rounded-full py-2 text-[11px] font-semibold uppercase tracking-widest ring-1 transition-all duration-200 active:scale-95 ${active ? "bg-primary text-primary-foreground ring-primary glow-primary" : "bg-surface-2 text-muted-foreground ring-border hover:text-foreground hover:bg-surface"}`}>
       {label}
     </button>
   );
 }
+

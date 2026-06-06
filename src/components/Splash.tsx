@@ -9,26 +9,21 @@ export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: stri
         <motion.span
           key={i}
           className="absolute h-1 w-1 rounded-full bg-primary"
-          initial={{
-            x: 0,
-            y: 0,
-            opacity: 0,
-            scale: 0,
-          }}
+          initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
           animate={{
             x: Math.cos((i / 18) * Math.PI * 2) * 180,
             y: Math.sin((i / 18) * Math.PI * 2) * 180,
             opacity: [0, 1, 0],
             scale: [0, 1.4, 0.6],
           }}
-          transition={{ delay: 0.6 + i * 0.02, duration: 1.4, ease: "easeOut" }}
+          transition={{ delay: 0.35 + i * 0.015, duration: 1.2, ease: "easeOut" }}
         />
       ))}
 
       <motion.div
         initial={{ scale: 0.4, opacity: 0, rotate: -8 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
-        transition={{ type: "spring", stiffness: 220, damping: 18, delay: 0.2 }}
+        transition={{ type: "spring", stiffness: 240, damping: 18, delay: 0.1 }}
         className="flex flex-col items-center"
       >
         <div
@@ -38,15 +33,15 @@ export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: stri
           <motion.span
             initial={{ y: 8, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.45, duration: 0.4 }}
+            transition={{ delay: 0.3, duration: 0.35 }}
             className="font-display text-5xl font-black text-primary-foreground"
           >
-            SS
+            Lx
           </motion.span>
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.6, 1] }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            transition={{ delay: 0.35, duration: 0.7 }}
             className="absolute -inset-1 -z-10 rounded-3xl bg-primary/30 blur-2xl"
           />
         </div>
@@ -54,15 +49,15 @@ export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: stri
         <motion.h1
           initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.4 }}
-          className="mt-6 font-display text-3xl font-bold tracking-tight text-white"
+          transition={{ delay: 0.5, duration: 0.35 }}
+          className="mt-6 font-display text-4xl font-bold tracking-tight text-white"
         >
-          SAT Swipe
+          Lexiq
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.7 }}
-          transition={{ delay: 1, duration: 0.4 }}
+          transition={{ delay: 0.75, duration: 0.35 }}
           className="mt-2 text-xs uppercase tracking-[0.4em] text-white/60"
         >
           {tagline}
