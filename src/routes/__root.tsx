@@ -148,14 +148,15 @@ function AuthBridge() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) hydrate(data.user.id);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       if (session?.user) {
         hydrate(session.user.id);
       } else {
         clearState();
       }
       router.invalidate();
-      qc.invalidateQueries();
+      if (event !== "SIGNED_OUT") qc.invalidateQueries();
     });
     return () => {
       cancelled = true;
