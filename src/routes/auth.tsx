@@ -65,14 +65,14 @@ function AuthPage() {
           className="grid h-20 w-20 place-items-center rounded-3xl glow-primary"
           style={{ background: "linear-gradient(135deg,var(--color-primary),var(--color-accent))" }}
         >
-          <span className="font-display text-3xl font-black text-primary-foreground">SS</span>
+          <span className="font-display text-3xl font-black text-primary-foreground">Lx</span>
         </motion.div>
         <h1 className="mt-5 font-display text-3xl font-bold text-white">
-          {mode === "signup" ? "Create your account" : "Welcome back"}
+          {mode === "signup" ? "Join Lexiq" : "Welcome back to Lexiq"}
         </h1>
         <p className="mt-2 text-sm text-white/60">
           {mode === "signup"
-            ? "Track your XP, build streaks, master SAT vocab."
+            ? "Track XP, build streaks, master SAT & ACT vocab."
             : "Pick up your streak where you left off."}
         </p>
 
