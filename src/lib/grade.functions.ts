@@ -24,7 +24,9 @@ const GradeSchema = z.object({
 });
 
 export const gradeCheckpointAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => GradeInput.parse(input))
+
   .handler(async ({ data }) => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
