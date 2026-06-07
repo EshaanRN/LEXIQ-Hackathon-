@@ -13,16 +13,18 @@ const SPLASH_SHOWN_KEY = "lexiq:splash-shown";
 type Dest = "/auth" | "/app" | "/onboarding";
 
 /** Wait briefly for a session to appear (covers OAuth redirect handoff). */
-async function waitForSession(maxMs = 2000) {
+type MaybeSession = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
+
+async function waitForSession(maxMs = 2000): Promise<MaybeSession> {
   const { data } = await supabase.auth.getSession();
   if (data.session) return data.session;
 
-  return new Promise<typeof data.session | null>((resolve) => {
+  return new Promise<MaybeSession>((resolve) => {
     let done = false;
-    const finish = (s: typeof data.session | null) => {
+    const finish = (s: MaybeSession) => {
       if (done) return;
       done = true;
-      sub.subscription.unsubscribe();
+      sub.data.subscription.unsubscribe();
       clearTimeout(t);
       resolve(s);
     };
