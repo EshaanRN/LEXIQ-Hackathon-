@@ -71,7 +71,7 @@ function Shop() {
                   </div>
                 ) : (
                   <button disabled={!canBuy}
-                    onClick={() => { const r = purchaseItem(it.id, it.level, it.cost); if (!r.ok && r.reason) alert(r.reason); }}
+                    onClick={async () => { const r = await purchaseItem(it.id, it.level, it.cost); if (!r.ok && r.reason) alert(r.reason); }}
                     className="mt-2 flex w-full items-center justify-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-40">
                     <Coins className="h-3 w-3" /> {it.cost}
                   </button>
