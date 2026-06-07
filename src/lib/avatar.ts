@@ -3,16 +3,16 @@
 
 export const DICEBEAR_STYLES = [
   { id: "adventurer", name: "Adventurer", free: true },
-  { id: "avataaars", name: "Avataaars", free: true },
+  { id: "avataaars", name: "Classic", free: true },
   { id: "big-smile", name: "Big Smile", free: true },
-  { id: "fun-emoji", name: "Fun Emoji", free: true },
-  { id: "lorelei", name: "Lorelei", free: false, level: 5, cost: 300 },
-  { id: "micah", name: "Micah", free: false, level: 8, cost: 400 },
-  { id: "notionists", name: "Notionists", free: false, level: 12, cost: 600 },
-  { id: "personas", name: "Personas", free: false, level: 18, cost: 900 },
-  { id: "pixel-art", name: "Pixel Art", free: false, level: 25, cost: 1200 },
-  { id: "bottts", name: "Robo", free: false, level: 35, cost: 2000 },
-  { id: "shapes", name: "Shapes", free: false, level: 50, cost: 3500 },
+  { id: "fun-emoji", name: "Emoji", free: true },
+  { id: "lorelei", name: "Lorelei", free: true },
+  { id: "micah", name: "Micah", free: true },
+  { id: "notionists", name: "Sketch", free: true },
+  { id: "personas", name: "Persona", free: false, level: 8, cost: 400 },
+  { id: "pixel-art", name: "Pixel", free: false, level: 15, cost: 800 },
+  { id: "bottts", name: "Robo", free: false, level: 25, cost: 1500 },
+  { id: "shapes", name: "Shapes", free: false, level: 40, cost: 3000 },
 ] as const;
 
 export type DicebearStyleId = (typeof DICEBEAR_STYLES)[number]["id"];
@@ -29,10 +29,10 @@ export const BACKGROUND_PALETTES: { id: string; name: string; colors: string[]; 
 ];
 
 export const PRESET_AVATARS: { id: string; name: string; style: DicebearStyleId; seed: string; backgroundColor: string[]; level: number; cost: number; rarity: "common" | "rare" | "epic" | "legendary" }[] = [
-  { id: "preset-scholar", name: "The Scholar", style: "adventurer", seed: "Scholar", backgroundColor: ["b6e3f4"], level: 5, cost: 300, rarity: "common" },
-  { id: "preset-streamer", name: "The Streamer", style: "avataaars", seed: "Streamer", backgroundColor: ["c0aede"], level: 10, cost: 500, rarity: "rare" },
-  { id: "preset-coder", name: "The Coder", style: "pixel-art", seed: "Coder", backgroundColor: ["1a1a2e"], level: 25, cost: 1500, rarity: "epic" },
-  { id: "preset-legend", name: "SAT Legend", style: "bottts", seed: "Legend", backgroundColor: ["fbbf24"], level: 75, cost: 6000, rarity: "legendary" },
+  { id: "preset-scholar", name: "Night Scholar", style: "personas", seed: "NightScholar", backgroundColor: ["1a1a2e", "16213e"], level: 8, cost: 400, rarity: "common" },
+  { id: "preset-streamer", name: "Neon Streamer", style: "personas", seed: "NeonStream", backgroundColor: ["ff6ad5", "ff8b94"], level: 12, cost: 600, rarity: "rare" },
+  { id: "preset-coder", name: "Pixel Coder", style: "pixel-art", seed: "PixelCoder", backgroundColor: ["00f5d4", "00bbf9"], level: 20, cost: 1200, rarity: "epic" },
+  { id: "preset-legend", name: "Golden Legend", style: "bottts", seed: "GoldLegend", backgroundColor: ["fbbf24", "f59e0b"], level: 60, cost: 5000, rarity: "legendary" },
 ];
 
 export interface AvatarConfig {
