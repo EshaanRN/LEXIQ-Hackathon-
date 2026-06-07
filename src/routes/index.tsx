@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Splash } from "@/components/Splash";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
@@ -12,10 +12,30 @@ const SPLASH_SHOWN_KEY = "lexiq:splash-shown";
 
 type Dest = "/auth" | "/app" | "/onboarding";
 
+/** Wait briefly for a session to appear (covers OAuth redirect handoff). */
+async function waitForSession(maxMs = 2000) {
+  const { data } = await supabase.auth.getSession();
+  if (data.session) return data.session;
+
+  return new Promise<typeof data.session | null>((resolve) => {
+    let done = false;
+    const finish = (s: typeof data.session | null) => {
+      if (done) return;
+      done = true;
+      sub.subscription.unsubscribe();
+      clearTimeout(t);
+      resolve(s);
+    };
+    const sub = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) finish(session);
+    });
+    const t = setTimeout(() => finish(null), maxMs);
+  });
+}
+
 async function resolveDestination(): Promise<Dest> {
-  // Prefer getSession (reads from localStorage, no network) so we don't hang on flaky networks.
-  const { data: sessionData } = await supabase.auth.getSession();
-  const user = sessionData.session?.user;
+  const session = await waitForSession();
+  const user = session?.user;
   if (!user) return "/auth";
 
   try {
@@ -24,11 +44,10 @@ async function resolveDestination(): Promise<Dest> {
       .select("onboarding_complete")
       .eq("id", user.id)
       .maybeSingle();
-    // Cap the profile lookup at 1.2s — if it stalls, treat as not-onboarded.
     const result = await Promise.race([
       profilePromise,
       new Promise<{ data: null }>((resolve) =>
-        setTimeout(() => resolve({ data: null }), 1200),
+        setTimeout(() => resolve({ data: null }), 1500),
       ),
     ]);
     const profile = (result as { data: { onboarding_complete?: boolean } | null }).data;
@@ -41,7 +60,7 @@ async function resolveDestination(): Promise<Dest> {
 function SplashGate() {
   const navigate = useNavigate();
   const navigatedRef = useRef(false);
-  const [tagline, setTagline] = useState("Swipe. Learn. Level up.");
+  const [message, setMessage] = useState("Loading Lexiq…");
   const [stuck, setStuck] = useState(false);
 
   useEffect(() => {
@@ -49,7 +68,7 @@ function SplashGate() {
     const alreadyShown =
       typeof window !== "undefined" &&
       sessionStorage.getItem(SPLASH_SHOWN_KEY) === "1";
-    const minDelay = alreadyShown ? 0 : 1000;
+    const minDelay = alreadyShown ? 0 : 800;
     const start = Date.now();
 
     function go(dest: Dest) {
@@ -61,17 +80,15 @@ function SplashGate() {
       navigate({ to: dest, replace: true });
     }
 
-    // Hard safety net: never let splash live past 5s.
     const hardTimeout = setTimeout(() => {
       if (cancelled || navigatedRef.current) return;
       setStuck(true);
       go("/auth");
-    }, 5000);
+    }, 6000);
 
-    // Stuck indicator after 3s
     const stuckHint = setTimeout(() => {
       if (!cancelled && !navigatedRef.current) setStuck(true);
-    }, 3000);
+    }, 3500);
 
     (async () => {
       let dest: Dest = "/auth";
@@ -79,7 +96,7 @@ function SplashGate() {
         dest = await resolveDestination();
       } catch (e) {
         console.error("[startup] failed", e);
-        setTagline("Reconnecting…");
+        setMessage("Reconnecting…");
       }
       if (cancelled) return;
       const wait = Math.max(0, minDelay - (Date.now() - start));
@@ -95,9 +112,9 @@ function SplashGate() {
 
   return (
     <>
-      <Splash tagline={tagline} />
+      <LoadingScreen message={message} />
       {stuck && (
-        <div className="fixed inset-x-0 bottom-10 z-[101] flex justify-center px-4">
+        <div className="fixed inset-x-0 bottom-10 z-[201] flex justify-center px-4">
           <button
             onClick={() => {
               try {
