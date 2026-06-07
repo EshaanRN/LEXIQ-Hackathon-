@@ -414,19 +414,30 @@ export function completeCheckpoint(scores: Record<string, number>, perfect: bool
 
 /* ---------- Shop / avatar ---------- */
 
-export function purchaseItem(itemId: string, level: number, cost: number): { ok: boolean; reason?: string } {
+export async function purchaseItem(itemId: string, level: number, cost: number): Promise<{ ok: boolean; reason?: string }> {
   if (state.ownedItems.includes(itemId)) return { ok: false, reason: "Already owned" };
+  // Optimistic client-side guard for UX only — server is the source of truth.
   if (state.level < level) return { ok: false, reason: `Reach level ${level} first` };
   if (state.coins < cost) return { ok: false, reason: "Not enough coins" };
-  state = {
-    ...state,
-    coins: state.coins - cost,
-    ownedItems: [...state.ownedItems, itemId],
-  };
-  pushToast({ label: "Item unlocked!" });
-  persist();
-  return { ok: true };
+
+  try {
+    const { purchaseShopItem } = await import("@/lib/shop.functions");
+    const res = await purchaseShopItem({ data: { itemId } });
+    if (!res.ok) return { ok: false, reason: res.reason };
+    state = {
+      ...state,
+      coins: res.coins,
+      ownedItems: res.ownedItems,
+    };
+    pushToast({ label: "Item unlocked!" });
+    persist();
+    return { ok: true };
+  } catch (e) {
+    console.warn("purchase failed", e);
+    return { ok: false, reason: "Network error" };
+  }
 }
+
 
 export function setAvatar(avatar: AvatarConfig) {
   state = { ...state, avatar: { ...avatar } };
