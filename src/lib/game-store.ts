@@ -418,15 +418,18 @@ export function purchaseItem(itemId: string, level: number, cost: number): { ok:
   if (state.ownedItems.includes(itemId)) return { ok: false, reason: "Already owned" };
   if (state.level < level) return { ok: false, reason: `Reach level ${level} first` };
   if (state.coins < cost) return { ok: false, reason: "Not enough coins" };
-  state.coins -= cost;
-  state.ownedItems = [...state.ownedItems, itemId];
+  state = {
+    ...state,
+    coins: state.coins - cost,
+    ownedItems: [...state.ownedItems, itemId],
+  };
   pushToast({ label: "Item unlocked!" });
   persist();
   return { ok: true };
 }
 
 export function setAvatar(avatar: AvatarConfig) {
-  state.avatar = avatar;
+  state = { ...state, avatar: { ...avatar } };
   persist();
 }
 
