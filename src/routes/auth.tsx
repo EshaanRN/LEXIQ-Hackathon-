@@ -142,7 +142,19 @@ function AuthPage() {
     }
   }
 
-  if (handoff) return <LoadingScreen message="Signing you in…" />;
+  if (handoff || loading) {
+    return (
+      <LoadingScreen
+        message={
+          handoff
+            ? "Signing you in…"
+            : mode === "signup"
+            ? "Creating your account…"
+            : "Logging you in…"
+        }
+      />
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black px-6 py-10">

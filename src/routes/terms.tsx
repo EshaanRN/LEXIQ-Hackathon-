@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/terms")({
   ssr: false,
@@ -6,14 +6,19 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
+  const router = useRouter();
   return (
     <main className="min-h-screen bg-black px-6 py-10 text-white">
       <div className="mx-auto max-w-2xl">
-        <Link to="/auth" className="text-xs uppercase tracking-widest text-white/60 hover:text-white">
+        <button
+          onClick={() => router.history.back()}
+          className="text-xs uppercase tracking-widest text-white/60 hover:text-white"
+        >
           ← Back
-        </Link>
+        </button>
         <h1 className="mt-4 font-display text-3xl font-bold">Terms & Privacy</h1>
         <p className="mt-2 text-sm text-white/60">Last updated: June 6, 2026</p>
+
 
         <section className="mt-8 max-h-[70vh] space-y-6 overflow-y-auto rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-white/80">
           <Block title="1. Acceptance of Terms">
