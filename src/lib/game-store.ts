@@ -361,7 +361,10 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
   addXp(25, "Learned New Word", 5);
-  if (wasNew) state.wordsLearnedTotal += 1;
+  if (wasNew) {
+    state.wordsLearnedTotal += 1;
+    pendingWordsLearned += 1;
+  }
   if (becameMastered && wasMissed) addXp(50, "Mastered Missed Word", 25);
   checkRootMastery(word.root);
   persist();
