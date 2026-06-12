@@ -251,7 +251,7 @@ export function AvatarBuilder({
                   onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId })}
                   className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-1 transition-colors ${active ? "ring-primary bg-primary/15 glow-primary" : "ring-border bg-surface-2 hover:bg-surface"} ${!unlocked ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                  <Avatar equipped={{ style: s.id as DicebearStyleId, seed: avatar.seed, backgroundColor: avatar.backgroundColor }} size={56} />
+                  <Avatar equipped={{ style: s.id as DicebearStyleId, seed: `preview-${s.id}`, backgroundColor: avatar.backgroundColor }} size={56} />
                   <span className="text-[9px] uppercase tracking-widest">{s.name}</span>
                   {!unlocked && "level" in s && <span className="text-[9px] text-muted-foreground">Lv {s.level}</span>}
                 </motion.button>
