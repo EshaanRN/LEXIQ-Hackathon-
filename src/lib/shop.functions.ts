@@ -9,15 +9,13 @@ export const purchaseShopItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => Input.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context as {
-      supabase: import("@supabase/supabase-js").SupabaseClient;
-      userId: string;
-    };
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const item = getShopItems().find((i) => i.id === data.itemId);
     if (!item) return { ok: false as const, reason: "Unknown item" };
 
-    const { data: profile, error: readErr } = await supabase
+    const { data: profile, error: readErr } = await supabaseAdmin
       .from("profiles")
       .select("coins, level, owned_items")
       .eq("id", userId)
@@ -32,9 +30,7 @@ export const purchaseShopItem = createServerFn({ method: "POST" })
     const newCoins = profile.coins - item.cost;
     const newOwned = [...owned, item.id];
 
-    // Atomic-ish conditional update: only succeeds if coins still sufficient
-    // and item still not owned (basic check; race window is tiny per-user).
-    const { data: updated, error: updErr } = await supabase
+    const { data: updated, error: updErr } = await supabaseAdmin
       .from("profiles")
       .update({ coins: newCoins, owned_items: newOwned })
       .eq("id", userId)
@@ -46,3 +42,4 @@ export const purchaseShopItem = createServerFn({ method: "POST" })
 
     return { ok: true as const, coins: updated.coins, ownedItems: updated.owned_items as string[] };
   });
+
