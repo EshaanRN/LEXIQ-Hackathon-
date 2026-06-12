@@ -21,8 +21,11 @@ export const awardEconomy = createServerFn({ method: "POST" })
     wordsLearnedDelta: Math.max(0, Math.min(1000, Math.floor(d?.wordsLearnedDelta ?? 0))),
   }))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: row, error } = await supabase
+    const { userId } = context;
+    // Economy columns are server-authoritative — authenticated role has no
+    // UPDATE grant on xp/coins/level/words_learned_total. Use admin client.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select("xp, coins, words_learned_total")
       .eq("id", userId)
@@ -33,13 +36,13 @@ export const awardEconomy = createServerFn({ method: "POST" })
     const newCoins = (row?.coins ?? 0) + data.coins;
     const newWld = (row?.words_learned_total ?? 0) + data.wordsLearnedDelta;
     const prevLevel = levelForXp(row?.xp ?? 0);
-    let newLevel = levelForXp(newXp);
+    const newLevel = levelForXp(newXp);
     let finalCoins = newCoins;
     if (newLevel > prevLevel) {
       finalCoins += (newLevel - prevLevel) * 100;
     }
 
-    const { error: upErr } = await supabase
+    const { error: upErr } = await supabaseAdmin
       .from("profiles")
       .update({
         xp: newXp,
@@ -52,3 +55,4 @@ export const awardEconomy = createServerFn({ method: "POST" })
 
     return { xp: newXp, coins: finalCoins, level: newLevel, wordsLearnedTotal: newWld };
   });
+
