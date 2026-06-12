@@ -86,6 +86,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Swipe. Learn. Level up. The smartest way to master SAT vocab." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Lexiq — Master SAT & ACT Vocabulary" },
+      { name: "twitter:description", content: "Swipe. Learn. Level up. The smartest way to master SAT vocab." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

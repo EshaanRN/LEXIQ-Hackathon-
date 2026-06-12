@@ -122,24 +122,70 @@ function scheduleProfileSync() {
 async function syncProfile() {
   if (!state.userId) return;
   try {
+    // NOTE: xp, coins, level, words_learned_total, and owned_items are
+    // server-authoritative — they're only mutated by economy/shop server fns.
+    // Syncing them from client state would let a tampered localStorage
+    // forge balances.
     await supabase
       .from("profiles")
       .update({
-        xp: state.xp,
-        coins: state.coins,
-        level: state.level,
         avatar: state.avatar as never,
-        owned_items: state.ownedItems,
         equipped: state.avatar as never,
         exam: state.exam,
         checkpoint_interval: state.checkpointInterval,
-        words_learned_total: state.wordsLearnedTotal,
       })
       .eq("id", state.userId);
   } catch (e) {
     console.warn("profile sync failed", e);
   }
 }
+
+// --- Server-authoritative economy queue ---
+let pendingXp = 0;
+let pendingCoins = 0;
+let pendingWordsLearned = 0;
+let economyTimer: ReturnType<typeof setTimeout> | null = null;
+let economyInFlight = false;
+
+function scheduleEconomyFlush() {
+  if (typeof window === "undefined" || !state.userId) return;
+  if (economyTimer) clearTimeout(economyTimer);
+  economyTimer = setTimeout(flushEconomy, 800);
+}
+
+async function flushEconomy() {
+  if (!state.userId || economyInFlight) return;
+  if (pendingXp === 0 && pendingCoins === 0 && pendingWordsLearned === 0) return;
+  const xp = pendingXp;
+  const coins = pendingCoins;
+  const wld = pendingWordsLearned;
+  pendingXp = 0;
+  pendingCoins = 0;
+  pendingWordsLearned = 0;
+  economyInFlight = true;
+  try {
+    const { awardEconomy } = await import("@/lib/economy.functions");
+    const res = await awardEconomy({ data: { xp, coins, wordsLearnedDelta: wld } });
+    state = {
+      ...state,
+      xp: res.xp,
+      coins: res.coins,
+      level: res.level,
+      wordsLearnedTotal: res.wordsLearnedTotal,
+      rank: rankFor(res.xp),
+    };
+    notify();
+  } catch (e) {
+    // Roll the deltas back in so we retry next flush.
+    pendingXp += xp;
+    pendingCoins += coins;
+    pendingWordsLearned += wld;
+    console.warn("economy flush failed", e);
+  } finally {
+    economyInFlight = false;
+  }
+}
+
 
 export function loadStateForUser(userId: string) {
   if (state.userId === userId) return;
@@ -232,12 +278,18 @@ function addXp(amount: number, label: string, coins = 0) {
   state.level = lvl.level;
   state.rank = rankFor(state.xp);
   pushToast({ xp: amount || undefined, coins: coins || undefined, label });
+  // Queue for server-authoritative reconciliation. Level-up bonus coins are
+  // computed server-side as well, so we don't queue them here.
+  if (amount > 0) pendingXp += amount;
+  if (coins > 0) pendingCoins += coins;
   if (state.level > prevLevel) {
     const coinReward = (state.level - prevLevel) * 100;
     state.coins += coinReward;
     pushToast({ xp: undefined, coins: coinReward, label: `Level ${state.level}!` });
   }
+  scheduleEconomyFlush();
 }
+
 
 export function tickActive() {
   const now = Date.now();
@@ -309,7 +361,10 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
   addXp(25, "Learned New Word", 5);
-  if (wasNew) state.wordsLearnedTotal += 1;
+  if (wasNew) {
+    state.wordsLearnedTotal += 1;
+    pendingWordsLearned += 1;
+  }
   if (becameMastered && wasMissed) addXp(50, "Mastered Missed Word", 25);
   checkRootMastery(word.root);
   persist();
