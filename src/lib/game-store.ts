@@ -278,12 +278,18 @@ function addXp(amount: number, label: string, coins = 0) {
   state.level = lvl.level;
   state.rank = rankFor(state.xp);
   pushToast({ xp: amount || undefined, coins: coins || undefined, label });
+  // Queue for server-authoritative reconciliation. Level-up bonus coins are
+  // computed server-side as well, so we don't queue them here.
+  if (amount > 0) pendingXp += amount;
+  if (coins > 0) pendingCoins += coins;
   if (state.level > prevLevel) {
     const coinReward = (state.level - prevLevel) * 100;
     state.coins += coinReward;
     pushToast({ xp: undefined, coins: coinReward, label: `Level ${state.level}!` });
   }
+  scheduleEconomyFlush();
 }
+
 
 export function tickActive() {
   const now = Date.now();
