@@ -122,24 +122,70 @@ function scheduleProfileSync() {
 async function syncProfile() {
   if (!state.userId) return;
   try {
+    // NOTE: xp, coins, level, words_learned_total, and owned_items are
+    // server-authoritative — they're only mutated by economy/shop server fns.
+    // Syncing them from client state would let a tampered localStorage
+    // forge balances.
     await supabase
       .from("profiles")
       .update({
-        xp: state.xp,
-        coins: state.coins,
-        level: state.level,
         avatar: state.avatar as never,
-        owned_items: state.ownedItems,
         equipped: state.avatar as never,
         exam: state.exam,
         checkpoint_interval: state.checkpointInterval,
-        words_learned_total: state.wordsLearnedTotal,
       })
       .eq("id", state.userId);
   } catch (e) {
     console.warn("profile sync failed", e);
   }
 }
+
+// --- Server-authoritative economy queue ---
+let pendingXp = 0;
+let pendingCoins = 0;
+let pendingWordsLearned = 0;
+let economyTimer: ReturnType<typeof setTimeout> | null = null;
+let economyInFlight = false;
+
+function scheduleEconomyFlush() {
+  if (typeof window === "undefined" || !state.userId) return;
+  if (economyTimer) clearTimeout(economyTimer);
+  economyTimer = setTimeout(flushEconomy, 800);
+}
+
+async function flushEconomy() {
+  if (!state.userId || economyInFlight) return;
+  if (pendingXp === 0 && pendingCoins === 0 && pendingWordsLearned === 0) return;
+  const xp = pendingXp;
+  const coins = pendingCoins;
+  const wld = pendingWordsLearned;
+  pendingXp = 0;
+  pendingCoins = 0;
+  pendingWordsLearned = 0;
+  economyInFlight = true;
+  try {
+    const { awardEconomy } = await import("@/lib/economy.functions");
+    const res = await awardEconomy({ data: { xp, coins, wordsLearnedDelta: wld } });
+    state = {
+      ...state,
+      xp: res.xp,
+      coins: res.coins,
+      level: res.level,
+      wordsLearnedTotal: res.wordsLearnedTotal,
+      rank: rankFor(res.xp),
+    };
+    notify();
+  } catch (e) {
+    // Roll the deltas back in so we retry next flush.
+    pendingXp += xp;
+    pendingCoins += coins;
+    pendingWordsLearned += wld;
+    console.warn("economy flush failed", e);
+  } finally {
+    economyInFlight = false;
+  }
+}
+
 
 export function loadStateForUser(userId: string) {
   if (state.userId === userId) return;
