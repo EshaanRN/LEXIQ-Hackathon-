@@ -20,6 +20,11 @@ function Feed() {
   const [learning, setLearning] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
 
+  // a11y: provide a single descriptive h1 for the main feed (visually hidden)
+  // rendered below inside the main wrapper via React.Fragment hack not needed —
+  // we inject it at the top of the rendered JSX in the return statement.
+
+
   useEffect(() => {
     const initial: VocabWord[] = [];
     let last: string | undefined;
