@@ -9,6 +9,16 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 export const Route = createFileRoute("/auth")({
   ssr: false,
   component: AuthPage,
+  head: () => ({
+    meta: [
+      { title: "Sign In · Lexiq" },
+      { name: "description", content: "Sign in or create a free Lexiq account to start mastering SAT and ACT vocabulary with the swipe game." },
+      { property: "og:title", content: "Sign In · Lexiq" },
+      { property: "og:description", content: "Sign in or create a free Lexiq account to start mastering SAT and ACT vocabulary." },
+      { property: "og:url", content: "https://learnlexiq.com/auth" },
+    ],
+    links: [{ rel: "canonical", href: "https://learnlexiq.com/auth" }],
+  }),
 });
 
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);

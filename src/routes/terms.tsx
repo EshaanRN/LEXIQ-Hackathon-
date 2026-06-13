@@ -3,6 +3,16 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 export const Route = createFileRoute("/terms")({
   ssr: false,
   component: TermsPage,
+  head: () => ({
+    meta: [
+      { title: "Terms & Privacy · Lexiq" },
+      { name: "description", content: "Read the Lexiq Terms of Service and Privacy Policy covering accounts, acceptable use, data storage, and your rights." },
+      { property: "og:title", content: "Terms & Privacy · Lexiq" },
+      { property: "og:description", content: "Lexiq Terms of Service and Privacy Policy — accounts, acceptable use, and data practices." },
+      { property: "og:url", content: "https://learnlexiq.com/terms" },
+    ],
+    links: [{ rel: "canonical", href: "https://learnlexiq.com/terms" }],
+  }),
 });
 
 function TermsPage() {
