@@ -20,9 +20,8 @@ function Feed() {
   const [learning, setLearning] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
 
-  // a11y: provide a single descriptive h1 for the main feed (visually hidden)
-  // rendered below inside the main wrapper via React.Fragment hack not needed —
-  // we inject it at the top of the rendered JSX in the return statement.
+
+
 
 
   useEffect(() => {
@@ -90,6 +89,7 @@ function Feed() {
 
   return (
     <main className="mx-auto flex h-screen w-full max-w-2xl flex-col">
+      <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
 
