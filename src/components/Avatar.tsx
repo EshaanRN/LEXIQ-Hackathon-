@@ -37,7 +37,7 @@ export function Avatar({ equipped, size = 96, className = "" }: Props) {
       {dataUri && (
         <img
           src={dataUri}
-          alt="avatar"
+          alt="User avatar"
           width={size}
           height={size}
           className="h-full w-full object-cover"

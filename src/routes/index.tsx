@@ -114,6 +114,7 @@ function SplashGate() {
 
   return (
     <>
+      <h1 className="sr-only">Lexiq — SAT &amp; ACT vocabulary swipe game</h1>
       <LoadingScreen message={message} />
       {stuck && (
         <div className="fixed inset-x-0 bottom-10 z-[201] flex justify-center px-4">

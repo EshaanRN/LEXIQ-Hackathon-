@@ -100,6 +100,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Lexiq",
+          url: "https://learnlexiq.com",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Lexiq",
+          url: "https://learnlexiq.com",
+          logo: "https://learnlexiq.com/favicon.ico",
+          description: "Lexiq turns SAT and ACT vocabulary into an addictive swipe game so students learn high-frequency words faster.",
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

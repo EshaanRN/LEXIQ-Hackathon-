@@ -40,7 +40,7 @@ function AvatarPage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pt-6 pb-24">
       <div className="flex items-center gap-3">
-        <Link to="/app" className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border">
+        <Link to="/app" aria-label="Back to app" className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <h1 className="font-display text-xl font-bold">Your Avatar</h1>
