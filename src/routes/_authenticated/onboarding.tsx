@@ -44,6 +44,7 @@ function Onboarding() {
   const [quizIdx, setQuizIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [saving, setSaving] = useState(false);
+  const completeOnboarding = useServerFn(completeOnboardingFn);
 
   const quizWords = VOCAB.slice(0, 5);
 
