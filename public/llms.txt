@@ -1,0 +1,9 @@
+# Lexiq
+
+> Lexiq is a swipe-based SAT and ACT vocabulary game that helps students learn high-value test words through short cards, checkpoints, and AI feedback.
+
+## Pages
+
+- [Home](/): Overview of the Lexiq vocabulary game and how it helps with SAT/ACT prep.
+- [Sign in](/auth): Sign in or create a free Lexiq account.
+- [Terms & Privacy](/terms): Terms of use and privacy policy for Lexiq.

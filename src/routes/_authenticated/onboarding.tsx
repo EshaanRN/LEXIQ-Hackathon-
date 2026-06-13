@@ -2,7 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+
+import { useServerFn } from "@tanstack/react-start";
+import { completeOnboarding as completeOnboardingFn } from "@/lib/onboarding.functions";
 import { Avatar } from "@/components/Avatar";
 import {
   DICEBEAR_STYLES,
@@ -42,6 +44,7 @@ function Onboarding() {
   const [quizIdx, setQuizIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [saving, setSaving] = useState(false);
+  const completeOnboarding = useServerFn(completeOnboardingFn);
 
   const quizWords = VOCAB.slice(0, 5);
 
@@ -61,25 +64,29 @@ function Onboarding() {
   async function finish() {
     setSaving(true);
     const startingRank = rankFromScore(correct);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        username: username.trim() || `Player${Math.floor(Math.random() * 9999)}`,
-        avatar: avatar as never,
-        equipped: avatar as never,
-        owned_items: defaultOwned(),
-        interests,
-        starting_rank: startingRank,
-        exam,
-        onboarding_complete: true,
-      })
-      .eq("id", user.id);
-    if (error) { setSaving(false); alert(error.message); return; }
+    const finalUsername = username.trim() || `Player${Math.floor(Math.random() * 9999)}`;
+    const owned = defaultOwned();
+    try {
+      await completeOnboarding({
+        data: {
+          username: finalUsername,
+          avatar: avatar as unknown as Record<string, unknown>,
+          ownedItems: owned,
+          interests,
+          startingRank,
+          exam,
+        },
+      });
+    } catch (e) {
+      setSaving(false);
+      alert(e instanceof Error ? e.message : "Couldn't save your profile. Try again.");
+      return;
+    }
     loadStateForUser(user.id);
     applyProfile({
-      username: username.trim() || null,
+      username: finalUsername,
       avatar,
-      owned_items: defaultOwned(),
+      owned_items: owned,
       exam,
     });
     navigate({ to: "/app", replace: true });
@@ -248,7 +255,7 @@ export function AvatarBuilder({
                   disabled={!unlocked}
                   whileHover={unlocked ? { scale: 1.04, y: -2 } : undefined}
                   whileTap={unlocked ? { scale: 0.95 } : undefined}
-                  onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId })}
+                  onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId, seed: `preview-${s.id}` })}
                   className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-1 transition-colors ${active ? "ring-primary bg-primary/15 glow-primary" : "ring-border bg-surface-2 hover:bg-surface"} ${!unlocked ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <Avatar equipped={{ style: s.id as DicebearStyleId, seed: `preview-${s.id}`, backgroundColor: avatar.backgroundColor }} size={56} />
