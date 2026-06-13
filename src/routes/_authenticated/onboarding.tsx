@@ -255,7 +255,7 @@ export function AvatarBuilder({
                   disabled={!unlocked}
                   whileHover={unlocked ? { scale: 1.04, y: -2 } : undefined}
                   whileTap={unlocked ? { scale: 0.95 } : undefined}
-                  onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId })}
+                  onClick={() => setAvatar({ ...avatar, style: s.id as DicebearStyleId, seed: `preview-${s.id}` })}
                   className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-1 transition-colors ${active ? "ring-primary bg-primary/15 glow-primary" : "ring-border bg-surface-2 hover:bg-surface"} ${!unlocked ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <Avatar equipped={{ style: s.id as DicebearStyleId, seed: `preview-${s.id}`, backgroundColor: avatar.backgroundColor }} size={56} />
