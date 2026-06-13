@@ -61,25 +61,29 @@ function Onboarding() {
   async function finish() {
     setSaving(true);
     const startingRank = rankFromScore(correct);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        username: username.trim() || `Player${Math.floor(Math.random() * 9999)}`,
-        avatar: avatar as never,
-        equipped: avatar as never,
-        owned_items: defaultOwned(),
-        interests,
-        starting_rank: startingRank,
-        exam,
-        onboarding_complete: true,
-      })
-      .eq("id", user.id);
-    if (error) { setSaving(false); alert(error.message); return; }
+    const finalUsername = username.trim() || `Player${Math.floor(Math.random() * 9999)}`;
+    const owned = defaultOwned();
+    try {
+      await completeOnboarding({
+        data: {
+          username: finalUsername,
+          avatar: avatar as unknown as Record<string, unknown>,
+          ownedItems: owned,
+          interests,
+          startingRank,
+          exam,
+        },
+      });
+    } catch (e) {
+      setSaving(false);
+      alert(e instanceof Error ? e.message : "Couldn't save your profile. Try again.");
+      return;
+    }
     loadStateForUser(user.id);
     applyProfile({
-      username: username.trim() || null,
+      username: finalUsername,
       avatar,
-      owned_items: defaultOwned(),
+      owned_items: owned,
       exam,
     });
     navigate({ to: "/app", replace: true });
