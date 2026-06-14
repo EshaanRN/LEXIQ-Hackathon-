@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
 
 const SPLASH_SHOWN_KEY = "lexiq:splash-shown";
 
-type Dest = "/auth" | "/app" | "/onboarding";
+type Dest = "/welcome" | "/app" | "/onboarding";
 
 /** Wait briefly for a session to appear (covers OAuth redirect handoff). */
 type MaybeSession = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
