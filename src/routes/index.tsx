@@ -67,11 +67,6 @@ function SplashGate() {
 
   useEffect(() => {
     let cancelled = false;
-    const alreadyShown =
-      typeof window !== "undefined" &&
-      sessionStorage.getItem(SPLASH_SHOWN_KEY) === "1";
-    const minDelay = alreadyShown ? 0 : 800;
-    const start = Date.now();
 
     function go(dest: Dest) {
       if (cancelled || navigatedRef.current) return;
@@ -82,18 +77,21 @@ function SplashGate() {
       navigate({ to: dest, replace: true });
     }
 
-    const hardTimeout = setTimeout(() => {
-      if (cancelled || navigatedRef.current) return;
-      setStuck(true);
-      go("/welcome");
-    }, 6000);
-
-    const stuckHint = setTimeout(() => {
-      if (!cancelled && !navigatedRef.current) setStuck(true);
-    }, 3500);
-
+    // Fast path: no session at all → straight to /welcome, no splash delay.
     (async () => {
-      let dest: Dest = "/welcome";
+      const { data } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (!data.session) {
+        go("/welcome");
+        return;
+      }
+      // Signed in — resolve onboarding vs app.
+      const alreadyShown =
+        typeof window !== "undefined" &&
+        sessionStorage.getItem(SPLASH_SHOWN_KEY) === "1";
+      const minDelay = alreadyShown ? 0 : 400;
+      const start = Date.now();
+      let dest: Dest = "/app";
       try {
         dest = await resolveDestination();
       } catch (e) {
@@ -104,6 +102,16 @@ function SplashGate() {
       const wait = Math.max(0, minDelay - (Date.now() - start));
       setTimeout(() => go(dest), wait);
     })();
+
+    const hardTimeout = setTimeout(() => {
+      if (cancelled || navigatedRef.current) return;
+      setStuck(true);
+      go("/welcome");
+    }, 6000);
+
+    const stuckHint = setTimeout(() => {
+      if (!cancelled && !navigatedRef.current) setStuck(true);
+    }, 3500);
 
     return () => {
       cancelled = true;
