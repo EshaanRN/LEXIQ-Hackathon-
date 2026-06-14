@@ -93,15 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      // Non-render-blocking Google Fonts: load as "print" media then swap to "all" on load.
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap",
-        media: "print",
-        onLoad: "this.media='all'",
-      } as any,
+      // Fonts are self-hosted via @fontsource (imported in src/styles.css) — no Google Fonts round-trip.
     ],
     scripts: [
       {
