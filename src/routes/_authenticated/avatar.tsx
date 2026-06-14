@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, LogOut, FileText, Check } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "@/components/Avatar";
-import { BottomNav } from "@/components/BottomNav";
 import { XPToast } from "@/components/XPToast";
 import { clearState, setAvatar, useGame } from "@/lib/game-store";
 import { PRESET_AVATARS } from "@/lib/avatar";
@@ -110,7 +109,6 @@ function AvatarPage() {
         </button>
       </div>
 
-      <BottomNav />
       <XPToast />
     </main>
   );

@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { BottomNav } from "@/components/BottomNav";
 import { XPToast } from "@/components/XPToast";
 import {
   applyMasteryScore,
@@ -146,7 +145,6 @@ function CheckpointPage() {
 
       {phase === "results" && <CheckpointResults results={results} onDone={() => setPhase("intro")} />}
 
-      <BottomNav />
       <XPToast />
     </main>
   );

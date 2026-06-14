@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ArrowLeft, Coins, Zap, Flame, Trophy, Target, BookOpen, Mic } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
 import { Avatar } from "@/components/Avatar";
 import { levelForXp, useGame, useMounted } from "@/lib/game-store";
 import { VOCAB } from "@/data/vocab";
@@ -85,7 +84,6 @@ function Dashboard() {
         Take a Checkpoint
       </Link>
 
-      <BottomNav />
     </main>
   );
 }

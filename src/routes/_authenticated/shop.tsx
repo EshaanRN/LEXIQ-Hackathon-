@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Coins, Lock, Check } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
 import { XPToast } from "@/components/XPToast";
 import { Avatar } from "@/components/Avatar";
 import { purchaseItem, setAvatar, useGame } from "@/lib/game-store";
@@ -82,7 +81,6 @@ function Shop() {
         })}
       </div>
 
-      <BottomNav />
       <XPToast />
     </main>
   );

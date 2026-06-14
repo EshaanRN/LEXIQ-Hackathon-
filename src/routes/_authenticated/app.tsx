@@ -5,7 +5,6 @@ import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
-import { BottomNav } from "@/components/BottomNav";
 import { markKnown, markUnknown, markLearned, nextWord, tickActive } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
@@ -117,7 +116,6 @@ function Feed() {
         ← Learn · → Know it · Space = open sheet
       </p>
 
-      <BottomNav />
       <XPToast />
       <LearnSheet word={learning} onLearned={handleLearned} onSkip={handleSkipLearn} />
 
