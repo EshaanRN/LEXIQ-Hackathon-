@@ -294,6 +294,41 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+function QuestionFeedback({ scored, isLast, onNext }: { scored: Scored; isLast: boolean; onNext: () => void }) {
+  const correct = scored.totalScore >= 76;
+  return (
+    <div className="mt-6 space-y-4">
+      <div className={`rounded-3xl border p-6 text-center ${correct ? "border-success/40 bg-success/10" : "border-danger/40 bg-danger/10"}`}>
+        {correct ? <CheckCircle2 className="mx-auto h-10 w-10 text-success" /> : <XCircle className="mx-auto h-10 w-10 text-danger" />}
+        <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">{correct ? "Nice work" : "Not quite"}</p>
+        <h2 className="mt-1 font-display text-4xl font-bold">{scored.word.word}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">{scored.word.pronunciation} · {scored.word.partOfSpeech}</p>
+        <div className="mt-3 font-display text-5xl font-bold text-gradient-primary tabular-nums">{scored.totalScore}</div>
+      </div>
+
+      <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
+        <p className="text-[10px] uppercase tracking-widest text-primary">Correct definition</p>
+        <p className="mt-1 text-sm">{scored.word.studentDefinition}</p>
+      </div>
+
+      <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
+        <p className="text-[10px] uppercase tracking-widest text-primary">AI feedback</p>
+        <p className="mt-1 text-sm">{scored.feedback}</p>
+        <div className="mt-3 flex gap-3 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span>Pron {scored.pronunciationScore}</span>
+          <span>Def {scored.definitionScore}</span>
+          <span>Ctx {scored.contextScore}</span>
+        </div>
+      </div>
+
+      <button onClick={onNext}
+        className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary">
+        {isLast ? "See Results" : "Next Word"}
+      </button>
+    </div>
+  );
+}
+
 function CheckpointResults({ results, onDone }: { results: Scored[]; onDone: () => void }) {
   const avg = useMemo(() => Math.round(results.reduce((s, r) => s + r.totalScore, 0) / Math.max(1, results.length)), [results]);
   const perfect = avg >= 95;
