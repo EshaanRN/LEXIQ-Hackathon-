@@ -60,9 +60,10 @@
   --popover: oklch(0.22 0.025 270);
   --popover-foreground: oklch(0.98 0.005 270);
 
-  /* Electric lime */
-  --primary: oklch(0.88 0.22 130);
-  --primary-foreground: oklch(0.18 0.02 270);
+  /* Vivid purple */
+  --primary: oklch(0.62 0.24 295);
+  --primary-foreground: oklch(0.98 0.005 270);
+
 
   --secondary: oklch(0.28 0.03 270);
   --secondary-foreground: oklch(0.98 0.005 270);
