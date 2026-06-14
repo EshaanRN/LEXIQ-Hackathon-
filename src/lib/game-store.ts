@@ -13,7 +13,14 @@ interface WordState {
   lastSeenAt: number;
   /** 0-100 from checkpoint testing */
   masteryScore?: number;
+  /** wordsLearnedTotal snapshot when this word became known/mastered/familiar */
+  knownAtTotal?: number;
 }
+
+// Re-show a known/mastered word for a refresher only after the user has
+// learned this many NEW words in between. Picked randomly above this floor
+// so the user keeps seeing new vocabulary first.
+const REFRESHER_COOLDOWN = 120;
 
 interface GameState {
   userId: string | null;
@@ -319,11 +326,13 @@ export function markKnown(word: VocabWord) {
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
+    knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
   checkRootMastery(word.root);
   persist();
 }
+
 
 
 export function markUnknown(word: VocabWord) {
@@ -357,6 +366,10 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
+    knownAtTotal:
+      nextMastery === "mastered" || nextMastery === "familiar"
+        ? prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0)
+        : prev.knownAtTotal,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
@@ -395,18 +408,25 @@ export function examPool(): VocabWord[] {
 
 export function nextWord(exclude?: string): VocabWord {
   const pool = examPool();
+  const total = state.wordsLearnedTotal;
   const candidates = pool.filter((w) => {
     if (w.id === exclude) return false;
-    const m = state.words[w.id]?.mastery;
-    // Don't repeat words the user already knows or has mastered.
-    return m !== "mastered" && m !== "familiar";
+    const ws = state.words[w.id];
+    const m = ws?.mastery;
+    if (m !== "mastered" && m !== "familiar") return true;
+    // Refresher eligibility: only after the user has learned enough NEW
+    // words since this one was last marked known, and even then only
+    // occasionally so new vocab keeps flowing.
+    const since = total - (ws?.knownAtTotal ?? total);
+    if (since < REFRESHER_COOLDOWN) return false;
+    return Math.random() < 0.08;
   });
   // If everything is learned, fall back to the full pool so the feed never dies.
   const source = candidates.length > 0 ? candidates : pool.filter((w) => w.id !== exclude);
   const scored = source.map((w) => {
     const ws = state.words[w.id];
     const masteryWeight = ws
-      ? { unknown: 5, learning: 6, practicing: 4, familiar: 2, mastered: 0.2 }[ws.mastery]
+      ? { unknown: 5, learning: 6, practicing: 4, familiar: 1.2, mastered: 0.6 }[ws.mastery]
       : 5;
     const rootWeight = Math.max(1, 4 - (state.rootStrength[w.root] ?? 0));
     const recencyPenalty = ws && Date.now() - ws.lastSeenAt < 30_000 ? 0.1 : 1;
@@ -415,6 +435,15 @@ export function nextWord(exclude?: string): VocabWord {
   scored.sort((a, b) => b.score - a.score);
   return scored[0]?.w ?? pool[0] ?? VOCAB[0];
 }
+
+
+export function snoozeCheckpoint() {
+  // Push the next prompt one full interval ahead so the user isn't nagged
+  // word-after-word once they say "Later".
+  state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
+  persist();
+}
+
 
 
 export function setExam(exam: ExamType) {

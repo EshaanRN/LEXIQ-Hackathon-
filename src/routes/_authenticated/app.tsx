@@ -5,7 +5,7 @@ import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
-import { markKnown, markUnknown, markLearned, nextWord, tickActive } from "@/lib/game-store";
+import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -125,10 +125,10 @@ function Feed() {
           <div className="w-full max-w-sm rounded-3xl bg-card p-6 ring-1 ring-border text-center">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Milestone</p>
             <h2 className="mt-1 font-display text-2xl font-bold text-gradient-primary">Ready for a Vocabulary Checkpoint?</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Prove mastery of what you've learned. +100 XP for passing.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Prove mastery of what you've learned. +100 XP for passing — or skip and keep swiping.</p>
             <div className="mt-5 flex gap-2">
-              <button onClick={() => setCheckpointPrompt(false)}
-                className="flex-1 rounded-full bg-surface-2 py-3 text-xs font-bold uppercase tracking-widest ring-1 ring-border">Later</button>
+              <button onClick={() => { snoozeCheckpoint(); setCheckpointPrompt(false); }}
+                className="flex-1 rounded-full bg-surface-2 py-3 text-xs font-bold uppercase tracking-widest ring-1 ring-border">Not now</button>
               <button onClick={() => { setCheckpointPrompt(false); navigate({ to: "/checkpoint" }); }}
                 className="flex-1 rounded-full bg-primary py-3 text-xs font-bold uppercase tracking-widest text-primary-foreground glow-primary">Let's go</button>
             </div>

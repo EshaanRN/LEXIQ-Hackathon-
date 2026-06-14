@@ -232,25 +232,20 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
   return (
     <div className="mt-6 space-y-4">
       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Word {index + 1} of {total}</p>
-      <div className="rounded-3xl border border-border bg-card p-6 text-center">
-        <h2 className="font-display text-5xl font-bold text-gradient-primary">{word.word}</h2>
-        <p className="mt-2 text-xs text-muted-foreground">{word.pronunciation} · {word.partOfSpeech}</p>
-      </div>
 
-      {mode === "speaking" && (
-        <Block title="1. Pronounce the word aloud">
-          {!speechSupported && <p className="text-xs text-danger">Speech recognition isn't supported in this browser. Try Chrome or switch to typing.</p>}
-          {speechSupported && (
-            <div className="flex items-center gap-2">
-              <button onClick={() => listen("pron")} disabled={listening !== null}
-                className={`rounded-full px-4 py-2 text-xs font-bold ring-1 ${listening === "pron" ? "bg-danger text-danger-foreground ring-danger animate-pulse" : "bg-surface-2 ring-border"}`}>
-                <Mic className="mr-1 inline h-3.5 w-3.5" />
-                {listening === "pron" ? "Listening…" : "Tap to speak"}
-              </button>
-              <span className="text-xs text-muted-foreground italic truncate">"{pronunciationTranscript}"</span>
-            </div>
-          )}
-        </Block>
+      {mode === "speaking" ? (
+        <DuoSpeakingHeader
+          word={word}
+          listening={listening === "pron"}
+          transcript={pronunciationTranscript}
+          supported={speechSupported}
+          onSpeak={() => listen("pron")}
+        />
+      ) : (
+        <div className="rounded-3xl border border-border bg-card p-6 text-center">
+          <h2 className="font-display text-5xl font-bold text-gradient-primary">{word.word}</h2>
+          <p className="mt-2 text-xs text-muted-foreground">{word.pronunciation} · {word.partOfSpeech}</p>
+        </div>
       )}
 
       <Block title={`${mode === "speaking" ? "2." : "1."} Define the word`}>
@@ -281,6 +276,75 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
         className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary disabled:opacity-40">
         {grading ? <><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />AI grading…</> : "Submit Answer"}
       </button>
+    </div>
+  );
+}
+
+function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak }: {
+  word: VocabWord; listening: boolean; transcript: string; supported: boolean; onSpeak: () => void;
+}) {
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5">
+      <div className="flex items-end gap-3">
+        <LexiqMascot listening={listening} />
+        <div className="relative mb-1 flex-1 rounded-2xl rounded-bl-sm bg-surface-2 px-4 py-3 ring-1 ring-border">
+          <span className="absolute -left-1.5 bottom-2 h-3 w-3 rotate-45 bg-surface-2 ring-1 ring-border" style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0)" }} />
+          <p className="text-[10px] uppercase tracking-widest text-primary">Tap the mic and say</p>
+          <p className="mt-0.5 font-display text-2xl font-bold">{word.word}</p>
+          <p className="text-[11px] text-muted-foreground">{word.pronunciation} · {word.partOfSpeech}</p>
+        </div>
+      </div>
+
+      {!supported ? (
+        <p className="mt-4 text-xs text-danger">Speech recognition isn't supported here. Try Chrome or switch to typing.</p>
+      ) : (
+        <div className="mt-5 flex flex-col items-center">
+          <button onClick={onSpeak} disabled={listening}
+            aria-label={listening ? "Listening" : "Tap to speak"}
+            className={`relative grid h-20 w-20 place-items-center rounded-full text-primary-foreground transition ${
+              listening
+                ? "bg-danger animate-pulse ring-4 ring-danger/30"
+                : "bg-primary glow-primary hover:scale-105 ring-4 ring-primary/20"
+            }`}>
+            {listening && <span className="absolute inset-0 animate-ping rounded-full bg-danger/40" />}
+            <Mic className="relative h-9 w-9" />
+          </button>
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            {listening ? "Listening…" : "Tap to speak"}
+          </p>
+          {transcript && (
+            <p className="mt-2 max-w-xs truncate text-center text-xs italic text-muted-foreground">"{transcript}"</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LexiqMascot({ listening }: { listening: boolean }) {
+  // Friendly owl-style mascot rendered in SVG (no external asset).
+  return (
+    <div className={`relative h-20 w-20 shrink-0 ${listening ? "animate-bounce" : ""}`}>
+      <svg viewBox="0 0 96 96" className="h-full w-full drop-shadow-lg" aria-hidden>
+        <ellipse cx="48" cy="88" rx="26" ry="4" fill="rgba(0,0,0,0.25)" />
+        {/* body */}
+        <path d="M48 8c-20 0-34 14-34 34 0 22 14 38 34 38s34-16 34-38C82 22 68 8 48 8z" fill="hsl(var(--primary))" />
+        <path d="M48 18c-14 0-24 10-24 26 0 18 10 30 24 30s24-12 24-30c0-16-10-26-24-26z" fill="hsl(var(--primary) / 0.6)" />
+        {/* belly */}
+        <ellipse cx="48" cy="56" rx="18" ry="20" fill="hsl(var(--card))" />
+        {/* eyes */}
+        <circle cx="36" cy="40" r="10" fill="white" />
+        <circle cx="60" cy="40" r="10" fill="white" />
+        <circle cx="36" cy="42" r="4.5" fill="#0b1220" />
+        <circle cx="60" cy="42" r="4.5" fill="#0b1220" />
+        <circle cx="37.5" cy="40.5" r="1.5" fill="white" />
+        <circle cx="61.5" cy="40.5" r="1.5" fill="white" />
+        {/* beak */}
+        <path d="M44 52 L52 52 L48 60 Z" fill="hsl(var(--gold, 45 95% 55%))" />
+        {/* tufts */}
+        <path d="M26 16 L34 26 L24 24 Z" fill="hsl(var(--primary))" />
+        <path d="M70 16 L62 26 L72 24 Z" fill="hsl(var(--primary))" />
+      </svg>
     </div>
   );
 }
