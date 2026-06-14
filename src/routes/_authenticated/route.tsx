@@ -1,5 +1,4 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -16,17 +15,9 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthedShell() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <div className="min-h-screen">
-      <motion.div
-        key={pathname}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-      >
-        <Outlet />
-      </motion.div>
+      <Outlet />
       <BottomNav />
     </div>
   );
