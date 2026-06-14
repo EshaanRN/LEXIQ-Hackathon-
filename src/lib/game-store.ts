@@ -13,7 +13,14 @@ interface WordState {
   lastSeenAt: number;
   /** 0-100 from checkpoint testing */
   masteryScore?: number;
+  /** wordsLearnedTotal snapshot when this word became known/mastered/familiar */
+  knownAtTotal?: number;
 }
+
+// Re-show a known/mastered word for a refresher only after the user has
+// learned this many NEW words in between. Picked randomly above this floor
+// so the user keeps seeing new vocabulary first.
+const REFRESHER_COOLDOWN = 120;
 
 interface GameState {
   userId: string | null;
