@@ -251,7 +251,7 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
 
       <Block title={`${mode === "speaking" ? "2." : "1."} Define the word`}>
         <textarea value={definition} onChange={(e) => setDef(e.target.value)} rows={2}
-          placeholder={`e.g. "${word.studentDefinition.split(" ").slice(0, 4).join(" ")}…"`}
+          placeholder="Type the meaning in your own words…"
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
         {mode === "speaking" && speechSupported && (
           <button onClick={() => listen("def")} disabled={listening !== null}
