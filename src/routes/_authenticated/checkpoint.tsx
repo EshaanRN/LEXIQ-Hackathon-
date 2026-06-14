@@ -40,6 +40,7 @@ function CheckpointPage() {
   const [queue, setQueue] = useState<VocabWord[]>([]);
   const [idx, setIdx] = useState(0);
   const [results, setResults] = useState<Scored[]>([]);
+  const [lastScored, setLastScored] = useState<Scored | null>(null);
 
   function start() {
     const words = pickCheckpointWords(count);
@@ -47,13 +48,18 @@ function CheckpointPage() {
     setQueue(words);
     setIdx(0);
     setResults([]);
+    setLastScored(null);
     setPhase("test");
   }
 
   function handleScored(s: Scored) {
     applyMasteryScore(s.word.id, s.totalScore);
-    const next = [...results, s];
-    setResults(next);
+    setResults((prev) => [...prev, s]);
+    setLastScored(s);
+  }
+
+  function advance() {
+    const next = results;
     if (idx + 1 >= queue.length) {
       const perfect = next.every((r) => r.totalScore >= 95);
       const scoreMap: Record<string, number> = {};
@@ -63,6 +69,7 @@ function CheckpointPage() {
     } else {
       setIdx((i) => i + 1);
     }
+    setLastScored(null);
   }
 
   return (
