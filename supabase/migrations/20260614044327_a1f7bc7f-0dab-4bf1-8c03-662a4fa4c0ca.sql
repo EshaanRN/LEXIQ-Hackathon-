@@ -1,0 +1,1 @@
+REVOKE UPDATE (xp, coins, level, owned_items, words_learned_total) ON public.profiles FROM authenticated;
