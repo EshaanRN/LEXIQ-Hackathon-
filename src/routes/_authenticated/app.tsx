@@ -5,7 +5,7 @@ import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
-import { markKnown, markUnknown, markLearned, nextWord, tickActive } from "@/lib/game-store";
+import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
 export const Route = createFileRoute("/_authenticated/app")({
