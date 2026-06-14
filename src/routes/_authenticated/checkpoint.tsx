@@ -40,6 +40,7 @@ function CheckpointPage() {
   const [queue, setQueue] = useState<VocabWord[]>([]);
   const [idx, setIdx] = useState(0);
   const [results, setResults] = useState<Scored[]>([]);
+  const [lastScored, setLastScored] = useState<Scored | null>(null);
 
   function start() {
     const words = pickCheckpointWords(count);
@@ -47,13 +48,18 @@ function CheckpointPage() {
     setQueue(words);
     setIdx(0);
     setResults([]);
+    setLastScored(null);
     setPhase("test");
   }
 
   function handleScored(s: Scored) {
     applyMasteryScore(s.word.id, s.totalScore);
-    const next = [...results, s];
-    setResults(next);
+    setResults((prev) => [...prev, s]);
+    setLastScored(s);
+  }
+
+  function advance() {
+    const next = results;
     if (idx + 1 >= queue.length) {
       const perfect = next.every((r) => r.totalScore >= 95);
       const scoreMap: Record<string, number> = {};
@@ -63,6 +69,7 @@ function CheckpointPage() {
     } else {
       setIdx((i) => i + 1);
     }
+    setLastScored(null);
   }
 
   return (
@@ -132,7 +139,7 @@ function CheckpointPage() {
         </div>
       )}
 
-      {phase === "test" && queue[idx] && (
+      {phase === "test" && queue[idx] && !lastScored && (
         <CheckpointQuestion
           key={queue[idx].id}
           word={queue[idx]}
@@ -140,6 +147,14 @@ function CheckpointPage() {
           index={idx}
           total={queue.length}
           onScored={handleScored}
+        />
+      )}
+
+      {phase === "test" && lastScored && (
+        <QuestionFeedback
+          scored={lastScored}
+          isLast={idx + 1 >= queue.length}
+          onNext={advance}
         />
       )}
 
@@ -275,6 +290,41 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
     <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
       <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-primary">{title}</p>
       {children}
+    </div>
+  );
+}
+
+function QuestionFeedback({ scored, isLast, onNext }: { scored: Scored; isLast: boolean; onNext: () => void }) {
+  const correct = scored.totalScore >= 76;
+  return (
+    <div className="mt-6 space-y-4">
+      <div className={`rounded-3xl border p-6 text-center ${correct ? "border-success/40 bg-success/10" : "border-danger/40 bg-danger/10"}`}>
+        {correct ? <CheckCircle2 className="mx-auto h-10 w-10 text-success" /> : <XCircle className="mx-auto h-10 w-10 text-danger" />}
+        <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">{correct ? "Nice work" : "Not quite"}</p>
+        <h2 className="mt-1 font-display text-4xl font-bold">{scored.word.word}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">{scored.word.pronunciation} · {scored.word.partOfSpeech}</p>
+        <div className="mt-3 font-display text-5xl font-bold text-gradient-primary tabular-nums">{scored.totalScore}</div>
+      </div>
+
+      <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
+        <p className="text-[10px] uppercase tracking-widest text-primary">Correct definition</p>
+        <p className="mt-1 text-sm">{scored.word.studentDefinition}</p>
+      </div>
+
+      <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
+        <p className="text-[10px] uppercase tracking-widest text-primary">AI feedback</p>
+        <p className="mt-1 text-sm">{scored.feedback}</p>
+        <div className="mt-3 flex gap-3 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span>Pron {scored.pronunciationScore}</span>
+          <span>Def {scored.definitionScore}</span>
+          <span>Ctx {scored.contextScore}</span>
+        </div>
+      </div>
+
+      <button onClick={onNext}
+        className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary">
+        {isLast ? "See Results" : "Next Word"}
+      </button>
     </div>
   );
 }
