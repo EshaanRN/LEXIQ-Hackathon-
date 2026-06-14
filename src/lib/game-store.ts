@@ -395,20 +395,27 @@ export function examPool(): VocabWord[] {
 
 export function nextWord(exclude?: string): VocabWord {
   const pool = examPool();
-  const scored = pool
-    .filter((w) => w.id !== exclude)
-    .map((w) => {
-      const ws = state.words[w.id];
-      const masteryWeight = ws
-        ? { unknown: 5, learning: 6, practicing: 4, familiar: 2, mastered: 0.4 }[ws.mastery]
-        : 5;
-      const rootWeight = Math.max(1, 4 - (state.rootStrength[w.root] ?? 0));
-      const recencyPenalty = ws && Date.now() - ws.lastSeenAt < 30_000 ? 0.1 : 1;
-      return { w, score: masteryWeight * rootWeight * recencyPenalty * Math.random() };
-    });
+  const candidates = pool.filter((w) => {
+    if (w.id === exclude) return false;
+    const m = state.words[w.id]?.mastery;
+    // Don't repeat words the user already knows or has mastered.
+    return m !== "mastered" && m !== "familiar";
+  });
+  // If everything is learned, fall back to the full pool so the feed never dies.
+  const source = candidates.length > 0 ? candidates : pool.filter((w) => w.id !== exclude);
+  const scored = source.map((w) => {
+    const ws = state.words[w.id];
+    const masteryWeight = ws
+      ? { unknown: 5, learning: 6, practicing: 4, familiar: 2, mastered: 0.2 }[ws.mastery]
+      : 5;
+    const rootWeight = Math.max(1, 4 - (state.rootStrength[w.root] ?? 0));
+    const recencyPenalty = ws && Date.now() - ws.lastSeenAt < 30_000 ? 0.1 : 1;
+    return { w, score: masteryWeight * rootWeight * recencyPenalty * Math.random() };
+  });
   scored.sort((a, b) => b.score - a.score);
   return scored[0]?.w ?? pool[0] ?? VOCAB[0];
 }
+
 
 export function setExam(exam: ExamType) {
   state.exam = exam;
