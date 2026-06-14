@@ -55,55 +55,56 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
           LEARN
         </motion.div>
 
-        <div className="flex h-full flex-col p-8">
+        <div className="flex h-full flex-col p-5">
           <div className="flex items-center justify-between">
             <DifficultyChip d={word.difficulty} />
             <div className="flex items-center gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-3.5 w-3.5 ${i < word.frequency ? "fill-gold text-gold" : "text-muted-foreground/40"}`}
+                  className={`h-3 w-3 ${i < word.frequency ? "fill-gold text-gold" : "text-muted-foreground/40"}`}
                 />
               ))}
             </div>
           </div>
 
           <div className="flex flex-1 flex-col items-center justify-center text-center">
-            <p className="mb-3 text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
+            <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.3em] text-muted-foreground">
               {word.partOfSpeech}
             </p>
-            <h1 className="font-display text-6xl font-bold tracking-tight text-gradient-primary">
+            <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-gradient-primary">
               {word.word}
             </h1>
             <button
-              className="mt-4 flex items-center gap-2 rounded-full bg-surface-2 px-4 py-2 text-sm text-muted-foreground ring-1 ring-border"
+              className="mt-3 flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border"
               onClick={(e) => e.stopPropagation()}
             >
-              <Volume2 className="h-4 w-4" />
+              <Volume2 className="h-3.5 w-3.5" />
               {word.pronunciation}
             </button>
 
-            <p className="mt-10 max-w-sm text-base text-muted-foreground">
-              Do you already know this word? Swipe right to confirm, left to learn it for XP.
+            <p className="mt-5 max-w-xs text-xs text-muted-foreground">
+              Swipe right if you know it · left to learn for XP.
             </p>
           </div>
 
-          <p className="text-center text-xs uppercase tracking-widest text-muted-foreground/60">
+          <p className="text-center text-[10px] uppercase tracking-widest text-muted-foreground/60">
             ← Learn (+25 XP) · Know it →
           </p>
         </div>
 
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6">
+
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-5">
           <button
             onClick={(e) => {
               e.stopPropagation();
               animate(x, -600, { duration: 0.25 });
               setTimeout(onUnknown, 180);
             }}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-danger/15 text-danger ring-1 ring-danger/40 transition hover:scale-110 hover:bg-danger/25"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-danger/15 text-danger ring-1 ring-danger/40 transition hover:scale-110 hover:bg-danger/25"
             aria-label="Don't know"
           >
-            <X className="h-7 w-7" strokeWidth={3} />
+            <X className="h-5 w-5" strokeWidth={3} />
           </button>
           <button
             onClick={(e) => {
@@ -111,12 +112,13 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
               animate(x, 600, { duration: 0.25 });
               setTimeout(onKnown, 180);
             }}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success ring-1 ring-success/40 transition hover:scale-110 hover:bg-success/25"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-success/15 text-success ring-1 ring-success/40 transition hover:scale-110 hover:bg-success/25"
             aria-label="Know it"
           >
-            <Heart className="h-7 w-7 fill-current" />
+            <Heart className="h-5 w-5 fill-current" />
           </button>
         </div>
+
       </div>
     </motion.div>
   );

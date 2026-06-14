@@ -60,9 +60,10 @@
   --popover: oklch(0.22 0.025 270);
   --popover-foreground: oklch(0.98 0.005 270);
 
-  /* Electric lime */
-  --primary: oklch(0.88 0.22 130);
-  --primary-foreground: oklch(0.18 0.02 270);
+  /* Vivid purple */
+  --primary: oklch(0.62 0.24 295);
+  --primary-foreground: oklch(0.98 0.005 270);
+
 
   --secondary: oklch(0.28 0.03 270);
   --secondary-foreground: oklch(0.98 0.005 270);
@@ -86,9 +87,9 @@
 
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.88 0.22 130);
+  --ring: oklch(0.62 0.24 295);
 
-  --chart-1: oklch(0.88 0.22 130);
+  --chart-1: oklch(0.62 0.24 295);
   --chart-2: oklch(0.7 0.22 320);
   --chart-3: oklch(0.86 0.17 85);
   --chart-4: oklch(0.68 0.26 15);
@@ -96,12 +97,13 @@
 
   --sidebar: oklch(0.18 0.02 270);
   --sidebar-foreground: oklch(0.98 0.005 270);
-  --sidebar-primary: oklch(0.88 0.22 130);
-  --sidebar-primary-foreground: oklch(0.18 0.02 270);
+  --sidebar-primary: oklch(0.62 0.24 295);
+  --sidebar-primary-foreground: oklch(0.98 0.005 270);
   --sidebar-accent: oklch(0.26 0.03 270);
   --sidebar-accent-foreground: oklch(0.98 0.005 270);
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.88 0.22 130);
+  --sidebar-ring: oklch(0.62 0.24 295);
+
 }
 
 .dark {
@@ -121,8 +123,8 @@
 
   body {
     background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.88 0.22 130 / 0.12), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 90% 100%, oklch(0.7 0.22 320 / 0.12), transparent 60%),
+      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.62 0.24 295 / 0.18), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, oklch(0.7 0.22 320 / 0.14), transparent 60%),
       var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -137,8 +139,9 @@
 }
 
 @utility glow-primary {
-  box-shadow: 0 0 0 1px oklch(0.88 0.22 130 / 0.4), 0 0 40px -8px oklch(0.88 0.22 130 / 0.8);
+  box-shadow: 0 0 0 1px oklch(0.62 0.24 295 / 0.45), 0 0 40px -8px oklch(0.62 0.24 295 / 0.85);
 }
+
 
 @utility text-gradient-primary {
   color: #ffffff;

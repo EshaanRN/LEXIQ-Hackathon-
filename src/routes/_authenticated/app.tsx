@@ -5,7 +5,6 @@ import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
-import { BottomNav } from "@/components/BottomNav";
 import { markKnown, markUnknown, markLearned, nextWord, tickActive } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
@@ -88,12 +87,13 @@ function Feed() {
   }, [queue, learning]);
 
   return (
-    <main className="mx-auto flex h-screen w-full max-w-2xl flex-col">
+    <main className="mx-auto flex h-screen w-full max-w-2xl flex-col pb-20">
       <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
 
-      <div className="relative mx-5 my-5 flex-1 min-h-[420px]">
+      <div className="relative mx-5 my-3 flex-1 min-h-0">
+
         <AnimatePresence>
           {queue.slice(0, 3).reverse().map((w, idx, arr) => {
             const isTop = idx === arr.length - 1;
@@ -117,7 +117,6 @@ function Feed() {
         ← Learn · → Know it · Space = open sheet
       </p>
 
-      <BottomNav />
       <XPToast />
       <LearnSheet word={learning} onLearned={handleLearned} onSkip={handleSkipLearn} />
 
