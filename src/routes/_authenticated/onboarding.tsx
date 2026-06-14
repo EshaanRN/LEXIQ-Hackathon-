@@ -53,9 +53,10 @@ function Onboarding() {
   }
   function answerQuiz(knew: boolean) {
     if (knew) setCorrect((c) => c + 1);
-    if (quizIdx + 1 >= quizWords.length) setStep(6);
+    if (quizIdx + 1 >= quizWords.length) setStep(5);
     else setQuizIdx((i) => i + 1);
   }
+
   function rankFromScore(c: number) {
     const idx = Math.min(RANKS.length - 1, Math.floor((c / quizWords.length) * 4));
     return RANKS[idx].name;
