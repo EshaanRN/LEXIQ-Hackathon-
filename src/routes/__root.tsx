@@ -95,10 +95,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // Load Google Fonts non-render-blocking: fetch as "print" then swap to "all" once loaded.
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap",
+        media: "print",
+        // @ts-expect-error - valid HTML attribute, not in TS types
+        onLoad: "this.media='all'",
       },
+      // Fallback for no-JS clients
+    ],
+    scripts_unused_placeholder: undefined as never,
+  }).meta ? undefined : undefined,
     ],
     scripts: [
       {
