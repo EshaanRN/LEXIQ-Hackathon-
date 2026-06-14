@@ -31,7 +31,7 @@ const INTERESTS = [
   "👗 Fashion", "🏛️ History",
 ];
 
-const STEPS = ["Username", "Exam", "Avatar", "Interests", "Placement", "Placement", "Rank"];
+const STEPS = ["Username", "Exam", "Avatar", "Interests", "Placement", "Rank"];
 
 function Onboarding() {
   const navigate = useNavigate();
