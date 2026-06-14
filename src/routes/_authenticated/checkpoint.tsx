@@ -120,12 +120,13 @@ function CheckpointPage() {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Prompt me every…</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {INTERVALS.map((n) => (
-                <button key={n} onClick={() => setCheckpointInterval(n)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ${g.checkpointInterval === n ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 ring-border"}`}>
+                <button key={n} type="button" onClick={() => setCheckpointInterval(n)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition active:scale-95 ${g.checkpointInterval === n ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 ring-border hover:bg-surface-3"}`}>
                   {n} words
                 </button>
               ))}
             </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">Currently: every <span className="font-bold text-foreground">{g.checkpointInterval}</span> words</p>
           </div>
 
           <button onClick={start}
