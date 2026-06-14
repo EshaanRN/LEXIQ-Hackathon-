@@ -313,10 +313,9 @@ export function markKnown(word: VocabWord) {
   touchStreak();
   tickActive();
   const prev: WordState = state.words[word.id] ?? blank();
-  const idx = MASTERY_ORDER.indexOf(prev.mastery);
   state.words[word.id] = {
     ...prev,
-    mastery: MASTERY_ORDER[Math.min(idx + 1, MASTERY_ORDER.length - 1)],
+    mastery: "mastered",
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
@@ -325,6 +324,7 @@ export function markKnown(word: VocabWord) {
   checkRootMastery(word.root);
   persist();
 }
+
 
 export function markUnknown(word: VocabWord) {
   touchStreak();
