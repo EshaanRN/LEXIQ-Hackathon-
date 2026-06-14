@@ -18,7 +18,7 @@ import {
   type DicebearStyleId,
 } from "@/lib/avatar";
 import { VOCAB, type ExamType } from "@/data/vocab";
-import { applyProfile, loadStateForUser, RANKS } from "@/lib/game-store";
+import { applyProfile, loadStateForUser, markKnown, RANKS } from "@/lib/game-store";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   ssr: false,
