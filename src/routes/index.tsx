@@ -38,7 +38,7 @@ async function waitForSession(maxMs = 2000): Promise<MaybeSession> {
 async function resolveDestination(): Promise<Dest> {
   const session = await waitForSession();
   const user = session?.user;
-  if (!user) return "/auth";
+  if (!user) return "/welcome";
 
   try {
     const profilePromise = supabase
@@ -85,7 +85,7 @@ function SplashGate() {
     const hardTimeout = setTimeout(() => {
       if (cancelled || navigatedRef.current) return;
       setStuck(true);
-      go("/auth");
+      go("/welcome");
     }, 6000);
 
     const stuckHint = setTimeout(() => {
@@ -93,7 +93,7 @@ function SplashGate() {
     }, 3500);
 
     (async () => {
-      let dest: Dest = "/auth";
+      let dest: Dest = "/welcome";
       try {
         dest = await resolveDestination();
       } catch (e) {
@@ -123,7 +123,7 @@ function SplashGate() {
               try {
                 sessionStorage.setItem(SPLASH_SHOWN_KEY, "1");
               } catch {}
-              navigate({ to: "/auth", replace: true });
+              navigate({ to: "/welcome", replace: true });
             }}
             className="rounded-full bg-white/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-white/80 backdrop-blur transition hover:bg-white/20"
           >
