@@ -95,8 +95,14 @@ function Onboarding() {
       owned_items: owned,
       exam,
     });
+    // Don't repeat words the user already said they know.
+    for (const id of knownIds) {
+      const w = VOCAB.find((v) => v.id === id);
+      if (w) markKnown(w);
+    }
     navigate({ to: "/app", replace: true });
   }
+
 
   const pct = ((step + 1) / STEPS.length) * 100;
 
