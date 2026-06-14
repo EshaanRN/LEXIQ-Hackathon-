@@ -451,7 +451,8 @@ export function setExam(exam: ExamType) {
   persist();
 }
 export function setCheckpointInterval(n: number) {
-  state.checkpointInterval = n;
+  state = { ...state, checkpointInterval: n };
+  notify();
   persist();
 }
 
