@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -169,14 +169,11 @@ function AuthPage() {
   return (
     <main className="min-h-screen bg-black px-6 py-10">
       <div className="mx-auto flex max-w-md flex-col items-center text-center">
-        <motion.div
-          initial={{ scale: 0.85, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 240, damping: 20 }}
-          className="grid h-16 w-16 place-items-center rounded-2xl border border-white/15 bg-white/[0.04]"
+        <div
+          className="grid h-16 w-16 place-items-center rounded-2xl border border-white/15 bg-white/[0.04] animate-in zoom-in-75 fade-in duration-300"
         >
           <span className="font-display text-2xl font-black text-white">Lx</span>
-        </motion.div>
+        </div>
         <h1 className="mt-5 font-display text-3xl font-bold text-white">
           {mode === "signup" ? "Create your Lexiq account" : "Welcome back"}
         </h1>
