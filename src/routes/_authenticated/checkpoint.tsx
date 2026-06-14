@@ -323,28 +323,49 @@ function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak }: 
 }
 
 function LexiqMascot({ listening }: { listening: boolean }) {
-  // Friendly owl-style mascot rendered in SVG (no external asset).
+  // Cute purple owl mascot — Duolingo-inspired, friendly SVG.
   return (
-    <div className={`relative h-20 w-20 shrink-0 ${listening ? "animate-bounce" : ""}`}>
-      <svg viewBox="0 0 96 96" className="h-full w-full drop-shadow-lg" aria-hidden>
-        <ellipse cx="48" cy="88" rx="26" ry="4" fill="rgba(0,0,0,0.25)" />
-        {/* body */}
-        <path d="M48 8c-20 0-34 14-34 34 0 22 14 38 34 38s34-16 34-38C82 22 68 8 48 8z" fill="hsl(var(--primary))" />
-        <path d="M48 18c-14 0-24 10-24 26 0 18 10 30 24 30s24-12 24-30c0-16-10-26-24-26z" fill="hsl(var(--primary) / 0.6)" />
-        {/* belly */}
-        <ellipse cx="48" cy="56" rx="18" ry="20" fill="hsl(var(--card))" />
-        {/* eyes */}
-        <circle cx="36" cy="40" r="10" fill="white" />
-        <circle cx="60" cy="40" r="10" fill="white" />
-        <circle cx="36" cy="42" r="4.5" fill="#0b1220" />
-        <circle cx="60" cy="42" r="4.5" fill="#0b1220" />
-        <circle cx="37.5" cy="40.5" r="1.5" fill="white" />
-        <circle cx="61.5" cy="40.5" r="1.5" fill="white" />
-        {/* beak */}
-        <path d="M44 52 L52 52 L48 60 Z" fill="hsl(var(--gold, 45 95% 55%))" />
+    <div className={`relative h-24 w-24 shrink-0 ${listening ? "animate-bounce" : ""}`}>
+      <svg viewBox="0 0 120 120" className="h-full w-full drop-shadow-xl" aria-hidden>
+        <ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(0,0,0,0.25)" />
+        {/* feet */}
+        <ellipse cx="48" cy="106" rx="6" ry="3" fill="#f59e0b" />
+        <ellipse cx="72" cy="106" rx="6" ry="3" fill="#f59e0b" />
+        {/* body (purple gradient) */}
+        <defs>
+          <radialGradient id="owlBody" cx="50%" cy="40%" r="65%">
+            <stop offset="0%" stopColor="#a78bfa" />
+            <stop offset="60%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#6d28d9" />
+          </radialGradient>
+          <linearGradient id="owlBelly" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ede9fe" />
+            <stop offset="100%" stopColor="#c4b5fd" />
+          </linearGradient>
+        </defs>
         {/* tufts */}
-        <path d="M26 16 L34 26 L24 24 Z" fill="hsl(var(--primary))" />
-        <path d="M70 16 L62 26 L72 24 Z" fill="hsl(var(--primary))" />
+        <path d="M28 28 Q34 14 44 26 Z" fill="#7c3aed" />
+        <path d="M92 28 Q86 14 76 26 Z" fill="#7c3aed" />
+        {/* body */}
+        <ellipse cx="60" cy="64" rx="40" ry="42" fill="url(#owlBody)" />
+        {/* wings */}
+        <path d="M22 60 Q14 80 28 96 Q34 86 32 70 Z" fill="#6d28d9" />
+        <path d="M98 60 Q106 80 92 96 Q86 86 88 70 Z" fill="#6d28d9" />
+        {/* belly */}
+        <ellipse cx="60" cy="74" rx="24" ry="28" fill="url(#owlBelly)" />
+        {/* eye whites */}
+        <circle cx="46" cy="50" r="14" fill="white" />
+        <circle cx="74" cy="50" r="14" fill="white" />
+        {/* pupils */}
+        <circle cx="47" cy="52" r="6" fill="#1f2937" />
+        <circle cx="75" cy="52" r="6" fill="#1f2937" />
+        <circle cx="49" cy="50" r="2" fill="white" />
+        <circle cx="77" cy="50" r="2" fill="white" />
+        {/* beak */}
+        <path d="M54 64 Q60 72 66 64 Q60 70 54 64 Z" fill="#fbbf24" stroke="#d97706" strokeWidth="1.2" strokeLinejoin="round" />
+        {/* cheeks */}
+        <circle cx="40" cy="68" r="4" fill="#f9a8d4" opacity="0.6" />
+        <circle cx="80" cy="68" r="4" fill="#f9a8d4" opacity="0.6" />
       </svg>
     </div>
   );
