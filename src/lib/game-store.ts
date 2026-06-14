@@ -366,6 +366,10 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
+    knownAtTotal:
+      nextMastery === "mastered" || nextMastery === "familiar"
+        ? prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0)
+        : prev.knownAtTotal,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
