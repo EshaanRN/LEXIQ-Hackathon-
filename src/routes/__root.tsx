@@ -103,10 +103,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         // @ts-expect-error - valid HTML attribute, not in TS types
         onLoad: "this.media='all'",
       },
-      // Fallback for no-JS clients
-    ],
-    scripts_unused_placeholder: undefined as never,
-  }).meta ? undefined : undefined,
     ],
     scripts: [
       {
