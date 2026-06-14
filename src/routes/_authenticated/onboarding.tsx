@@ -152,25 +152,36 @@ function Onboarding() {
             </>
           )}
 
-          {(step === 4 || step === 5) && (
+          {step === 4 && (
             <>
               <h1 className="font-display text-3xl font-bold">Quick placement</h1>
               <p className="mt-1 text-sm text-muted-foreground">Do you know this word? Honest answers = better recommendations.</p>
-              <div className="mt-8 rounded-3xl border border-border bg-card p-8 text-center">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Word {quizIdx + 1} of {quizWords.length}</p>
-                <h2 className="mt-4 font-display text-5xl font-bold text-gradient-primary">{quizWords[quizIdx].word}</h2>
-                <p className="mt-2 text-xs text-muted-foreground">{quizWords[quizIdx].pronunciation}</p>
+              <div className="mt-8 min-h-[200px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={quizIdx}
+                    initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -24, scale: 0.96 }}
+                    transition={{ duration: 0.28, ease: "easeOut" }}
+                    className="rounded-3xl border border-border bg-card p-8 text-center"
+                  >
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Word {quizIdx + 1} of {quizWords.length}</p>
+                    <h2 className="mt-4 font-display text-5xl font-bold text-gradient-primary">{quizWords[quizIdx].word}</h2>
+                    <p className="mt-2 text-xs text-muted-foreground">{quizWords[quizIdx].pronunciation}</p>
+                  </motion.div>
+                </AnimatePresence>
               </div>
               <div className="mt-6 flex gap-3">
-                <button onClick={() => { answerQuiz(false); if (step < 5) setStep(step + 1); }}
+                <button onClick={() => answerQuiz(false)}
                   className="flex-1 rounded-full bg-surface-2 py-3 font-display font-bold uppercase tracking-widest ring-1 ring-border">Don't know</button>
-                <button onClick={() => { answerQuiz(true); if (step < 5) setStep(step + 1); }}
+                <button onClick={() => answerQuiz(true)}
                   className="flex-1 rounded-full bg-primary py-3 font-display font-bold uppercase tracking-widest text-primary-foreground glow-primary">Know it</button>
               </div>
             </>
           )}
 
-          {step === 6 && (
+          {step === 5 && (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <Avatar equipped={avatar} size={140} />
               <p className="mt-6 text-[10px] uppercase tracking-widest text-muted-foreground">Starting rank</p>
@@ -182,6 +193,7 @@ function Onboarding() {
               </button>
             </div>
           )}
+
         </motion.div>
       </AnimatePresence>
     </main>
