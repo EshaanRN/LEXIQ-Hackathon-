@@ -326,11 +326,13 @@ export function markKnown(word: VocabWord) {
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
+    knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
   checkRootMastery(word.root);
   persist();
 }
+
 
 
 export function markUnknown(word: VocabWord) {
