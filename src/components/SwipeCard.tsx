@@ -94,17 +94,17 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
         </div>
 
 
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6">
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-5">
           <button
             onClick={(e) => {
               e.stopPropagation();
               animate(x, -600, { duration: 0.25 });
               setTimeout(onUnknown, 180);
             }}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-danger/15 text-danger ring-1 ring-danger/40 transition hover:scale-110 hover:bg-danger/25"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-danger/15 text-danger ring-1 ring-danger/40 transition hover:scale-110 hover:bg-danger/25"
             aria-label="Don't know"
           >
-            <X className="h-7 w-7" strokeWidth={3} />
+            <X className="h-5 w-5" strokeWidth={3} />
           </button>
           <button
             onClick={(e) => {
@@ -112,12 +112,13 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
               animate(x, 600, { duration: 0.25 });
               setTimeout(onKnown, 180);
             }}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success ring-1 ring-success/40 transition hover:scale-110 hover:bg-success/25"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-success/15 text-success ring-1 ring-success/40 transition hover:scale-110 hover:bg-success/25"
             aria-label="Know it"
           >
-            <Heart className="h-7 w-7 fill-current" />
+            <Heart className="h-5 w-5 fill-current" />
           </button>
         </div>
+
       </div>
     </motion.div>
   );
