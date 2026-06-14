@@ -380,25 +380,65 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+function playFeedbackTone(correct: boolean) {
+  if (typeof window === "undefined") return;
+  try {
+    const Ctx = (window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const now = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, now);
+    if (correct) {
+      // Cheerful two-note "ding"
+      [880, 1320].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, now + i * 0.08);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, now + i * 0.08);
+        g.gain.exponentialRampToValueAtTime(0.25, now + i * 0.08 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.35);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(now + i * 0.08);
+        osc.stop(now + i * 0.08 + 0.4);
+      });
+    } else {
+      // Low buzz
+      const osc = ctx.createOscillator();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.linearRampToValueAtTime(110, now + 0.35);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    }
+    setTimeout(() => ctx.close().catch(() => {}), 800);
+  } catch {
+    /* ignore audio errors */
+  }
+}
+
 function QuestionFeedback({ scored, isLast, onNext }: { scored: Scored; isLast: boolean; onNext: () => void }) {
   const correct = scored.totalScore >= 76;
+  useEffect(() => { playFeedbackTone(correct); }, [correct]);
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-6 space-y-4 animate-fade-in">
       <div className={`rounded-3xl border p-6 text-center ${correct ? "border-success/40 bg-success/10" : "border-danger/40 bg-danger/10"}`}>
-        {correct ? <CheckCircle2 className="mx-auto h-10 w-10 text-success" /> : <XCircle className="mx-auto h-10 w-10 text-danger" />}
-        <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">{correct ? "Nice work" : "Not quite"}</p>
+        {correct ? <CheckCircle2 className="mx-auto h-12 w-12 text-success animate-scale-in" /> : <XCircle className="mx-auto h-12 w-12 text-danger animate-scale-in" />}
+        <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">{correct ? "Correct!" : "Not quite"}</p>
         <h2 className="mt-1 font-display text-4xl font-bold">{scored.word.word}</h2>
         <p className="mt-1 text-xs text-muted-foreground">{scored.word.pronunciation} · {scored.word.partOfSpeech}</p>
         <div className="mt-3 font-display text-5xl font-bold text-gradient-primary tabular-nums">{scored.totalScore}</div>
       </div>
 
       <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
-        <p className="text-[10px] uppercase tracking-widest text-primary">Correct definition</p>
-        <p className="mt-1 text-sm">{scored.word.studentDefinition}</p>
-      </div>
-
-      <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
-        <p className="text-[10px] uppercase tracking-widest text-primary">AI feedback</p>
+        <p className="text-[10px] uppercase tracking-widest text-primary">Coach feedback</p>
         <p className="mt-1 text-sm">{scored.feedback}</p>
         <div className="mt-3 flex gap-3 text-[10px] uppercase tracking-widest text-muted-foreground">
           <span>Pron {scored.pronunciationScore}</span>
@@ -408,7 +448,7 @@ function QuestionFeedback({ scored, isLast, onNext }: { scored: Scored; isLast: 
       </div>
 
       <button onClick={onNext}
-        className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary">
+        className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary transition active:scale-95">
         {isLast ? "See Results" : "Next Word"}
       </button>
     </div>
