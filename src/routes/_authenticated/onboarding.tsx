@@ -43,6 +43,7 @@ function Onboarding() {
   const [interests, setInterests] = useState<string[]>([]);
   const [quizIdx, setQuizIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
+  const [knownIds, setKnownIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const completeOnboarding = useServerFn(completeOnboardingFn);
 
@@ -52,10 +53,14 @@ function Onboarding() {
     setInterests((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
   }
   function answerQuiz(knew: boolean) {
-    if (knew) setCorrect((c) => c + 1);
+    if (knew) {
+      setCorrect((c) => c + 1);
+      setKnownIds((ids) => [...ids, quizWords[quizIdx].id]);
+    }
     if (quizIdx + 1 >= quizWords.length) setStep(5);
     else setQuizIdx((i) => i + 1);
   }
+
 
   function rankFromScore(c: number) {
     const idx = Math.min(RANKS.length - 1, Math.floor((c / quizWords.length) * 4));
