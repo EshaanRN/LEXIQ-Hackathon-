@@ -139,7 +139,7 @@ function CheckpointPage() {
         </div>
       )}
 
-      {phase === "test" && queue[idx] && (
+      {phase === "test" && queue[idx] && !lastScored && (
         <CheckpointQuestion
           key={queue[idx].id}
           word={queue[idx]}
@@ -147,6 +147,14 @@ function CheckpointPage() {
           index={idx}
           total={queue.length}
           onScored={handleScored}
+        />
+      )}
+
+      {phase === "test" && lastScored && (
+        <QuestionFeedback
+          scored={lastScored}
+          isLast={idx + 1 >= queue.length}
+          onNext={advance}
         />
       )}
 
