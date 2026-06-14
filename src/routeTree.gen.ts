@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -21,6 +22,11 @@ import { Route as AuthenticatedCheckpointRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAvatarRouteImport } from './routes/_authenticated/avatar'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/welcome': typeof WelcomeRoute
   '/app': typeof AuthenticatedAppRoute
   '/avatar': typeof AuthenticatedAvatarRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/welcome': typeof WelcomeRoute
   '/app': typeof AuthenticatedAppRoute
   '/avatar': typeof AuthenticatedAvatarRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/welcome': typeof WelcomeRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
   '/_authenticated/checkpoint': typeof AuthenticatedCheckpointRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/terms'
+    | '/welcome'
     | '/app'
     | '/avatar'
     | '/checkpoint'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/terms'
+    | '/welcome'
     | '/app'
     | '/avatar'
     | '/checkpoint'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/terms'
+    | '/welcome'
     | '/_authenticated/app'
     | '/_authenticated/avatar'
     | '/_authenticated/checkpoint'
@@ -160,10 +172,18 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  WelcomeRoute: typeof WelcomeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  WelcomeRoute: WelcomeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
