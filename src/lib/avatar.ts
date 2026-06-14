@@ -46,11 +46,12 @@ export interface AvatarConfig {
 export function defaultAvatar(): AvatarConfig {
   return {
     style: "adventurer",
-    seed: randomSeed(),
+    seed: "preview-adventurer",
     backgroundColor: ["b6e3f4", "c0aede"],
     radius: 50,
   };
 }
+
 
 export function randomSeed(): string {
   return Math.random().toString(36).slice(2, 10);

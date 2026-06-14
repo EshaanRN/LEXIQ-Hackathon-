@@ -18,7 +18,7 @@ import {
   type DicebearStyleId,
 } from "@/lib/avatar";
 import { VOCAB, type ExamType } from "@/data/vocab";
-import { applyProfile, loadStateForUser, RANKS } from "@/lib/game-store";
+import { applyProfile, loadStateForUser, markKnown, RANKS } from "@/lib/game-store";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   ssr: false,
@@ -31,7 +31,7 @@ const INTERESTS = [
   "👗 Fashion", "🏛️ History",
 ];
 
-const STEPS = ["Username", "Exam", "Avatar", "Interests", "Placement", "Placement", "Rank"];
+const STEPS = ["Username", "Exam", "Avatar", "Interests", "Placement", "Rank"];
 
 function Onboarding() {
   const navigate = useNavigate();
@@ -43,6 +43,7 @@ function Onboarding() {
   const [interests, setInterests] = useState<string[]>([]);
   const [quizIdx, setQuizIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
+  const [knownIds, setKnownIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const completeOnboarding = useServerFn(completeOnboardingFn);
 
@@ -52,10 +53,15 @@ function Onboarding() {
     setInterests((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
   }
   function answerQuiz(knew: boolean) {
-    if (knew) setCorrect((c) => c + 1);
-    if (quizIdx + 1 >= quizWords.length) setStep(6);
+    if (knew) {
+      setCorrect((c) => c + 1);
+      setKnownIds((ids) => [...ids, quizWords[quizIdx].id]);
+    }
+    if (quizIdx + 1 >= quizWords.length) setStep(5);
     else setQuizIdx((i) => i + 1);
   }
+
+
   function rankFromScore(c: number) {
     const idx = Math.min(RANKS.length - 1, Math.floor((c / quizWords.length) * 4));
     return RANKS[idx].name;
@@ -89,8 +95,14 @@ function Onboarding() {
       owned_items: owned,
       exam,
     });
+    // Don't repeat words the user already said they know.
+    for (const id of knownIds) {
+      const w = VOCAB.find((v) => v.id === id);
+      if (w) markKnown(w);
+    }
     navigate({ to: "/app", replace: true });
   }
+
 
   const pct = ((step + 1) / STEPS.length) * 100;
 
@@ -151,25 +163,36 @@ function Onboarding() {
             </>
           )}
 
-          {(step === 4 || step === 5) && (
+          {step === 4 && (
             <>
               <h1 className="font-display text-3xl font-bold">Quick placement</h1>
               <p className="mt-1 text-sm text-muted-foreground">Do you know this word? Honest answers = better recommendations.</p>
-              <div className="mt-8 rounded-3xl border border-border bg-card p-8 text-center">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Word {quizIdx + 1} of {quizWords.length}</p>
-                <h2 className="mt-4 font-display text-5xl font-bold text-gradient-primary">{quizWords[quizIdx].word}</h2>
-                <p className="mt-2 text-xs text-muted-foreground">{quizWords[quizIdx].pronunciation}</p>
+              <div className="mt-8 min-h-[200px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={quizIdx}
+                    initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -24, scale: 0.96 }}
+                    transition={{ duration: 0.28, ease: "easeOut" }}
+                    className="rounded-3xl border border-border bg-card p-8 text-center"
+                  >
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Word {quizIdx + 1} of {quizWords.length}</p>
+                    <h2 className="mt-4 font-display text-5xl font-bold text-gradient-primary">{quizWords[quizIdx].word}</h2>
+                    <p className="mt-2 text-xs text-muted-foreground">{quizWords[quizIdx].pronunciation}</p>
+                  </motion.div>
+                </AnimatePresence>
               </div>
               <div className="mt-6 flex gap-3">
-                <button onClick={() => { answerQuiz(false); if (step < 5) setStep(step + 1); }}
+                <button onClick={() => answerQuiz(false)}
                   className="flex-1 rounded-full bg-surface-2 py-3 font-display font-bold uppercase tracking-widest ring-1 ring-border">Don't know</button>
-                <button onClick={() => { answerQuiz(true); if (step < 5) setStep(step + 1); }}
+                <button onClick={() => answerQuiz(true)}
                   className="flex-1 rounded-full bg-primary py-3 font-display font-bold uppercase tracking-widest text-primary-foreground glow-primary">Know it</button>
               </div>
             </>
           )}
 
-          {step === 6 && (
+          {step === 5 && (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <Avatar equipped={avatar} size={140} />
               <p className="mt-6 text-[10px] uppercase tracking-widest text-muted-foreground">Starting rank</p>
@@ -181,6 +204,7 @@ function Onboarding() {
               </button>
             </div>
           )}
+
         </motion.div>
       </AnimatePresence>
     </main>
