@@ -485,7 +485,7 @@ export function nextWord(exclude?: string | string[]): VocabWord {
 export function snoozeCheckpoint() {
   // Push the next prompt one full interval ahead so the user isn't nagged
   // word-after-word once they say "Later".
-  state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
+  state = { ...state, wordsAtLastCheckpoint: state.wordsLearnedTotal };
   persist();
 }
 
@@ -530,9 +530,12 @@ export function applyMasteryScore(wordId: string, score: number) {
 }
 
 export function completeCheckpoint(scores: Record<string, number>, perfect: boolean) {
-  state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
-  state.checkpointsPassed += 1;
-  if (perfect) state.perfectCheckpoints += 1;
+  state = {
+    ...state,
+    wordsAtLastCheckpoint: state.wordsLearnedTotal,
+    checkpointsPassed: state.checkpointsPassed + 1,
+    perfectCheckpoints: perfect ? state.perfectCheckpoints + 1 : state.perfectCheckpoints,
+  };
   addXp(100, "Checkpoint Passed", 25);
   if (perfect) addXp(250, "Perfect Checkpoint!", 75);
   // milestone rewards
