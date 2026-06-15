@@ -347,6 +347,44 @@ function Stat({ big, label }: { big: string; label: string }) {
   );
 }
 
+function Tool({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="rounded-3xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40 hover:-translate-y-0.5">
+      <div className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+        {icon}
+      </div>
+      <h3 className="mt-3 font-display text-base font-bold">{title}</h3>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function TrustCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-success/15 text-success ring-1 ring-success/30">
+        {icon}
+      </div>
+      <h3 className="mt-4 font-display text-lg font-bold">{title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  return (
+    <details className="group rounded-2xl border border-border bg-card/60 px-5 py-4 backdrop-blur transition open:border-primary/40">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-semibold">
+        {q}
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-surface-2 text-muted-foreground transition group-open:rotate-45 group-open:text-primary">
+          +
+        </span>
+      </summary>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
+    </details>
+  );
+}
+
 function Quote({ text, author }: { text: string; author: string }) {
   return (
     <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur">
