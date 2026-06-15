@@ -7,6 +7,7 @@ import {
   defaultAvatar,
   defaultOwned,
   type AvatarConfig,
+  type DicebearStyleId,
 } from "@/lib/avatar";
 
 const Input = z.object({
@@ -20,9 +21,13 @@ const Input = z.object({
 const FREE_STYLE_IDS = new Set(DICEBEAR_STYLES.filter((style) => style.free).map((style) => style.id));
 const FREE_BACKGROUND_KEYS = new Set(BACKGROUND_PALETTES.filter((background) => background.cost === 0).map((background) => background.colors.join(",")));
 
+function isFreeStyleId(value: unknown): value is DicebearStyleId {
+  return typeof value === "string" && FREE_STYLE_IDS.has(value as DicebearStyleId);
+}
+
 function sanitizeOnboardingAvatar(rawAvatar: Record<string, unknown>): AvatarConfig {
   const fallback = defaultAvatar();
-  const style = typeof rawAvatar.style === "string" && FREE_STYLE_IDS.has(rawAvatar.style)
+  const style = isFreeStyleId(rawAvatar.style)
     ? rawAvatar.style
     : fallback.style;
   const seed = typeof rawAvatar.seed === "string" && rawAvatar.seed.trim().length >= 1 && rawAvatar.seed.length <= 120
@@ -69,7 +74,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       .eq("id", userId)
       .eq("onboarding_complete", false)
       .select("id")
-      .single();
+      .maybeSingle();
     if (error) throw error;
     if (!updatedProfile) {
       throw new Error("Onboarding has already been completed.");
