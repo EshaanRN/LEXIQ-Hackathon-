@@ -12,6 +12,12 @@ import {
   ShoppingBag,
   Star,
   CheckCircle2,
+  X,
+  Mic,
+  PenLine,
+  ShieldCheck,
+  Clock,
+  TrendingUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/welcome")({
