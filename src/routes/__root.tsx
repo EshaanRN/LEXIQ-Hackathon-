@@ -82,6 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Lexiq — Master SAT & ACT Vocabulary" },
       { name: "description", content: "Lexiq turns SAT/ACT vocab into an addictive swipe game. Learn, level up, and master high-frequency words." },
       { name: "theme-color", content: "#000000" },
+      { name: "google-site-verification", content: "C27DsJKIfRUqq1__dKiX434nkLMTf6r1BnhRRpbcO9A" },
       { property: "og:title", content: "Lexiq — Master SAT & ACT Vocabulary" },
       { property: "og:description", content: "Lexiq turns SAT/ACT vocab into an addictive swipe game. Learn, level up, and master high-frequency words." },
       { property: "og:type", content: "website" },
