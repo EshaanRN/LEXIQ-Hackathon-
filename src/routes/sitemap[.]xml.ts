@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { BLOG_POSTS } from "@/data/blog-posts";
 
 const BASE_URL = "https://learnlexiq.com";
 
 interface SitemapEntry {
   path: string;
+  lastmod?: string;
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
 }
@@ -15,8 +17,15 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/blog", changefreq: "weekly", priority: "0.8" },
           { path: "/auth", changefreq: "monthly", priority: "0.5" },
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
+          ...BLOG_POSTS.map((p) => ({
+            path: `/blog/${p.slug}`,
+            lastmod: p.date,
+            changefreq: "monthly" as const,
+            priority: "0.7",
+          })),
         ];
 
         const urls = entries.map((e) =>
