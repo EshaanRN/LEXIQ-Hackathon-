@@ -30,7 +30,7 @@ function AvatarPage() {
       sessionStorage.removeItem("lexiq:splash-shown");
     } catch {}
     clearState();
-    navigate({ to: "/auth", replace: true });
+    navigate({ to: "/welcome", replace: true });
   }
 
   const ownedPresets = PRESET_AVATARS.filter((p) => g.ownedItems.includes(p.id));
