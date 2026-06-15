@@ -19,13 +19,15 @@ function NavLink({ to, icon, label }: { to: string; icon: React.ReactNode; label
   return (
     <Link
       to={to}
-      className="group relative flex flex-col items-center gap-1 rounded-xl px-3 py-1.5 text-muted-foreground transition-all duration-200 hover:text-foreground hover:-translate-y-0.5 active:scale-95"
+      preload="intent"
+      preloadDelay={20}
+      className="group relative flex flex-col items-center gap-1 rounded-xl px-3 py-1.5 text-muted-foreground transition-all duration-150 hover:text-foreground hover:-translate-y-0.5 active:scale-90"
       activeProps={{
         className:
-          "text-primary [&_span]:text-primary before:absolute before:-top-2 before:left-1/2 before:h-1 before:w-6 before:-translate-x-1/2 before:rounded-full before:bg-primary before:shadow-[0_0_12px_var(--color-primary)]",
+          "text-primary [&_span]:text-primary before:absolute before:-top-2 before:left-1/2 before:h-1 before:w-6 before:-translate-x-1/2 before:rounded-full before:bg-primary before:shadow-[0_0_12px_var(--color-primary)] before:animate-in before:fade-in before:zoom-in-75 before:duration-200",
       }}
     >
-      <span className="transition-transform duration-200 group-hover:scale-110">{icon}</span>
+      <span className="transition-transform duration-150 group-hover:scale-110 group-active:scale-95">{icon}</span>
       <span className="text-[10px] font-semibold uppercase tracking-widest transition-colors">{label}</span>
     </Link>
   );
