@@ -77,7 +77,6 @@ function Onboarding() {
         data: {
           username: finalUsername,
           avatar: avatar as unknown as Record<string, unknown>,
-          ownedItems: owned,
           interests,
           startingRank,
           exam,
