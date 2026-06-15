@@ -64,35 +64,20 @@ function Welcome() {
             Built for SAT &amp; ACT
           </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight sm:text-7xl"
-          >
+          <h1 className="animate-in fade-in slide-in-from-bottom-4 duration-700 mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight sm:text-7xl">
             Vocabulary,
             <br />
             <span className="bg-gradient-to-br from-primary via-primary to-accent bg-clip-text text-transparent">
               reimagined.
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl lg:mx-0"
-          >
+          <p className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 mx-auto mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl lg:mx-0">
             Swipe through the words that actually show up on the SAT and ACT.
             Personalized. Addictive. Designed to make every minute count.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            className="mt-10 flex flex-col items-center gap-3 sm:flex-row lg:items-start"
-          >
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 mt-10 flex flex-col items-center gap-3 sm:flex-row lg:items-start">
             <Link
               to="/auth"
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground transition-transform hover:scale-[1.03] glow-primary"
@@ -106,7 +91,7 @@ function Welcome() {
             >
               I already have an account →
             </Link>
-          </motion.div>
+          </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground lg:justify-start">
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" />No credit card</span>
@@ -116,14 +101,9 @@ function Welcome() {
         </div>
 
         {/* Phone mockup */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, rotate: -2 }}
-          animate={{ opacity: 1, y: 0, rotate: -3 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative mx-auto"
-        >
+        <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 relative mx-auto">
           <PhoneMockup />
-        </motion.div>
+        </div>
       </section>
 
       {/* HOW IT WORKS */}
