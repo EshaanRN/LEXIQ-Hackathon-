@@ -12,6 +12,12 @@ import {
   ShoppingBag,
   Star,
   CheckCircle2,
+  X,
+  Mic,
+  PenLine,
+  ShieldCheck,
+  Clock,
+  TrendingUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/welcome")({
@@ -165,6 +171,111 @@ function Welcome() {
         </div>
       </section>
 
+      {/* WHAT'S INSIDE */}
+      <section className="mx-auto w-full max-w-6xl px-6 py-20">
+        <SectionLabel>What's inside</SectionLabel>
+        <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          Five tools. One streak.
+        </h2>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          Every screen in Lexiq is built around a single loop: see a word,
+          decide if you know it, prove it, level up. Here's what you'll touch every day.
+        </p>
+        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <Tool icon={<Sparkles className="h-5 w-5" />} title="Swipe" body="Your personalized deck. Right if you own it, left to learn it." />
+          <Tool icon={<Target className="h-5 w-5" />} title="Test" body="AI checkpoints grade your definitions, sentences, and pronunciation." />
+          <Tool icon={<TrendingUp className="h-5 w-5" />} title="Stats" body="See your mastery curve, weak areas, and projected SAT/ACT gain." />
+          <Tool icon={<Heart className="h-5 w-5" />} title="Avatar" body="Earn coins, unlock looks, and make your profile yours." />
+          <Tool icon={<ShoppingBag className="h-5 w-5" />} title="Shop" body="Spend coins on themes, boosts, and streak freezes." />
+        </div>
+      </section>
+
+      {/* HOW WE GRADE */}
+      <section className="mx-auto w-full max-w-6xl px-6 py-20">
+        <SectionLabel>AI checkpoints</SectionLabel>
+        <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          You can't fake mastery here.
+        </h2>
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          <Feature icon={<BookOpen className="h-5 w-5" />} title="Define it"
+            body="Write the meaning in your own words. AI checks accuracy, not memorization." />
+          <Feature icon={<PenLine className="h-5 w-5" />} title="Use it"
+            body="Drop the word into a real sentence. We grade context, grammar, and nuance." />
+          <Feature icon={<Mic className="h-5 w-5" />} title="Say it"
+            body="Pronounce it aloud. Speech recognition scores you on the spot." />
+        </div>
+      </section>
+
+      {/* COMPARISON */}
+      <section className="mx-auto w-full max-w-5xl px-6 py-20">
+        <SectionLabel>Why not flashcards</SectionLabel>
+        <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          Lexiq vs. the way you've been doing it.
+        </h2>
+        <div className="mt-10 overflow-hidden rounded-3xl border border-border bg-card/60 backdrop-blur">
+          <div className="grid grid-cols-3 border-b border-border bg-surface-2/40 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:px-6">
+            <span></span>
+            <span className="text-center text-foreground">Lexiq</span>
+            <span className="text-center">Old-school flashcards</span>
+          </div>
+          {[
+            ["Personalized to your level", true, false],
+            ["Spaced repetition that actually adapts", true, false],
+            ["Grades your real understanding", true, false],
+            ["Streaks, XP, coins, ranks", true, false],
+            ["Works on the bus, in line, in bed", true, true],
+            ["Costs nothing to start", true, true],
+          ].map(([label, a, b], i) => (
+            <div
+              key={i}
+              className="grid grid-cols-3 items-center border-b border-border/60 px-4 py-4 text-sm last:border-b-0 sm:px-6"
+            >
+              <span className="text-muted-foreground">{label as string}</span>
+              <span className="flex justify-center">
+                {a ? <CheckCircle2 className="h-5 w-5 text-success" /> : <X className="h-5 w-5 text-muted-foreground/50" />}
+              </span>
+              <span className="flex justify-center">
+                {b ? <CheckCircle2 className="h-5 w-5 text-success/70" /> : <X className="h-5 w-5 text-muted-foreground/50" />}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* TRUST */}
+      <section className="mx-auto w-full max-w-6xl px-6 py-20">
+        <div className="grid gap-4 md:grid-cols-3">
+          <TrustCard icon={<ShieldCheck className="h-5 w-5" />} title="Private by default"
+            body="Your progress is yours. We never sell data and never show ads." />
+          <TrustCard icon={<Clock className="h-5 w-5" />} title="Built for 5-minute sessions"
+            body="No 45-minute study blocks. Open it between classes, ship a streak." />
+          <TrustCard icon={<Brain className="h-5 w-5" />} title="Based on what actually shows up"
+            body="Every word is pulled from real SAT and ACT release tests — no filler." />
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto w-full max-w-3xl px-6 py-20">
+        <SectionLabel>FAQ</SectionLabel>
+        <h2 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          Questions, answered.
+        </h2>
+        <div className="mt-10 space-y-3">
+          <FaqItem q="Is Lexiq really free?"
+            a="Yes. The full word library, swipe deck, AI checkpoints, and streaks are free forever. Cosmetic items in the shop are optional." />
+          <FaqItem q="How long until I see SAT/ACT score gains?"
+            a="Most students notice a difference on practice sections inside 3 weeks. Vocabulary lifts reading speed and clue-based questions the fastest." />
+          <FaqItem q="What if I miss a day?"
+            a="You get streak freezes built in. One bad day doesn't reset your progress — we want this to be sustainable, not stressful." />
+          <FaqItem q="Does it work on my phone?"
+            a="Lexiq is mobile-first. It works beautifully on iOS, Android, tablet, and desktop browsers — no install required." />
+          <FaqItem q="Where do the words come from?"
+            a="Every word is sourced from publicly released SAT and ACT practice tests, weighted by how often they appear and how often they're missed." />
+        </div>
+      </section>
+
+
+
       {/* FINAL CTA */}
       <section className="mx-auto w-full max-w-4xl px-6 py-24 text-center">
         <h2 className="font-display text-4xl font-bold tracking-tight sm:text-6xl">
@@ -233,6 +344,44 @@ function Stat({ big, label }: { big: string; label: string }) {
       </div>
       <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
     </div>
+  );
+}
+
+function Tool({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="rounded-3xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40 hover:-translate-y-0.5">
+      <div className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+        {icon}
+      </div>
+      <h3 className="mt-3 font-display text-base font-bold">{title}</h3>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function TrustCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-success/15 text-success ring-1 ring-success/30">
+        {icon}
+      </div>
+      <h3 className="mt-4 font-display text-lg font-bold">{title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  return (
+    <details className="group rounded-2xl border border-border bg-card/60 px-5 py-4 backdrop-blur transition open:border-primary/40">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-semibold">
+        {q}
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-surface-2 text-muted-foreground transition group-open:rotate-45 group-open:text-primary">
+          +
+        </span>
+      </summary>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
+    </details>
   );
 }
 

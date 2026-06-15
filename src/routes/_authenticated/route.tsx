@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
+import { AnimatedOutlet } from "@/components/AnimatedOutlet";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthedShell() {
   return (
     <div className="min-h-screen">
-      <Outlet />
+      <AnimatedOutlet />
       <BottomNav />
     </div>
   );
