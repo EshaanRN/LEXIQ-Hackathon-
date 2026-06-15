@@ -25,11 +25,9 @@ function Feed() {
 
   useEffect(() => {
     const initial: VocabWord[] = [];
-    let last: string | undefined;
     for (let i = 0; i < 3; i++) {
-      const w = nextWord(last);
+      const w = nextWord(initial.map((x) => x.id));
       initial.push(w);
-      last = w.id;
     }
     setQueue(initial);
     const id = setInterval(() => {
@@ -41,15 +39,16 @@ function Feed() {
   function advance() {
     setQueue((q) => {
       const [, ...rest] = q;
-      const refill = nextWord(rest[rest.length - 1]?.id);
+      const refill = nextWord(rest.map((x) => x.id));
       return [...rest, refill];
     });
   }
   function handleKnown() {
     const top = queue[0];
     if (!top) return;
-    markKnown(top);
+    const { checkpointDue } = markKnown(top);
     advance();
+    if (checkpointDue) setCheckpointPrompt(true);
   }
   function handleUnknown() {
     const top = queue[0];
