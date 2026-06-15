@@ -316,21 +316,28 @@ function blank(): WordState {
   return { mastery: "unknown", seen: 0, correct: 0, wasMissed: false, lastSeenAt: 0 };
 }
 
-export function markKnown(word: VocabWord) {
+export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   touchStreak();
   tickActive();
   const prev: WordState = state.words[word.id] ?? blank();
+  const wasNew = prev.mastery === "unknown";
   state.words[word.id] = {
     ...prev,
     mastery: "mastered",
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
-    knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal,
+    knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0),
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
+  if (wasNew) {
+    state.wordsLearnedTotal += 1;
+    pendingWordsLearned += 1;
+  }
   checkRootMastery(word.root);
   persist();
+  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
+  return { checkpointDue: since > 0 && since >= state.checkpointInterval };
 }
 
 
