@@ -62,15 +62,18 @@ function AuthPage() {
   const [handoff, setHandoff] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  // If a session exists when landing on /auth (e.g. hard reload), sign the user
+  // out so this page is always usable for creating or switching accounts.
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
-      if (!cancelled && data.user) navigate({ to: "/", replace: true });
+      if (cancelled || !data.user) return;
+      supabase.auth.signOut().catch(() => {});
     });
     return () => {
       cancelled = true;
     };
-  }, [navigate]);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
