@@ -406,23 +406,59 @@ export function examPool(): VocabWord[] {
   });
 }
 
-export function nextWord(exclude?: string): VocabWord {
+// Track recently shown words and cadence for spaced repetition.
+// These are intentionally module-local (not persisted) so each session feels fresh.
+let recentlyShown: string[] = [];
+let shownCounter = 0;
+const RECENT_BUFFER = 8;
+const REINFORCE_EVERY = 5;
+
+function rememberShown(id: string) {
+  recentlyShown = [id, ...recentlyShown.filter((x) => x !== id)].slice(0, RECENT_BUFFER);
+  shownCounter += 1;
+}
+
+export function nextWord(exclude?: string | string[]): VocabWord {
   const pool = examPool();
   const total = state.wordsLearnedTotal;
+  const excludeIds = new Set<string>(
+    Array.isArray(exclude) ? exclude : exclude ? [exclude] : [],
+  );
+  // Also avoid the most recently shown words so the feed doesn't repeat tightly.
+  recentlyShown.slice(0, RECENT_BUFFER).forEach((id) => excludeIds.add(id));
+
+  // Every Nth pick, force a reinforcement of an unlearned (missed/learning) word
+  // so users see previously-missed vocab on a predictable cadence.
+  const dueForReinforce = shownCounter > 0 && shownCounter % REINFORCE_EVERY === 0;
+  if (dueForReinforce) {
+    const learningPool = pool
+      .filter((w) => !excludeIds.has(w.id))
+      .filter((w) => {
+        const m = state.words[w.id]?.mastery;
+        return m === "learning" || m === "practicing";
+      })
+      .sort((a, b) => (state.words[a.id]?.lastSeenAt ?? 0) - (state.words[b.id]?.lastSeenAt ?? 0));
+    if (learningPool.length > 0) {
+      const pick = learningPool[0];
+      rememberShown(pick.id);
+      return pick;
+    }
+  }
+
   const candidates = pool.filter((w) => {
-    if (w.id === exclude) return false;
+    if (excludeIds.has(w.id)) return false;
     const ws = state.words[w.id];
     const m = ws?.mastery;
     if (m !== "mastered" && m !== "familiar") return true;
-    // Refresher eligibility: only after the user has learned enough NEW
-    // words since this one was last marked known, and even then only
-    // occasionally so new vocab keeps flowing.
+    // Refresher eligibility: only after enough new words have passed.
     const since = total - (ws?.knownAtTotal ?? total);
     if (since < REFRESHER_COOLDOWN) return false;
     return Math.random() < 0.08;
   });
-  // If everything is learned, fall back to the full pool so the feed never dies.
-  const source = candidates.length > 0 ? candidates : pool.filter((w) => w.id !== exclude);
+  // Fallback: drop the recency exclusion (but keep caller-supplied exclude) so the feed never dies.
+  const callerExclude = new Set<string>(Array.isArray(exclude) ? exclude : exclude ? [exclude] : []);
+  const fallback = pool.filter((w) => !callerExclude.has(w.id));
+  const source = candidates.length > 0 ? candidates : fallback.length > 0 ? fallback : pool;
   const scored = source.map((w) => {
     const ws = state.words[w.id];
     const masteryWeight = ws
@@ -433,7 +469,9 @@ export function nextWord(exclude?: string): VocabWord {
     return { w, score: masteryWeight * rootWeight * recencyPenalty * Math.random() };
   });
   scored.sort((a, b) => b.score - a.score);
-  return scored[0]?.w ?? pool[0] ?? VOCAB[0];
+  const pick = scored[0]?.w ?? pool[0] ?? VOCAB[0];
+  rememberShown(pick.id);
+  return pick;
 }
 
 
