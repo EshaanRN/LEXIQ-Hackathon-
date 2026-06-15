@@ -46,8 +46,9 @@ function Feed() {
   function handleKnown() {
     const top = queue[0];
     if (!top) return;
-    markKnown(top);
+    const { checkpointDue } = markKnown(top);
     advance();
+    if (checkpointDue) setCheckpointPrompt(true);
   }
   function handleUnknown() {
     const top = queue[0];
