@@ -1,4 +1,5 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
 import { AnimatedOutlet } from "@/components/AnimatedOutlet";
@@ -16,6 +17,13 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthedShell() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const tabRoutes = ["/app", "/checkpoint", "/dashboard", "/avatar", "/shop"] as const;
+    void Promise.all(tabRoutes.map((to) => router.preloadRoute({ to })));
+  }, [router]);
+
   return (
     <div className="min-h-screen">
       <AnimatedOutlet />

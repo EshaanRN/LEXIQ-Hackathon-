@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ArrowLeft, Coins, Zap, Flame, Trophy, Target, BookOpen, Mic } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
-import { levelForXp, useGame, useMounted } from "@/lib/game-store";
+import { levelForXp, useGame } from "@/lib/game-store";
 import { VOCAB } from "@/data/vocab";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -11,7 +11,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const mounted = useMounted();
   const g = useGame();
 
   const stats = useMemo(() => {
@@ -28,7 +27,6 @@ function Dashboard() {
     return { learned, mastered, satTotal, actTotal, satMastered, actMastered, rootsMastered, pronAvg };
   }, [g.words, g.rootBonusGiven]);
 
-  if (!mounted) return <div className="h-screen" />;
   const lvl = levelForXp(g.xp);
   const pct = Math.round((lvl.intoLevel / lvl.nextLevel) * 100);
 
