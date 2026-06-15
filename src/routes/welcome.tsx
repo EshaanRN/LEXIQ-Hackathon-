@@ -59,15 +59,10 @@ function Welcome() {
       {/* HERO */}
       <section className="mx-auto grid w-full max-w-6xl gap-12 px-6 pt-8 pb-24 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div className="text-center lg:text-left">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full bg-surface-2/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground ring-1 ring-border backdrop-blur"
-          >
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 inline-flex items-center gap-2 rounded-full bg-surface-2/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground ring-1 ring-border backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             Built for SAT &amp; ACT
-          </motion.div>
+          </div>
 
           <motion.h1
             initial={{ opacity: 0, y: 14 }}
