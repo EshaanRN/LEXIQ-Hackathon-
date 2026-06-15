@@ -18,11 +18,11 @@ const Input = z.object({
   exam: z.enum(["sat", "act", "both"]),
 });
 
-const FREE_STYLE_IDS = new Set(DICEBEAR_STYLES.filter((style) => style.free).map((style) => style.id));
-const FREE_BACKGROUND_KEYS = new Set(BACKGROUND_PALETTES.filter((background) => background.cost === 0).map((background) => background.colors.join(",")));
+const FREE_STYLE_IDS = new Set<string>(DICEBEAR_STYLES.filter((style) => style.free).map((style) => style.id));
+const FREE_BACKGROUND_KEYS = new Set<string>(BACKGROUND_PALETTES.filter((background) => background.cost === 0).map((background) => background.colors.join(",")));
 
 function isFreeStyleId(value: unknown): value is DicebearStyleId {
-  return typeof value === "string" && FREE_STYLE_IDS.has(value as DicebearStyleId);
+  return typeof value === "string" && FREE_STYLE_IDS.has(value);
 }
 
 function sanitizeOnboardingAvatar(rawAvatar: Record<string, unknown>): AvatarConfig {
