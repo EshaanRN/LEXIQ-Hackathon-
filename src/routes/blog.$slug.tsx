@@ -96,7 +96,7 @@ function BlogPostPage() {
         </header>
 
         <div className="mt-10 space-y-6 text-[15px] leading-relaxed text-white/85">
-          {post.content.map((block, i) => (
+          {post.content.map((block: BlogBlock, i: number) => (
             <BlockRenderer key={i} block={block} />
           ))}
         </div>
