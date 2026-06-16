@@ -28,14 +28,14 @@ export function LearnSheet({ word, onLearned, onSkip }: Props) {
     <AnimatePresence>
       {word && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onSkip}
         >
           <motion.div
-            className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl border border-border bg-card p-6 pb-8"
+            className="relative w-full max-w-md h-[92vh] overflow-y-auto rounded-3xl border border-border bg-card p-6 pb-8"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
