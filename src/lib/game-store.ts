@@ -417,8 +417,8 @@ export function examPool(): VocabWord[] {
 // These are intentionally module-local (not persisted) so each session feels fresh.
 let recentlyShown: string[] = [];
 let shownCounter = 0;
-const RECENT_BUFFER = 8;
-const REINFORCE_EVERY = 5;
+const RECENT_BUFFER = 40;
+const REINFORCE_EVERY = 6;
 
 function rememberShown(id: string) {
   recentlyShown = [id, ...recentlyShown.filter((x) => x !== id)].slice(0, RECENT_BUFFER);
