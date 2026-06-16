@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Volume2, Sparkles, BookOpen } from "lucide-react";
+import { Heart, Volume2, BookOpen } from "lucide-react";
 import { useRef, useState } from "react";
 import type { VocabWord } from "@/data/vocab";
 
