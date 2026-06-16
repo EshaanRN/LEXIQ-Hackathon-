@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Volume2, Sparkles, BookOpen } from "lucide-react";
+import { Heart, Volume2, BookOpen } from "lucide-react";
 import { useRef, useState } from "react";
 import type { VocabWord } from "@/data/vocab";
 
@@ -79,19 +79,6 @@ export function LearnSheet({ word, onLearned, onSkip }: Props) {
               <p className="mt-2 text-xs text-muted-foreground">{word.rootMeaning}</p>
             </Section>
 
-            <Section icon={<Sparkles className="h-3.5 w-3.5" />} label="Memory Hook" tone="dashed">
-              <p className="text-sm text-foreground/90">{word.mnemonic}</p>
-            </Section>
-
-            {/* visual / meme placeholder */}
-            <div className="mt-4 grid h-32 place-items-center rounded-2xl border border-dashed border-muted-foreground/30 bg-gradient-to-br from-primary/10 to-accent/20 text-center">
-              <div>
-                <div className="text-3xl">🧠⚡</div>
-                <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-                  Visual Mnemonic
-                </p>
-              </div>
-            </div>
 
             <div className="mt-6 flex items-center gap-3">
               <button
