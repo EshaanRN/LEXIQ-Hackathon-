@@ -6,11 +6,11 @@ import { Sparkles, Target, Brain, TrendingUp, ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "LearnLexiq — AI-Powered SAT Vocabulary Learning App" },
+      { title: "Lexiq | SAT & ACT Vocabulary Learning App" },
       {
         name: "description",
         content:
-          "LearnLexiq is an AI-powered SAT and ACT vocabulary learning app. Master high-frequency test words through an addictive swipe-based game with personalized practice, progress tracking, and AI checkpoints.",
+          "Lexiq helps students master SAT and ACT vocabulary using smart flashcards, memory tools, and personalized learning designed to improve test scores.",
       },
       {
         property: "og:title",
