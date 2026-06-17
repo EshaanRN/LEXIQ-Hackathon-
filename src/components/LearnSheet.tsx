@@ -20,7 +20,7 @@ function speakWord(text: string) {
   window.speechSynthesis.speak(u);
 }
 
-export function LearnSheet({ word, onLearned, onSkip }: Props) {
+export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
   const lastTap = useRef(0);
   const [hearted, setHearted] = useState(false);
 
