@@ -144,9 +144,11 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
                 </button>
               </div>
             )}
-            <p className="mt-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground/70">
-              Double-tap ❤️ or press Learned to claim XP
-            </p>
+            {!viewOnly && (
+              <p className="mt-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground/70">
+                Double-tap ❤️ or press Learned to claim XP
+              </p>
+            )}
           </motion.div>
         </motion.div>
       )}
