@@ -57,16 +57,20 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
 
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/30">
-                Learn this word
+                {viewOnly ? "Word details" : "Learn this word"}
               </span>
-              <span className="text-xs text-muted-foreground">+25 XP on Learn</span>
+              {!viewOnly && <span className="text-xs text-muted-foreground">+25 XP on Learn</span>}
             </div>
 
             <h2 className="mt-4 font-display text-4xl font-bold text-gradient-primary">
               {word.word}
             </h2>
-            <button className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border">
-              <Volume2 className="h-3 w-3" /> {word.pronunciation}
+            <button
+              onClick={() => speakWord(word.word)}
+              className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
+              aria-label={`Hear pronunciation of ${word.word}`}
+            >
+              <Volume2 className="h-3 w-3" /> {word.pronunciation || "Tap to hear"}
             </button>
 
             <Section icon={<BookOpen className="h-3.5 w-3.5" />} label="Definition" tone="primary">
