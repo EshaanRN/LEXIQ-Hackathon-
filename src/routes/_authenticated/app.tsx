@@ -5,6 +5,7 @@ import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
+import { SearchBar } from "@/components/SearchBar";
 import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
@@ -17,6 +18,7 @@ function Feed() {
   const navigate = useNavigate();
   const [queue, setQueue] = useState<VocabWord[]>([]);
   const [learning, setLearning] = useState<VocabWord | null>(null);
+  const [viewing, setViewing] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
 
 
@@ -90,6 +92,7 @@ function Feed() {
       <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
+      <SearchBar onSelect={setViewing} />
 
       <div className="relative mx-5 my-3 flex-1 min-h-0">
 
@@ -118,6 +121,7 @@ function Feed() {
 
       <XPToast />
       <LearnSheet word={learning} onLearned={handleLearned} onSkip={handleSkipLearn} />
+      <LearnSheet word={viewing} viewOnly onLearned={() => setViewing(null)} onSkip={() => setViewing(null)} />
 
       {checkpointPrompt && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-6 backdrop-blur">

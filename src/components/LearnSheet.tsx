@@ -7,9 +7,20 @@ interface Props {
   word: VocabWord | null;
   onLearned: () => void;
   onSkip: () => void;
+  viewOnly?: boolean;
 }
 
-export function LearnSheet({ word, onLearned, onSkip }: Props) {
+function speakWord(text: string) {
+  if (typeof window === "undefined" || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.85;
+  u.pitch = 1;
+  u.lang = "en-US";
+  window.speechSynthesis.speak(u);
+}
+
+export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
   const lastTap = useRef(0);
   const [hearted, setHearted] = useState(false);
 
@@ -46,16 +57,20 @@ export function LearnSheet({ word, onLearned, onSkip }: Props) {
 
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/30">
-                Learn this word
+                {viewOnly ? "Word details" : "Learn this word"}
               </span>
-              <span className="text-xs text-muted-foreground">+25 XP on Learn</span>
+              {!viewOnly && <span className="text-xs text-muted-foreground">+25 XP on Learn</span>}
             </div>
 
             <h2 className="mt-4 font-display text-4xl font-bold text-gradient-primary">
               {word.word}
             </h2>
-            <button className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border">
-              <Volume2 className="h-3 w-3" /> {word.pronunciation}
+            <button
+              onClick={() => speakWord(word.word)}
+              className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
+              aria-label={`Hear pronunciation of ${word.word}`}
+            >
+              <Volume2 className="h-3 w-3" /> {word.pronunciation || "Tap to hear"}
             </button>
 
             <Section icon={<BookOpen className="h-3.5 w-3.5" />} label="Definition" tone="primary">
@@ -92,35 +107,48 @@ export function LearnSheet({ word, onLearned, onSkip }: Props) {
             </Section>
 
 
-            <div className="mt-6 flex items-center gap-3">
-              <button
-                onClick={onSkip}
-                className="flex-1 rounded-full bg-surface-2 py-3 font-display text-sm font-bold uppercase tracking-widest text-muted-foreground ring-1 ring-border"
-              >
-                Not yet
-              </button>
-              <button
-                onClick={handleHeartTap}
-                className={`grid h-12 w-12 place-items-center rounded-full ring-1 transition ${
-                  hearted
-                    ? "bg-danger text-danger-foreground ring-danger"
-                    : "bg-danger/15 text-danger ring-danger/40"
-                }`}
-                aria-label="Double tap to learn"
-                title="Double-tap to mark as learned"
-              >
-                <Heart className={`h-5 w-5 ${hearted ? "fill-current" : ""}`} />
-              </button>
-              <button
-                onClick={onLearned}
-                className="flex-1 rounded-full bg-primary py-3 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary"
-              >
-                Learned
-              </button>
-            </div>
-            <p className="mt-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground/70">
-              Double-tap ❤️ or press Learned to claim XP
-            </p>
+            {viewOnly ? (
+              <div className="mt-6">
+                <button
+                  onClick={onSkip}
+                  className="w-full rounded-full bg-primary py-3 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <div className="mt-6 flex items-center gap-3">
+                <button
+                  onClick={onSkip}
+                  className="flex-1 rounded-full bg-surface-2 py-3 font-display text-sm font-bold uppercase tracking-widest text-muted-foreground ring-1 ring-border"
+                >
+                  Not yet
+                </button>
+                <button
+                  onClick={handleHeartTap}
+                  className={`grid h-12 w-12 place-items-center rounded-full ring-1 transition ${
+                    hearted
+                      ? "bg-danger text-danger-foreground ring-danger"
+                      : "bg-danger/15 text-danger ring-danger/40"
+                  }`}
+                  aria-label="Double tap to learn"
+                  title="Double-tap to mark as learned"
+                >
+                  <Heart className={`h-5 w-5 ${hearted ? "fill-current" : ""}`} />
+                </button>
+                <button
+                  onClick={onLearned}
+                  className="flex-1 rounded-full bg-primary py-3 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary"
+                >
+                  Learned
+                </button>
+              </div>
+            )}
+            {!viewOnly && (
+              <p className="mt-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground/70">
+                Double-tap ❤️ or press Learned to claim XP
+              </p>
+            )}
           </motion.div>
         </motion.div>
       )}
