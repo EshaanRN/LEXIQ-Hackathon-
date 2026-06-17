@@ -18,6 +18,7 @@ function Feed() {
   const navigate = useNavigate();
   const [queue, setQueue] = useState<VocabWord[]>([]);
   const [learning, setLearning] = useState<VocabWord | null>(null);
+  const [viewing, setViewing] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
 
 
