@@ -7,6 +7,17 @@ interface Props {
   word: VocabWord | null;
   onLearned: () => void;
   onSkip: () => void;
+  viewOnly?: boolean;
+}
+
+function speakWord(text: string) {
+  if (typeof window === "undefined" || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.85;
+  u.pitch = 1;
+  u.lang = "en-US";
+  window.speechSynthesis.speak(u);
 }
 
 export function LearnSheet({ word, onLearned, onSkip }: Props) {
