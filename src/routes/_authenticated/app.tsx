@@ -92,6 +92,7 @@ function Feed() {
       <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
+      <SearchBar onSelect={setViewing} />
 
       <div className="relative mx-5 my-3 flex-1 min-h-0">
 
