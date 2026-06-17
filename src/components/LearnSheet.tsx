@@ -59,8 +59,20 @@ export function LearnSheet({ word, onLearned, onSkip }: Props) {
             </button>
 
             <Section icon={<BookOpen className="h-3.5 w-3.5" />} label="Definition" tone="primary">
-              <p className="text-sm text-foreground/90">{word.studentDefinition}</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{word.studentDefinition}</p>
             </Section>
+
+            {word.synonyms && word.synonyms.length > 0 && (
+              <Section label="Similar Words" tone="accent">
+                <div className="flex flex-wrap gap-1.5">
+                  {word.synonyms.map((s) => (
+                    <span key={s} className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-medium text-accent ring-1 ring-accent/30">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </Section>
+            )}
 
             <Section label="SAT Example" tone="accent">
               <p className="text-sm italic text-foreground/80">"{word.satContext}"</p>
