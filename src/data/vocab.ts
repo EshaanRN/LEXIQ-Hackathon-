@@ -18,6 +18,7 @@ export interface VocabWord {
   rootMeaning: string;
   mnemonic: string;
   example: string;
+  synonyms?: string[];
 }
 
 export const VOCAB: VocabWord[] = [
