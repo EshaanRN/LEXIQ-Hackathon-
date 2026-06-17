@@ -121,6 +121,7 @@ function Feed() {
 
       <XPToast />
       <LearnSheet word={learning} onLearned={handleLearned} onSkip={handleSkipLearn} />
+      <LearnSheet word={viewing} viewOnly onLearned={() => setViewing(null)} onSkip={() => setViewing(null)} />
 
       {checkpointPrompt && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-6 backdrop-blur">
