@@ -525,8 +525,11 @@ export function nextWord(exclude?: string | string[]): VocabWord {
 
 export function snoozeCheckpoint() {
   // Push the next prompt one full interval ahead so the user isn't nagged
-  // word-after-word once they say "Later".
-  state = { ...state, wordsAtLastCheckpoint: state.wordsLearnedTotal };
+  // word-after-word once they say "Later" or cancel a checkpoint.
+  state = {
+    ...state,
+    wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
+  };
   persist();
 }
 
