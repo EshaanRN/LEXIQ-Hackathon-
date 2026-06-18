@@ -8,6 +8,7 @@ import {
   completeCheckpoint,
   pickCheckpointWords,
   setCheckpointInterval,
+  snoozeCheckpoint,
   useGame,
 } from "@/lib/game-store";
 import { gradeCheckpointAnswer } from "@/lib/grade.functions";
@@ -75,7 +76,16 @@ function CheckpointPage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-5 pt-6 pb-24">
       <div className="flex items-center gap-3">
-        <Link to="/app" aria-label="Back to app" className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border">
+        <Link
+          to="/app"
+          aria-label="Back to app"
+          onClick={() => {
+            // Cancelling resets the next-prompt counter so the prompt fires only when
+            // the user has actually learned the full interval again.
+            if (phase !== "results") snoozeCheckpoint();
+          }}
+          className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border"
+        >
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <h1 className="font-display text-xl font-bold">Vocabulary Checkpoint</h1>
@@ -85,15 +95,20 @@ function CheckpointPage() {
         <div className="mt-6 space-y-6">
           <div className="rounded-2xl bg-card p-5 ring-1 ring-border">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Progress to next prompt</p>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
-              <div
-                className="h-full bg-gradient-to-r from-primary to-accent"
-                style={{ width: `${Math.min(100, ((g.wordsLearnedTotal - g.wordsAtLastCheckpoint) / g.checkpointInterval) * 100)}%` }}
-              />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {g.wordsLearnedTotal - g.wordsAtLastCheckpoint} / {g.checkpointInterval} new words learned since last checkpoint
-            </p>
+            {(() => {
+              const since = Math.max(0, g.wordsLearnedTotal - g.wordsAtLastCheckpoint);
+              const pct = Math.min(100, (since / Math.max(1, g.checkpointInterval)) * 100);
+              return (
+                <>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
+                    <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${pct}%` }} />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {since} / {g.checkpointInterval} new words learned since last checkpoint
+                  </p>
+                </>
+              );
+            })()}
           </div>
 
           <div>

@@ -213,6 +213,10 @@ export function loadStateForUser(userId: string) {
     const raw = typeof window !== "undefined" ? localStorage.getItem(storageKey(userId)) : null;
     if (raw) next = { ...next, ...(JSON.parse(raw) as GameState), userId };
   } catch {}
+  // Repair drift: progress to next checkpoint must always start at 0+.
+  if (next.wordsAtLastCheckpoint > next.wordsLearnedTotal) {
+    next.wordsAtLastCheckpoint = next.wordsLearnedTotal;
+  }
   state = next;
   notify();
 }
@@ -525,8 +529,11 @@ export function nextWord(exclude?: string | string[]): VocabWord {
 
 export function snoozeCheckpoint() {
   // Push the next prompt one full interval ahead so the user isn't nagged
-  // word-after-word once they say "Later".
-  state = { ...state, wordsAtLastCheckpoint: state.wordsLearnedTotal };
+  // word-after-word once they say "Later" or cancel a checkpoint.
+  state = {
+    ...state,
+    wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
+  };
   persist();
 }
 
@@ -590,7 +597,7 @@ export function applyMasteryScore(wordId: string, score: number) {
 export function completeCheckpoint(scores: Record<string, number>, perfect: boolean) {
   state = {
     ...state,
-    wordsAtLastCheckpoint: state.wordsLearnedTotal,
+    wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
     checkpointsPassed: state.checkpointsPassed + 1,
     perfectCheckpoints: perfect ? state.perfectCheckpoints + 1 : state.perfectCheckpoints,
   };
