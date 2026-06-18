@@ -77,8 +77,12 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
               {word.word}
             </h1>
             <button
-              className="mt-3 flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border"
-              onClick={(e) => e.stopPropagation()}
+              className="mt-3 flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
+              onClick={(e) => {
+                e.stopPropagation();
+                speak(word.word);
+              }}
+              aria-label={`Hear pronunciation of ${word.word}`}
             >
               <Volume2 className="h-3.5 w-3.5" />
               {word.pronunciation}
