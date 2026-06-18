@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import type { VocabWord } from "@/data/vocab";
 import { Star, Volume2, Heart, X } from "lucide-react";
+import { speak } from "@/lib/speak";
 
 interface Props {
   word: VocabWord;
