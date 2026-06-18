@@ -33,6 +33,9 @@ function Feed() {
       initial.push(w);
     }
     setQueue(initial);
+    // If user reached the checkpoint threshold previously and dismissed/reloaded,
+    // re-prompt on mount so they never miss a milestone test.
+    if (isCheckpointDue()) setCheckpointPrompt(true);
     const id = setInterval(() => {
       if (document.visibilityState === "visible") tickActive();
     }, 15_000);
