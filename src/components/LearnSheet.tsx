@@ -57,7 +57,7 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
               {word.word}
             </h2>
             <button
-              onClick={() => speakWord(word.word)}
+              onClick={() => speak(word.word)}
               className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
               aria-label={`Hear pronunciation of ${word.word}`}
             >
