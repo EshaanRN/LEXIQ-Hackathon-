@@ -6,7 +6,8 @@ import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
 import { SearchBar } from "@/components/SearchBar";
-import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint } from "@/lib/game-store";
+import { DailyGoal } from "@/components/DailyGoal";
+import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint, isCheckpointDue } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
 export const Route = createFileRoute("/_authenticated/app")({
