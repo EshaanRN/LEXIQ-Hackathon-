@@ -372,6 +372,7 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   if (wasNew) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
+    noteWordLearnedToday();
   }
   checkRootMastery(word.root);
   persist();
