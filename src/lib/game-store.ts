@@ -542,6 +542,23 @@ export function setCheckpointInterval(n: number) {
   persist();
 }
 
+export function setDailyGoal(n: number) {
+  const clamped = Math.max(1, Math.min(200, Math.round(n)));
+  state = { ...state, dailyGoal: clamped, goalCelebratedDay: null };
+  persist();
+}
+
+export function dailyGoalProgress() {
+  const today = todayKey();
+  const learned = state.goalDay === today ? state.wordsLearnedToday : 0;
+  return { learned, goal: state.dailyGoal, reached: learned >= state.dailyGoal };
+}
+
+export function isCheckpointDue() {
+  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
+  return since > 0 && since >= state.checkpointInterval;
+}
+
 /** Pick N words for a checkpoint — words the user has learned but not yet
  * fully mastered, preferring earliest "learning"/"practicing"/"familiar". */
 export function pickCheckpointWords(count: number): VocabWord[] {
