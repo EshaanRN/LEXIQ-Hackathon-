@@ -424,6 +424,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   if (wasNew) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
+    noteWordLearnedToday();
   }
   if (becameMastered && wasMissed) addXp(50, "Mastered Missed Word", 25);
   checkRootMastery(word.root);
