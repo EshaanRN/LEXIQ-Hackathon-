@@ -48,6 +48,14 @@ interface GameState {
   /** Pass count of checkpoints (for rewards) */
   checkpointsPassed: number;
   perfectCheckpoints: number;
+  /** User-set daily learning target (new words per day) */
+  dailyGoal: number;
+  /** New words learned during current day */
+  wordsLearnedToday: number;
+  /** ISO date string for the day wordsLearnedToday is tracking */
+  goalDay: string | null;
+  /** True once the goal-reached toast has fired for goalDay */
+  goalCelebratedDay: string | null;
 }
 
 const RANKS = [
@@ -99,6 +107,10 @@ function defaultState(userId: string | null): GameState {
     wordsAtLastCheckpoint: 0,
     checkpointsPassed: 0,
     perfectCheckpoints: 0,
+    dailyGoal: 15,
+    wordsLearnedToday: 0,
+    goalDay: null,
+    goalCelebratedDay: null,
   };
 }
 
@@ -266,6 +278,33 @@ function touchStreak() {
   state.lastActiveDay = today;
 }
 
+function noteWordLearnedToday() {
+  const today = todayKey();
+  if (state.goalDay !== today) {
+    state.goalDay = today;
+    state.wordsLearnedToday = 0;
+    state.goalCelebratedDay = null;
+  }
+  state.wordsLearnedToday += 1;
+  if (
+    state.dailyGoal > 0 &&
+    state.wordsLearnedToday >= state.dailyGoal &&
+    state.goalCelebratedDay !== today
+  ) {
+    state.goalCelebratedDay = today;
+    pushToast({
+      label: `Daily goal hit! ${state.dailyGoal} words 🎯 Keep going for bonus XP.`,
+      xp: 50,
+      coins: 25,
+    });
+    state.xp += 50;
+    state.coins += 25;
+    pendingXp += 50;
+    pendingCoins += 25;
+    scheduleEconomyFlush();
+  }
+}
+
 function pushToast(t: Omit<Toast, "id">) {
   const toast = { ...t, id: Date.now() + Math.random() };
   toastListeners.forEach((l) => l(toast));
@@ -333,6 +372,7 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   if (wasNew) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
+    noteWordLearnedToday();
   }
   checkRootMastery(word.root);
   persist();
@@ -384,6 +424,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   if (wasNew) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
+    noteWordLearnedToday();
   }
   if (becameMastered && wasMissed) addXp(50, "Mastered Missed Word", 25);
   checkRootMastery(word.root);
@@ -499,6 +540,23 @@ export function setCheckpointInterval(n: number) {
   state = { ...state, checkpointInterval: n };
   notify();
   persist();
+}
+
+export function setDailyGoal(n: number) {
+  const clamped = Math.max(1, Math.min(200, Math.round(n)));
+  state = { ...state, dailyGoal: clamped, goalCelebratedDay: null };
+  persist();
+}
+
+export function dailyGoalProgress() {
+  const today = todayKey();
+  const learned = state.goalDay === today ? state.wordsLearnedToday : 0;
+  return { learned, goal: state.dailyGoal, reached: learned >= state.dailyGoal };
+}
+
+export function isCheckpointDue() {
+  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
+  return since > 0 && since >= state.checkpointInterval;
 }
 
 /** Pick N words for a checkpoint — words the user has learned but not yet

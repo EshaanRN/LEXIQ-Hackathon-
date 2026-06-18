@@ -2,22 +2,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Volume2, BookOpen } from "lucide-react";
 import { useRef, useState } from "react";
 import type { VocabWord } from "@/data/vocab";
+import { speak } from "@/lib/speak";
 
 interface Props {
   word: VocabWord | null;
   onLearned: () => void;
   onSkip: () => void;
   viewOnly?: boolean;
-}
-
-function speakWord(text: string) {
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.85;
-  u.pitch = 1;
-  u.lang = "en-US";
-  window.speechSynthesis.speak(u);
 }
 
 export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
@@ -66,7 +57,7 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
               {word.word}
             </h2>
             <button
-              onClick={() => speakWord(word.word)}
+              onClick={() => speak(word.word)}
               className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
               aria-label={`Hear pronunciation of ${word.word}`}
             >

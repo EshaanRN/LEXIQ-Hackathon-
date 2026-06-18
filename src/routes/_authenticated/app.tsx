@@ -6,7 +6,8 @@ import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
 import { LearnSheet } from "@/components/LearnSheet";
 import { SearchBar } from "@/components/SearchBar";
-import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint } from "@/lib/game-store";
+import { DailyGoal } from "@/components/DailyGoal";
+import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint, isCheckpointDue } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -32,6 +33,9 @@ function Feed() {
       initial.push(w);
     }
     setQueue(initial);
+    // If user reached the checkpoint threshold previously and dismissed/reloaded,
+    // re-prompt on mount so they never miss a milestone test.
+    if (isCheckpointDue()) setCheckpointPrompt(true);
     const id = setInterval(() => {
       if (document.visibilityState === "visible") tickActive();
     }, 15_000);
@@ -92,6 +96,7 @@ function Feed() {
       <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
+      <DailyGoal />
       <SearchBar onSelect={setViewing} />
 
       <div className="relative mx-5 my-3 flex-1 min-h-0">
