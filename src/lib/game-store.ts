@@ -213,6 +213,10 @@ export function loadStateForUser(userId: string) {
     const raw = typeof window !== "undefined" ? localStorage.getItem(storageKey(userId)) : null;
     if (raw) next = { ...next, ...(JSON.parse(raw) as GameState), userId };
   } catch {}
+  // Repair drift: progress to next checkpoint must always start at 0+.
+  if (next.wordsAtLastCheckpoint > next.wordsLearnedTotal) {
+    next.wordsAtLastCheckpoint = next.wordsLearnedTotal;
+  }
   state = next;
   notify();
 }
