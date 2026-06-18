@@ -107,6 +107,10 @@ function defaultState(userId: string | null): GameState {
     wordsAtLastCheckpoint: 0,
     checkpointsPassed: 0,
     perfectCheckpoints: 0,
+    dailyGoal: 15,
+    wordsLearnedToday: 0,
+    goalDay: null,
+    goalCelebratedDay: null,
   };
 }
 
