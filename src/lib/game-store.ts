@@ -48,6 +48,14 @@ interface GameState {
   /** Pass count of checkpoints (for rewards) */
   checkpointsPassed: number;
   perfectCheckpoints: number;
+  /** User-set daily learning target (new words per day) */
+  dailyGoal: number;
+  /** New words learned during current day */
+  wordsLearnedToday: number;
+  /** ISO date string for the day wordsLearnedToday is tracking */
+  goalDay: string | null;
+  /** True once the goal-reached toast has fired for goalDay */
+  goalCelebratedDay: string | null;
 }
 
 const RANKS = [
