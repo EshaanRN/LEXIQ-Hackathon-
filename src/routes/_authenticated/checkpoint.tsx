@@ -8,6 +8,7 @@ import {
   completeCheckpoint,
   pickCheckpointWords,
   setCheckpointInterval,
+  snoozeCheckpoint,
   useGame,
 } from "@/lib/game-store";
 import { gradeCheckpointAnswer } from "@/lib/grade.functions";
