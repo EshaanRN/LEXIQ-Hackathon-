@@ -593,7 +593,7 @@ export function applyMasteryScore(wordId: string, score: number) {
 export function completeCheckpoint(scores: Record<string, number>, perfect: boolean) {
   state = {
     ...state,
-    wordsAtLastCheckpoint: state.wordsLearnedTotal,
+    wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
     checkpointsPassed: state.checkpointsPassed + 1,
     perfectCheckpoints: perfect ? state.perfectCheckpoints + 1 : state.perfectCheckpoints,
   };
