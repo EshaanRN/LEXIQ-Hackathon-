@@ -75,6 +75,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -84,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Lexiq helps students master SAT and ACT vocabulary using smart flashcards, memory tools, and personalized learning designed to improve test scores." },
       { name: "theme-color", content: "#000000" },
       { name: "google-site-verification", content: "C27DsJKIfRUqq1__dKiX434nkLMTf6r1BnhRRpbcO9A" },
+      ...(ADSENSE_CLIENT ? [{ name: "google-adsense-account", content: ADSENSE_CLIENT }] : []),
       { property: "og:site_name", content: "Lexiq" },
       { property: "og:title", content: "Lexiq | SAT & ACT Vocabulary Learning App" },
       { property: "og:description", content: "Lexiq helps students master SAT and ACT vocabulary using smart flashcards, memory tools, and personalized learning designed to improve test scores." },
@@ -105,6 +108,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Fonts are self-hosted via @fontsource (imported in src/styles.css) — no Google Fonts round-trip.
     ],
     scripts: [
+      ...(ADSENSE_CLIENT
+        ? [{
+            async: true,
+            src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`,
+            crossOrigin: "anonymous",
+          } as const]
+        : []),
       {
         type: "application/ld+json",
         children: JSON.stringify({

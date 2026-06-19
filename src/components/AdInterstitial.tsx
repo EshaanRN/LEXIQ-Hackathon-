@@ -79,10 +79,8 @@ export function AdInterstitial() {
           where you left off.
         </p>
 
-        {/* Real ad markup belongs here. */}
-        <div className="mt-5 flex h-44 items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2/60 text-xs uppercase tracking-widest text-muted-foreground">
-          Ad placeholder
-        </div>
+        <InterstitialAd />
+
 
         <Link
           to="/premium"
