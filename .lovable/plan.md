@@ -1,35 +1,27 @@
-## Wire up Google AdSense
+## Wire up your AdSense publisher ID for verification
 
-Prepare the app so real ads light up the moment you paste your `ca-pub-...` ID. Until then, current placeholders remain visible for free users (Premium users never see ads).
+Your publisher ID from the screenshot: `ca-pub-2551071845015039`.
+
+The app is already coded to inject the AdSense `<script>` tag site-wide when `VITE_ADSENSE_CLIENT` is set. We just need to fill it in and republish.
 
 ### Changes
 
-1. **Env variable**
-   - Add `VITE_ADSENSE_CLIENT=""` to `.env.development` and `.env.production`.
-   - You'll fill in `ca-pub-XXXXXXXXXXXXXXXX` once approved.
+1. Set `VITE_ADSENSE_CLIENT="ca-pub-2551071845015039"` in `.env.development`.
+2. Set `VITE_ADSENSE_CLIENT="ca-pub-2551071845015039"` in `.env.production`.
 
-2. **Load AdSense script in `src/routes/__root.tsx`**
-   - In `head()`, when `VITE_ADSENSE_CLIENT` is set, inject:
-     - `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXX" crossorigin="anonymous">`
-     - `<meta name="google-adsense-account" content="ca-pub-XXX">` (helps verification).
-   - Skip entirely when the env var is empty so unapproved builds don't ship the script.
+That's it — no other code changes. Once set, every page's `<head>` will include exactly the snippet AdSense is asking for:
 
-3. **Update `src/components/AdSlot.tsx`**
-   - If `VITE_ADSENSE_CLIENT` is set AND user is not Premium: render `<ins class="adsbygoogle" data-ad-client="ca-pub-XXX" data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true">` and push `(window.adsbygoogle = window.adsbygoogle || []).push({})` on mount.
-   - Accept an optional `slot` prop (ad unit ID). Fall back to current placeholder if no client/slot configured.
-   - Re-push on route change so ads refresh between pages.
+```html
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2551071845015039" crossorigin="anonymous"></script>
+```
 
-4. **Update `src/components/AdInterstitial.tsx`**
-   - Same pattern with a larger responsive unit; keep the existing dismiss/timing logic untouched.
+### What you do after I apply this
 
-5. **Docs comment**
-   - Add a short comment in each ad component explaining where to get the slot ID from AdSense and that leaving `VITE_ADSENSE_CLIENT` empty keeps placeholders.
+1. **Republish** the app (click Publish → Update) so the production build at `learnlexiq.com` ships the new script tag.
+2. Wait ~1 minute for the deploy to go live, then load `https://learnlexiq.com` once in your browser to confirm the page renders.
+3. Back in AdSense: tick **"I've placed the code"** and click **Verify**.
+4. AdSense then queues your site for review (can take hours to a few days). Ads stay as placeholders until they approve you and you create ad units — that's a separate later step.
 
-### What you'll do after approval
-1. Set `VITE_ADSENSE_CLIENT` in both env files to your `ca-pub-...` ID.
-2. In AdSense, create ad units and copy their slot IDs into the `slot` props (I'll mark the spots in code).
-3. Republish — ads go live for free users only.
-
-### Not included
-- ads.txt: AdSense auto-handles this on `*.lovable.app`. For `learnlexiq.com`, you'll need to add an `ads.txt` file at the domain root after approval — I can add a route for that when you're ready.
-- No business logic, premium gating, or webhook changes.
+### Note on the other two methods in the screenshot
+- **Meta tag**: also already supported by the same env var (we inject `<meta name="google-adsense-account">` too), so either AdSense method will pass once you republish.
+- **Ads.txt**: not needed for verification. After approval, for `learnlexiq.com` you'll want an `ads.txt` file — I can add a route for that when you're ready.
