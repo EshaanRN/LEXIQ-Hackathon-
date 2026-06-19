@@ -65,6 +65,19 @@ function PremiumPage() {
           <h1 className="font-display text-xl font-bold">Lexiq Premium</h1>
         </div>
 
+        {status === "past_due" && (
+          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <div>
+              <p className="font-semibold">Your last payment didn't go through.</p>
+              <p className="mt-0.5 text-xs text-amber-200/80">
+                We're still trying — update your payment method to keep Premium.{" "}
+                <Link to="/billing" className="underline font-semibold">Update payment</Link>
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/15 via-card to-card p-6 text-center">
           <Crown className="mx-auto h-10 w-10 text-gold" />
           <h2 className="mt-3 font-display text-2xl font-bold text-gradient-primary">
