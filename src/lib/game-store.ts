@@ -15,6 +15,10 @@ interface WordState {
   masteryScore?: number;
   /** wordsLearnedTotal snapshot when this word became known/mastered/familiar */
   knownAtTotal?: number;
+  /** First time the word was learned (markLearned or markKnown when new) */
+  firstLearnedAt?: number;
+  /** User-flagged "I might forget this" → reintroduced often until mastered */
+  reviewFlagged?: boolean;
 }
 
 // Re-show a known/mastered word for a refresher only after the user has
@@ -80,7 +84,12 @@ function storageKey(userId: string) {
   return `sat-swipe-state::${userId}`;
 }
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  // Local-time date so "today" resets at the user's midnight, not UTC midnight.
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function defaultState(userId: string | null): GameState {
@@ -277,7 +286,8 @@ export function levelForXp(xp: number) {
 function touchStreak() {
   const today = todayKey();
   if (state.lastActiveDay === today) return;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const y = new Date(Date.now() - 86400000);
+  const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
   state.streak = state.lastActiveDay === yesterday ? state.streak + 1 : 1;
   state.lastActiveDay = today;
 }
@@ -359,6 +369,23 @@ function blank(): WordState {
   return { mastery: "unknown", seen: 0, correct: 0, wasMissed: false, lastSeenAt: 0 };
 }
 
+export function toggleReviewFlag(wordId: string, value?: boolean): boolean {
+  const prev: WordState = state.words[wordId] ?? blank();
+  const next = typeof value === "boolean" ? value : !prev.reviewFlagged;
+  state.words = { ...state.words, [wordId]: { ...prev, reviewFlagged: next } };
+  persist();
+  return next;
+}
+
+export function getLearnedWords(): Array<{ word: VocabWord; ws: WordState }> {
+  const out: Array<{ word: VocabWord; ws: WordState }> = [];
+  for (const w of VOCAB) {
+    const ws = state.words[w.id];
+    if (ws && ws.mastery !== "unknown") out.push({ word: w, ws });
+  }
+  return out;
+}
+
 export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   touchStreak();
   tickActive();
@@ -371,6 +398,9 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
     knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0),
+    firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
+    // Auto-clear review flag once the user has fully mastered the word.
+    reviewFlagged: false,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
   if (wasNew) {
@@ -380,8 +410,7 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   }
   checkRootMastery(word.root);
   persist();
-  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
-  return { checkpointDue: since > 0 && since >= state.checkpointInterval };
+  return { checkpointDue: isCheckpointDue() };
 }
 
 
@@ -421,6 +450,9 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
       nextMastery === "mastered" || nextMastery === "familiar"
         ? prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0)
         : prev.knownAtTotal,
+    firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
+    // Stop reinforcing once we hit mastered.
+    reviewFlagged: nextMastery === "mastered" ? false : prev.reviewFlagged,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
@@ -434,8 +466,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   checkRootMastery(word.root);
   persist();
 
-  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
-  return { checkpointDue: since > 0 && since >= state.checkpointInterval };
+  return { checkpointDue: isCheckpointDue() };
 }
 
 function checkRootMastery(root: string) {
@@ -478,6 +509,24 @@ export function nextWord(exclude?: string | string[]): VocabWord {
   );
   // Also avoid the most recently shown words so the feed doesn't repeat tightly.
   recentlyShown.slice(0, RECENT_BUFFER).forEach((id) => excludeIds.add(id));
+
+  // Lightweight spaced repetition: every 3rd pick, surface a user-flagged
+  // "review again" word until it reaches mastered.
+  const dueForReview = shownCounter > 0 && shownCounter % 3 === 0;
+  if (dueForReview) {
+    const reviewPool = pool
+      .filter((w) => !excludeIds.has(w.id))
+      .filter((w) => {
+        const ws = state.words[w.id];
+        return ws?.reviewFlagged && ws.mastery !== "mastered";
+      })
+      .sort((a, b) => (state.words[a.id]?.lastSeenAt ?? 0) - (state.words[b.id]?.lastSeenAt ?? 0));
+    if (reviewPool.length > 0) {
+      const pick = reviewPool[0];
+      rememberShown(pick.id);
+      return pick;
+    }
+  }
 
   // Every Nth pick, force a reinforcement of an unlearned (missed/learning) word
   // so users see previously-missed vocab on a predictable cadence.

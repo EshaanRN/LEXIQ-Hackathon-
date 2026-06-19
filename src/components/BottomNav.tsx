@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Layers, ShoppingBag, User, Target, BarChart3 } from "lucide-react";
+import { Layers, ShoppingBag, Target, BarChart3, History } from "lucide-react";
 
 export function BottomNav() {
   const isTransitioning = useRouterState({ select: (s) => s.isLoading || s.isTransitioning });
@@ -9,8 +9,8 @@ export function BottomNav() {
       <div className="flex items-center justify-around">
         <NavLink to="/app" icon={<Layers className="h-5 w-5" />} label="Swipe" disabled={isTransitioning} />
         <NavLink to="/checkpoint" icon={<Target className="h-5 w-5" />} label="Test" disabled={isTransitioning} />
+        <NavLink to="/history" icon={<History className="h-5 w-5" />} label="History" disabled={isTransitioning} />
         <NavLink to="/dashboard" icon={<BarChart3 className="h-5 w-5" />} label="Stats" disabled={isTransitioning} />
-        <NavLink to="/avatar" icon={<User className="h-5 w-5" />} label="Avatar" disabled={isTransitioning} />
         <NavLink to="/shop" icon={<ShoppingBag className="h-5 w-5" />} label="Shop" disabled={isTransitioning} />
       </div>
     </nav>

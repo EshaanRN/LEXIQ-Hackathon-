@@ -19,6 +19,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCheckpointRouteImport } from './routes/_authenticated/checkpoint'
 import { Route as AuthenticatedAvatarRouteImport } from './routes/_authenticated/avatar'
@@ -73,6 +74,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/history': typeof AuthenticatedHistoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/history': typeof AuthenticatedHistoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
   '/_authenticated/checkpoint': typeof AuthenticatedCheckpointRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/checkpoint'
     | '/dashboard'
+    | '/history'
     | '/onboarding'
     | '/shop'
     | '/blog/$slug'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/checkpoint'
     | '/dashboard'
+    | '/history'
     | '/onboarding'
     | '/shop'
     | '/blog/$slug'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/_authenticated/avatar'
     | '/_authenticated/checkpoint'
     | '/_authenticated/dashboard'
+    | '/_authenticated/history'
     | '/_authenticated/onboarding'
     | '/_authenticated/shop'
     | '/blog/$slug'
@@ -273,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/history': {
+      id: '/_authenticated/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AuthenticatedHistoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -309,6 +328,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvatarRoute: typeof AuthenticatedAvatarRoute
   AuthenticatedCheckpointRoute: typeof AuthenticatedCheckpointRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
 }
@@ -318,6 +338,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvatarRoute: AuthenticatedAvatarRoute,
   AuthenticatedCheckpointRoute: AuthenticatedCheckpointRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
 }

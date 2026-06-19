@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Volume2, BookOpen } from "lucide-react";
-import { useRef, useState } from "react";
+import { Heart, Volume2, BookOpen, Flag } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 import type { VocabWord } from "@/data/vocab";
 import { speak } from "@/lib/speak";
+import { toggleReviewFlag, getState } from "@/lib/game-store";
 
 interface Props {
   word: VocabWord | null;
@@ -14,16 +15,26 @@ interface Props {
 export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
   const lastTap = useRef(0);
   const [hearted, setHearted] = useState(false);
+  const [flagged, setFlagged] = useState(false);
+
+  useEffect(() => {
+    if (word) setFlagged(!!getState().words[word.id]?.reviewFlagged);
+  }, [word]);
 
   function handleHeartTap() {
     const now = Date.now();
     if (now - lastTap.current < 350) {
-      // double tap
       setHearted(true);
       setTimeout(onLearned, 250);
     } else {
       lastTap.current = now;
     }
+  }
+
+  function handleFlag() {
+    if (!word) return;
+    const next = toggleReviewFlag(word.id);
+    setFlagged(next);
   }
 
   return (
@@ -56,13 +67,28 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
             <h2 className="mt-4 font-display text-4xl font-bold text-gradient-primary">
               {word.word}
             </h2>
-            <button
-              onClick={() => speak(word.word)}
-              className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
-              aria-label={`Hear pronunciation of ${word.word}`}
-            >
-              <Volume2 className="h-3 w-3" /> {word.pronunciation || "Tap to hear"}
-            </button>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => speak(word.word)}
+                className="inline-flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition hover:bg-primary/15 hover:text-primary hover:ring-primary/40"
+                aria-label={`Hear pronunciation of ${word.word}`}
+              >
+                <Volume2 className="h-3 w-3" /> {word.pronunciation || "Tap to hear"}
+              </button>
+              <button
+                onClick={handleFlag}
+                aria-pressed={flagged}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition ${
+                  flagged
+                    ? "bg-gold/20 text-gold ring-gold/40"
+                    : "bg-surface-2 text-muted-foreground ring-border hover:text-gold hover:ring-gold/40"
+                }`}
+                title="Reintroduce this word more often until you've mastered it"
+              >
+                <Flag className={`h-3 w-3 ${flagged ? "fill-current" : ""}`} />
+                {flagged ? "Reviewing" : "Might forget"}
+              </button>
+            </div>
 
             <Section icon={<BookOpen className="h-3.5 w-3.5" />} label="Definition" tone="primary">
               <p className="text-sm leading-relaxed text-foreground/90">{word.studentDefinition}</p>
