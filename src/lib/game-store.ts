@@ -504,6 +504,24 @@ export function nextWord(exclude?: string | string[]): VocabWord {
   // Also avoid the most recently shown words so the feed doesn't repeat tightly.
   recentlyShown.slice(0, RECENT_BUFFER).forEach((id) => excludeIds.add(id));
 
+  // Lightweight spaced repetition: every 3rd pick, surface a user-flagged
+  // "review again" word until it reaches mastered.
+  const dueForReview = shownCounter > 0 && shownCounter % 3 === 0;
+  if (dueForReview) {
+    const reviewPool = pool
+      .filter((w) => !excludeIds.has(w.id))
+      .filter((w) => {
+        const ws = state.words[w.id];
+        return ws?.reviewFlagged && ws.mastery !== "mastered";
+      })
+      .sort((a, b) => (state.words[a.id]?.lastSeenAt ?? 0) - (state.words[b.id]?.lastSeenAt ?? 0));
+    if (reviewPool.length > 0) {
+      const pick = reviewPool[0];
+      rememberShown(pick.id);
+      return pick;
+    }
+  }
+
   // Every Nth pick, force a reinforcement of an unlearned (missed/learning) word
   // so users see previously-missed vocab on a predictable cadence.
   const dueForReinforce = shownCounter > 0 && shownCounter % REINFORCE_EVERY === 0;
