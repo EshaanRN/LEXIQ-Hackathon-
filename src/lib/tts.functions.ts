@@ -27,11 +27,10 @@ export const speakWord = createServerFn({ method: "POST" })
         "Lovable-API-Key": key,
       },
       body: JSON.stringify({
-        // High-quality natural OpenAI voice.
-        model: "openai/tts-1-hd",
+        model: "openai/gpt-4o-mini-tts",
         voice: "nova",
         input: data.text,
-        format: "mp3",
+        response_format: "mp3",
         speed: data.style === "word" ? 0.92 : 1.0,
       }),
     });
