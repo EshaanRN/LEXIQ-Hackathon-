@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, Crown, Sparkles, ShieldCheck, Loader2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { ArrowLeft, Check, Crown, Sparkles, ShieldCheck, Loader2, AlertTriangle, Coins, X } from "lucide-react";
 import { useState } from "react";
 import { usePremium } from "@/lib/premium";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
@@ -8,6 +8,9 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/_authenticated/premium")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    checkout: s.checkout === "success" ? ("success" as const) : undefined,
+  }),
   component: PremiumPage,
 });
 
