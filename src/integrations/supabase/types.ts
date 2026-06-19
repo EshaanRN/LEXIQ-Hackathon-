@@ -24,11 +24,14 @@ export type Database = {
           exam: string
           id: string
           interests: string[]
+          is_premium: boolean
           last_checkpoint_at: string | null
           level: number
           mastery_scores: Json
           onboarding_complete: boolean
           owned_items: string[]
+          premium_plan: string | null
+          premium_until: string | null
           starting_rank: string | null
           updated_at: string
           username: string | null
@@ -44,11 +47,14 @@ export type Database = {
           exam?: string
           id: string
           interests?: string[]
+          is_premium?: boolean
           last_checkpoint_at?: string | null
           level?: number
           mastery_scores?: Json
           onboarding_complete?: boolean
           owned_items?: string[]
+          premium_plan?: string | null
+          premium_until?: string | null
           starting_rank?: string | null
           updated_at?: string
           username?: string | null
@@ -64,11 +70,14 @@ export type Database = {
           exam?: string
           id?: string
           interests?: string[]
+          is_premium?: boolean
           last_checkpoint_at?: string | null
           level?: number
           mastery_scores?: Json
           onboarding_complete?: boolean
           owned_items?: string[]
+          premium_plan?: string | null
+          premium_until?: string | null
           starting_rank?: string | null
           updated_at?: string
           username?: string | null
