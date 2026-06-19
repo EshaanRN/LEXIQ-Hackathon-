@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -28,6 +29,11 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/trust': typeof TrustRoute
   '/welcome': typeof WelcomeRoute
   '/app': typeof AuthenticatedAppRoute
   '/avatar': typeof AuthenticatedAvatarRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/trust': typeof TrustRoute
   '/welcome': typeof WelcomeRoute
   '/app': typeof AuthenticatedAppRoute
   '/avatar': typeof AuthenticatedAvatarRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/trust': typeof TrustRoute
   '/welcome': typeof WelcomeRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/terms'
+    | '/trust'
     | '/welcome'
     | '/app'
     | '/avatar'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/terms'
+    | '/trust'
     | '/welcome'
     | '/app'
     | '/avatar'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/terms'
+    | '/trust'
     | '/welcome'
     | '/_authenticated/app'
     | '/_authenticated/avatar'
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  TrustRoute: typeof TrustRoute
   WelcomeRoute: typeof WelcomeRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -352,6 +372,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  TrustRoute: TrustRoute,
   WelcomeRoute: WelcomeRoute,
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
