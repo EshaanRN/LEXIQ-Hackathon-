@@ -15,16 +15,26 @@ interface Props {
 export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
   const lastTap = useRef(0);
   const [hearted, setHearted] = useState(false);
+  const [flagged, setFlagged] = useState(false);
+
+  useEffect(() => {
+    if (word) setFlagged(!!getState().words[word.id]?.reviewFlagged);
+  }, [word]);
 
   function handleHeartTap() {
     const now = Date.now();
     if (now - lastTap.current < 350) {
-      // double tap
       setHearted(true);
       setTimeout(onLearned, 250);
     } else {
       lastTap.current = now;
     }
+  }
+
+  function handleFlag() {
+    if (!word) return;
+    const next = toggleReviewFlag(word.id);
+    setFlagged(next);
   }
 
   return (
