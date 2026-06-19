@@ -77,18 +77,29 @@ function TermsPage() {
             study. No other rights are granted by implication.
           </Block>
 
-          <Block title="7. Premium, subscriptions & payments">
+          <Block title="7. Premium, subscriptions & payments (Merchant of Record)">
             Lexiq may offer Premium subscriptions and digital purchases. Pricing, features, and availability are shown
-            at checkout and may change with notice. Unless required by law (or stated otherwise at checkout):
+            at checkout and may change with notice.
+            <p className="mt-2">
+              <strong>Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of
+              Record for all our orders. Paddle provides all customer service inquiries and handles returns, billing
+              support, and sales tax collection and remittance.</strong> Payment, billing, taxes, cancellation and
+              refund mechanics are governed by the{" "}
+              <a className="underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener noreferrer">
+                Paddle Checkout Buyer Terms
+              </a>{" "}
+              in addition to these Terms.
+            </p>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li>Subscriptions renew automatically at the end of each billing period until cancelled.</li>
-              <li>You can cancel anytime; cancellation takes effect at the end of the current billing period.</li>
-              <li>EEA/UK consumers may withdraw within 14 days of purchase unless they have begun consuming the digital content with prior consent.</li>
-              <li>Refunds outside statutory rights are offered at our discretion.</li>
-              <li>Taxes are added where applicable.</li>
+              <li>You can cancel anytime from the Billing screen; access continues until the end of the current period.</li>
+              <li>We offer a 30-day money-back guarantee — see our <Link to="/refund" className="underline">Refund Policy</Link>.</li>
+              <li>EEA/UK consumers may withdraw within 14 days unless they have begun consuming the digital content with prior consent.</li>
+              <li>Applicable taxes are calculated and collected by Paddle at checkout.</li>
             </ul>
-            Payments are processed by a regulated third-party processor; we do not store full card numbers.
+            We do not store full card numbers. Card and bank details are handled by Paddle.
           </Block>
+
 
           <Block title="8. Advertising">
             The free tier of the Service is supported by advertising. We aim to keep ads non-intrusive and never to
