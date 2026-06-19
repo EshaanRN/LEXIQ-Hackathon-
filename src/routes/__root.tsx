@@ -151,10 +151,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthBridge />
+      <PaymentTestModeBanner />
       <Outlet />
     </QueryClientProvider>
   );
 }
+
 
 function AuthBridge() {
   const router = useRouter();
