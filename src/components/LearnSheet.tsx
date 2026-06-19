@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Volume2, BookOpen } from "lucide-react";
-import { useRef, useState } from "react";
+import { Heart, Volume2, BookOpen, Flag } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 import type { VocabWord } from "@/data/vocab";
 import { speak } from "@/lib/speak";
+import { toggleReviewFlag, getState } from "@/lib/game-store";
 
 interface Props {
   word: VocabWord | null;
