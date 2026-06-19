@@ -79,7 +79,7 @@ export function AdInterstitial() {
           where you left off.
         </p>
 
-        <InterstitialAd />
+        <InterstitialAdBody />
 
 
         <Link
