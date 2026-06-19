@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.enforce_profile_onboarding_lock() FROM PUBLIC, anon, authenticated;
