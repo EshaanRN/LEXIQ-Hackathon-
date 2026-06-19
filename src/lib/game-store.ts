@@ -392,6 +392,9 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
     knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0),
+    firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
+    // Auto-clear review flag once the user has fully mastered the word.
+    reviewFlagged: false,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
   if (wasNew) {
@@ -401,8 +404,7 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   }
   checkRootMastery(word.root);
   persist();
-  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
-  return { checkpointDue: since > 0 && since >= state.checkpointInterval };
+  return { checkpointDue: isCheckpointDue() };
 }
 
 
