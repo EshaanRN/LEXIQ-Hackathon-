@@ -37,9 +37,18 @@ function Feed() {
     // re-prompt on mount so they never miss a milestone test.
     if (isCheckpointDue()) setCheckpointPrompt(true);
     const id = setInterval(() => {
-      if (document.visibilityState === "visible") tickActive();
+      if (document.visibilityState === "visible") {
+        tickActive();
+        // Re-check in case async server reconciliation crossed the threshold.
+        if (isCheckpointDue()) setCheckpointPrompt(true);
+      }
     }, 15_000);
-    return () => clearInterval(id);
+    const onFocus = () => { if (isCheckpointDue()) setCheckpointPrompt(true); };
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+    };
   }, []);
 
   function advance() {
