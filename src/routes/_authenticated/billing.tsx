@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, CreditCard, Calendar, Crown } from "lucide-react";
+import { ArrowLeft, CreditCard, Calendar, Crown, Loader2, ExternalLink } from "lucide-react";
+import { useState } from "react";
 import { usePremium } from "@/lib/premium";
+import { openCustomerPortal } from "@/utils/payments.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   ssr: false,
@@ -9,6 +12,21 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingPage() {
   const { isPremium, plan, until, loading } = usePremium();
+  const portal = useServerFn(openCustomerPortal);
+  const [busy, setBusy] = useState(false);
+
+  async function manage() {
+    setBusy(true);
+    try {
+      const res = await portal();
+      window.open(res.url, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      console.error(e);
+      alert("Could not open the billing portal. Please contact support.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pt-6 pb-24">
@@ -43,10 +61,12 @@ function BillingPage() {
 
       {isPremium ? (
         <button
-          onClick={() => alert("Cancellation will be available once payments are connected.")}
-          className="mt-6 rounded-full bg-surface-2 py-3 font-display text-sm font-bold uppercase tracking-widest text-muted-foreground ring-1 ring-border"
+          onClick={manage}
+          disabled={busy}
+          className="mt-6 flex items-center justify-center gap-2 rounded-full bg-primary py-3 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary disabled:opacity-60"
         >
-          Cancel subscription
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+          {busy ? "Opening…" : "Manage subscription"}
         </button>
       ) : (
         <Link
@@ -58,6 +78,7 @@ function BillingPage() {
       )}
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
+        Payments and invoices are handled by Paddle.com (Merchant of Record).
         Need help? Email <a className="underline" href="mailto:support@learnlexiq.com">support@learnlexiq.com</a>.
       </p>
     </main>
