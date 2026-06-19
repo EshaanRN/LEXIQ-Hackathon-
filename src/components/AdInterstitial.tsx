@@ -7,6 +7,46 @@ import { usePremium } from "@/lib/premium";
 const INTERVAL_MS = 5 * 60 * 1000; // 5 active minutes
 const COUNTDOWN_S = 5;
 
+const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+// Paste your AdSense interstitial/in-article ad unit slot ID here once approved.
+const INTERSTITIAL_SLOT = import.meta.env.VITE_ADSENSE_INTERSTITIAL_SLOT as string | undefined;
+
+function InterstitialAdBody() {
+  const useReal = Boolean(ADSENSE_CLIENT && INTERSTITIAL_SLOT);
+  const pushed = useRef(false);
+  useEffect(() => {
+    if (!useReal || pushed.current) return;
+    pushed.current = true;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (err) {
+      console.warn("[adsense] interstitial push failed", err);
+    }
+  }, [useReal]);
+
+  if (!useReal) {
+    return (
+      <div className="mt-5 flex h-44 items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2/60 text-xs uppercase tracking-widest text-muted-foreground">
+        Ad placeholder
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 h-44 overflow-hidden rounded-2xl bg-surface-2/60">
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block", width: "100%", height: "100%" }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={INTERSTITIAL_SLOT}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
+  );
+}
+
+
 /**
  * Full-screen "Sponsored" overlay that appears every 5 active minutes.
  * - Suppressed for Premium users.
