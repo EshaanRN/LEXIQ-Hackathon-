@@ -363,6 +363,23 @@ function blank(): WordState {
   return { mastery: "unknown", seen: 0, correct: 0, wasMissed: false, lastSeenAt: 0 };
 }
 
+export function toggleReviewFlag(wordId: string, value?: boolean): boolean {
+  const prev: WordState = state.words[wordId] ?? blank();
+  const next = typeof value === "boolean" ? value : !prev.reviewFlagged;
+  state.words = { ...state.words, [wordId]: { ...prev, reviewFlagged: next } };
+  persist();
+  return next;
+}
+
+export function getLearnedWords(): Array<{ word: VocabWord; ws: WordState }> {
+  const out: Array<{ word: VocabWord; ws: WordState }> = [];
+  for (const w of VOCAB) {
+    const ws = state.words[w.id];
+    if (ws && ws.mastery !== "unknown") out.push({ word: w, ws });
+  }
+  return out;
+}
+
 export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   touchStreak();
   tickActive();
