@@ -444,6 +444,9 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
       nextMastery === "mastered" || nextMastery === "familiar"
         ? prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0)
         : prev.knownAtTotal,
+    firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
+    // Stop reinforcing once we hit mastered.
+    reviewFlagged: nextMastery === "mastered" ? false : prev.reviewFlagged,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
@@ -457,8 +460,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   checkRootMastery(word.root);
   persist();
 
-  const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
-  return { checkpointDue: since > 0 && since >= state.checkpointInterval };
+  return { checkpointDue: isCheckpointDue() };
 }
 
 function checkRootMastery(root: string) {
