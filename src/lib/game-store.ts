@@ -84,7 +84,12 @@ function storageKey(userId: string) {
   return `sat-swipe-state::${userId}`;
 }
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  // Local-time date so "today" resets at the user's midnight, not UTC midnight.
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function defaultState(userId: string | null): GameState {
