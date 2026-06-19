@@ -66,16 +66,24 @@ function PrivacyPage() {
             this access at any time from your Google Account &rarr; Security &rarr; Third-party apps.
           </Block>
 
-          <Block title="5. Subprocessors">
+          <Block title="5. Subprocessors and data sharing">
             We share data with the following categories of service providers strictly to operate the Service:
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li><strong>Hosting & database:</strong> the Lovable platform (Cloudflare, Supabase Auth & Postgres).</li>
               <li><strong>AI pronunciation:</strong> the Lovable AI Gateway routing to OpenAI for text-to-speech.</li>
               <li><strong>Identity:</strong> Google (for Google Sign-In).</li>
-              <li><strong>Future payments:</strong> a regulated payment processor (e.g. Stripe or Paddle) when Premium is enabled.</li>
-              <li><strong>Future advertising:</strong> ad networks that may set their own cookies (you will be informed at the time).</li>
+              <li>
+                <strong>Payments and Merchant of Record:</strong>{" "}
+                <a className="underline" href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer">Paddle.com</a>{" "}
+                processes all payments, subscription management, invoicing, and sales-tax compliance for Lexiq Premium.
+                When you check out, Paddle acts as data controller for billing data (name, billing address, payment
+                method, transaction history) under their own privacy notice. We receive limited information from Paddle
+                (a customer ID, subscription status, plan, and renewal dates) to grant you access to Premium features.
+              </li>
+              <li><strong>Advertising:</strong> the free tier may show ads from ad networks that set their own cookies and process limited data (device type, coarse location) under their own privacy policies. See our <a className="underline" href="/cookies">Cookie Policy</a>.</li>
             </ul>
           </Block>
+
 
           <Block title="6. Legal bases (GDPR / UK GDPR)">
             We rely on (a) <em>contract</em> to provide the Service you requested, (b) <em>legitimate interests</em> to

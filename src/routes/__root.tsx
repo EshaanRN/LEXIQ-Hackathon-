@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { applyProfile, clearState, loadStateForUser } from "@/lib/game-store";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 function NotFoundComponent() {
   return (
@@ -151,10 +152,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthBridge />
+      <PaymentTestModeBanner />
       <Outlet />
     </QueryClientProvider>
   );
 }
+
 
 function AuthBridge() {
   const router = useRouter();

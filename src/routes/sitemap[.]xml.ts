@@ -22,7 +22,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
           { path: "/privacy", changefreq: "yearly", priority: "0.3" },
           { path: "/cookies", changefreq: "yearly", priority: "0.3" },
-          { path: "/trust", changefreq: "yearly", priority: "0.3" },
+         { path: "/trust", changefreq: "yearly", priority: "0.3" },
+         { path: "/refund", changefreq: "yearly", priority: "0.3" },
           ...BLOG_POSTS.map((p) => ({
             path: `/blog/${p.slug}`,
             lastmod: p.date,
