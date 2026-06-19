@@ -15,6 +15,10 @@ interface WordState {
   masteryScore?: number;
   /** wordsLearnedTotal snapshot when this word became known/mastered/familiar */
   knownAtTotal?: number;
+  /** First time the word was learned (markLearned or markKnown when new) */
+  firstLearnedAt?: number;
+  /** User-flagged "I might forget this" → reintroduced often until mastered */
+  reviewFlagged?: boolean;
 }
 
 // Re-show a known/mastered word for a refresher only after the user has
