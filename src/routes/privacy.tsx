@@ -1,0 +1,145 @@
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/privacy")({
+  ssr: false,
+  component: PrivacyPage,
+  head: () => ({
+    meta: [
+      { title: "Privacy Policy · Lexiq" },
+      { name: "description", content: "How Lexiq collects, uses, stores, and protects your data — including Google Sign-In, learning progress, cookies, and account deletion." },
+      { property: "og:title", content: "Privacy Policy · Lexiq" },
+      { property: "og:description", content: "How Lexiq handles your data and privacy." },
+      { property: "og:url", content: "https://learnlexiq.com/privacy" },
+    ],
+    links: [{ rel: "canonical", href: "https://learnlexiq.com/privacy" }],
+  }),
+});
+
+function PrivacyPage() {
+  const router = useRouter();
+  return (
+    <main className="min-h-screen bg-black px-6 py-10 text-white">
+      <div className="mx-auto max-w-2xl">
+        <button onClick={() => router.history.back()} className="text-xs uppercase tracking-widest text-white/60 hover:text-white">
+          ← Back
+        </button>
+        <h1 className="mt-4 font-display text-3xl font-bold">Privacy Policy</h1>
+        <p className="mt-2 text-sm text-white/60">Last updated: June 19, 2026</p>
+
+        <section className="mt-8 space-y-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-white/80">
+          <Block title="1. Who we are">
+            Lexiq ("we", "us", "our") is the operator of the LearnLexiq vocabulary learning service available at
+            learnlexiq.com (the "Service"). You can contact us at <a className="underline" href="mailto:support@learnlexiq.com">support@learnlexiq.com</a>
+            for any privacy question, including data access, correction, or deletion requests.
+          </Block>
+
+          <Block title="2. What we collect">
+            <strong className="block text-white">Account information.</strong>
+            When you create an account we receive an email address, an authentication identifier, and (when you sign in
+            with Google) your Google display name and profile picture. We never receive or store your Google password.
+            <strong className="mt-3 block text-white">Profile and learning data.</strong>
+            Username, avatar selection, equipped items, exam target (SAT or ACT), daily goals, words learned, mastery
+            scores, streaks, XP, coins, owned items, checkpoint results, and review flags.
+            <strong className="mt-3 block text-white">Device and usage data.</strong>
+            IP address, browser type, device model, operating system, referring URLs, pages viewed, and crash diagnostics
+            collected automatically for security and reliability.
+            <strong className="mt-3 block text-white">Cookies and local storage.</strong>
+            See our <a className="underline" href="/cookies">Cookie Policy</a>.
+          </Block>
+
+          <Block title="3. How we use your data">
+            We process your data only to:
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li>Operate, secure, and personalize the Service.</li>
+              <li>Save and sync your learning progress across devices.</li>
+              <li>Generate audio pronunciations through our AI provider.</li>
+              <li>Communicate with you about your account, security, and (with consent) product updates.</li>
+              <li>Detect, prevent, and respond to abuse, fraud, and security incidents.</li>
+              <li>Comply with legal obligations.</li>
+            </ul>
+            We do not sell your personal information and we do not use your learning data to train third-party AI models.
+          </Block>
+
+          <Block title="4. Google Sign-In">
+            When you choose Google Sign-In we receive the basic profile fields you authorize (email, name, picture) and
+            an opaque user identifier. We use these solely to create and authenticate your Lexiq account. You can revoke
+            this access at any time from your Google Account &rarr; Security &rarr; Third-party apps.
+          </Block>
+
+          <Block title="5. Subprocessors">
+            We share data with the following categories of service providers strictly to operate the Service:
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li><strong>Hosting & database:</strong> the Lovable platform (Cloudflare, Supabase Auth & Postgres).</li>
+              <li><strong>AI pronunciation:</strong> the Lovable AI Gateway routing to OpenAI for text-to-speech.</li>
+              <li><strong>Identity:</strong> Google (for Google Sign-In).</li>
+              <li><strong>Future payments:</strong> a regulated payment processor (e.g. Stripe or Paddle) when Premium is enabled.</li>
+              <li><strong>Future advertising:</strong> ad networks that may set their own cookies (you will be informed at the time).</li>
+            </ul>
+          </Block>
+
+          <Block title="6. Legal bases (GDPR / UK GDPR)">
+            We rely on (a) <em>contract</em> to provide the Service you requested, (b) <em>legitimate interests</em> to
+            secure the Service and improve features, (c) <em>consent</em> for optional cookies and marketing email, and
+            (d) <em>legal obligation</em> where required.
+          </Block>
+
+          <Block title="7. Data retention">
+            Account and learning data are kept while your account is active. If you delete your account, we erase your
+            personal data within 30 days, except where retention is required by law (e.g. tax records for paid plans) or
+            for security investigations. Aggregated, de-identified statistics may be kept indefinitely.
+          </Block>
+
+          <Block title="8. Account deletion & data export">
+            You can request account deletion or a copy of your data at any time by emailing
+            <a className="underline" href="mailto:support@learnlexiq.com"> support@learnlexiq.com</a> from the address on
+            your account. We confirm receipt within 7 days and complete the request within 30 days.
+          </Block>
+
+          <Block title="9. Your rights">
+            Depending on where you live you may have the right to access, correct, delete, port, or restrict the
+            processing of your data, to object to processing, and to lodge a complaint with your local supervisory
+            authority. California residents have analogous rights under the CCPA/CPRA, including the right to opt out of
+            "sales" or "sharing" of personal information — we do not sell or share personal information as those terms
+            are defined.
+          </Block>
+
+          <Block title="10. Children">
+            Lexiq is intended for users 13 and older. If you are between 13 and 16 (or the digital-consent age in your
+            country), you confirm that a parent or guardian has approved your use. We do not knowingly collect data from
+            children under 13; contact us and we will delete it.
+          </Block>
+
+          <Block title="11. International transfers">
+            Our hosting providers may store and process data in the United States and the European Union. When personal
+            data of EEA/UK residents is transferred outside their jurisdiction, we rely on the European Commission's
+            Standard Contractual Clauses or another approved transfer mechanism.
+          </Block>
+
+          <Block title="12. Security">
+            We use TLS in transit, encryption at rest, scoped row-level security on the database, and least-privilege
+            service credentials. No system is 100% secure; if we become aware of a breach affecting your data we will
+            notify you and the relevant authorities within the timelines required by law.
+          </Block>
+
+          <Block title="13. Changes to this policy">
+            We will post any material change here and update the "Last updated" date. If the change is significant we
+            will notify you in-app or by email before it takes effect.
+          </Block>
+
+          <Block title="14. Contact">
+            Questions or requests: <a className="underline" href="mailto:support@learnlexiq.com">support@learnlexiq.com</a>.
+          </Block>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Block({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="font-display text-base font-bold text-white">{title}</h2>
+      <div className="mt-2">{children}</div>
+    </div>
+  );
+}

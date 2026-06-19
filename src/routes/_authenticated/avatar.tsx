@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, LogOut, FileText, Check } from "lucide-react";
+import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { XPToast } from "@/components/XPToast";
@@ -92,12 +92,21 @@ function AvatarPage() {
 
       <div className="mt-8 rounded-2xl bg-surface-2 ring-1 ring-border">
         <p className="px-4 pt-4 text-[10px] uppercase tracking-widest text-muted-foreground">Account</p>
-        <Link
-          to="/terms"
-          className="flex items-center gap-3 px-4 py-3 text-sm font-semibold hover:bg-surface"
-        >
+        <Link to="/premium" className="flex items-center gap-3 px-4 py-3 text-sm font-semibold hover:bg-surface">
+          <Crown className="h-4 w-4 text-gold" />
+          Lexiq Premium
+        </Link>
+        <Link to="/billing" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+          Billing & Subscription
+        </Link>
+        <Link to="/terms" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
           <FileText className="h-4 w-4 text-muted-foreground" />
-          Terms & Privacy Policy
+          Terms of Service
+        </Link>
+        <Link to="/privacy" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
+          <Shield className="h-4 w-4 text-muted-foreground" />
+          Privacy Policy
         </Link>
         <button
           onClick={handleLogout}
