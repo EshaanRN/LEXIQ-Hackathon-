@@ -14,6 +14,12 @@ function getSupabase(): SupabaseClient<Database> {
   return _supabase;
 }
 
+const SIGNUP_BONUS_COINS = 500;
+
+function planFor(priceId: string): "monthly" | "annual" {
+  return priceId.includes("annual") ? "annual" : "monthly";
+}
+
 async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
   const { id, customerId, items, status, currentBillingPeriod, customData } = data;
   const userId = customData?.userId;
@@ -28,7 +34,19 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     console.warn("Skipping subscription: missing importMeta.externalId");
     return;
   }
-  await getSupabase().from("subscriptions").upsert(
+
+  const supa = getSupabase();
+
+  // Idempotent: only award the welcome bonus if this paddle_subscription_id
+  // is brand new to our database (webhooks may be retried).
+  const { data: existing } = await supa
+    .from("subscriptions")
+    .select("id")
+    .eq("paddle_subscription_id", id)
+    .maybeSingle();
+  const isNew = !existing;
+
+  await supa.from("subscriptions").upsert(
     {
       user_id: userId,
       paddle_subscription_id: id,
@@ -43,24 +61,40 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     },
     { onConflict: "paddle_subscription_id" },
   );
-  // Mirror to profiles for quick UI gating
-  const plan = priceId.includes("annual") ? "annual" : "monthly";
-  await getSupabase()
+
+  await supa
     .from("profiles")
     .update({
-      is_premium: ["active", "trialing"].includes(status),
-      premium_plan: plan,
+      is_premium: ["active", "trialing", "past_due"].includes(status),
+      premium_plan: planFor(priceId),
       premium_until: currentBillingPeriod?.endsAt ?? null,
     })
     .eq("id", userId);
+
+  if (isNew) {
+    const { data: profile } = await supa
+      .from("profiles")
+      .select("coins")
+      .eq("id", userId)
+      .maybeSingle();
+    const current = profile?.coins ?? 0;
+    await supa
+      .from("profiles")
+      .update({ coins: current + SIGNUP_BONUS_COINS })
+      .eq("id", userId);
+  }
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
-  const { id, status, currentBillingPeriod, scheduledChange, customData } = data;
+  const { id, items, status, currentBillingPeriod, scheduledChange, customData } = data;
+  const item = items?.[0];
+  const priceId = item?.price?.importMeta?.externalId;
+
   await getSupabase()
     .from("subscriptions")
     .update({
       status,
+      ...(priceId ? { price_id: priceId } : {}),
       current_period_start: currentBillingPeriod?.startsAt,
       current_period_end: currentBillingPeriod?.endsAt,
       cancel_at_period_end: scheduledChange?.action === "cancel",
@@ -71,10 +105,13 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
 
   const userId = customData?.userId;
   if (userId) {
+    // past_due keeps premium active so users see a "fix payment" banner
+    // rather than being kicked off mid-cycle.
     await getSupabase()
       .from("profiles")
       .update({
         is_premium: ["active", "trialing", "past_due"].includes(status),
+        ...(priceId ? { premium_plan: planFor(priceId) } : {}),
         premium_until: currentBillingPeriod?.endsAt ?? null,
       })
       .eq("id", userId);
@@ -82,22 +119,22 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
-  const { id, currentBillingPeriod, customData } = data;
+  const { id, customData } = data;
   await getSupabase()
     .from("subscriptions")
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("paddle_subscription_id", id)
     .eq("environment", env);
 
+  // Immediate revocation policy: premium ends the moment they cancel.
   const userId = customData?.userId;
   if (userId) {
-    const stillValid =
-      currentBillingPeriod?.endsAt && new Date(currentBillingPeriod.endsAt) > new Date();
     await getSupabase()
       .from("profiles")
       .update({
-        is_premium: !!stillValid,
-        premium_until: currentBillingPeriod?.endsAt ?? null,
+        is_premium: false,
+        premium_plan: null,
+        premium_until: null,
       })
       .eq("id", userId);
   }

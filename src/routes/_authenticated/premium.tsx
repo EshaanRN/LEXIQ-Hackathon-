@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, Crown, Sparkles, ShieldCheck, Loader2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { ArrowLeft, Check, Crown, Sparkles, ShieldCheck, Loader2, AlertTriangle, Coins, X } from "lucide-react";
 import { useState } from "react";
 import { usePremium } from "@/lib/premium";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
@@ -8,6 +8,9 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/_authenticated/premium")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    checkout: s.checkout === "success" ? ("success" as const) : undefined,
+  }),
   component: PremiumPage,
 });
 
@@ -20,11 +23,13 @@ const FEATURES = [
 ];
 
 function PremiumPage() {
-  const { isPremium, plan, until } = usePremium();
+  const { isPremium, plan, until, status } = usePremium();
   const navigate = useNavigate();
+  const search = useSearch({ from: "/_authenticated/premium" });
   const { openCheckout, loading } = usePaddleCheckout();
   const [selected, setSelected] = useState<"monthly" | "annual">("annual");
   const [busy, setBusy] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(search.checkout === "success");
 
   async function startCheckout() {
     setBusy(true);
@@ -39,6 +44,7 @@ function PremiumPage() {
         priceId: selected === "annual" ? "lexiq_premium_annual" : "lexiq_premium_monthly",
         customerEmail: user.email ?? undefined,
         customData: { userId: user.id },
+        successUrl: `${window.location.origin}/premium?checkout=success`,
       });
     } catch (e) {
       console.error(e);
@@ -58,6 +64,19 @@ function PremiumPage() {
           </Link>
           <h1 className="font-display text-xl font-bold">Lexiq Premium</h1>
         </div>
+
+        {status === "past_due" && (
+          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <div>
+              <p className="font-semibold">Your last payment didn't go through.</p>
+              <p className="mt-0.5 text-xs text-amber-200/80">
+                We're still trying — update your payment method to keep Premium.{" "}
+                <Link to="/billing" className="underline font-semibold">Update payment</Link>
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/15 via-card to-card p-6 text-center">
           <Crown className="mx-auto h-10 w-10 text-gold" />
@@ -133,6 +152,39 @@ function PremiumPage() {
           <Link to="/privacy" className="underline">Privacy Notice</Link>.
         </p>
       </main>
+
+      {showWelcome && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-5" onClick={() => setShowWelcome(false)}>
+          <div
+            className="relative w-full max-w-sm rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/20 via-card to-card p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowWelcome(false)}
+              className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-surface-2 ring-1 ring-border"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <Crown className="mx-auto h-12 w-12 text-gold" />
+            <h2 className="mt-3 font-display text-2xl font-bold text-gradient-primary">
+              Welcome to Premium!
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Ads are gone, premium voices are unlocked, and your daily limit is now unlimited.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold/15 px-4 py-2 text-sm font-semibold text-gold ring-1 ring-gold/40">
+              <Coins className="h-4 w-4" /> +500 coins bonus added
+            </div>
+            <button
+              onClick={() => setShowWelcome(false)}
+              className="mt-5 w-full rounded-full bg-primary py-3 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary"
+            >
+              Start learning
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
