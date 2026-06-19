@@ -23,11 +23,13 @@ const FEATURES = [
 ];
 
 function PremiumPage() {
-  const { isPremium, plan, until } = usePremium();
+  const { isPremium, plan, until, status } = usePremium();
   const navigate = useNavigate();
+  const search = useSearch({ from: "/_authenticated/premium" });
   const { openCheckout, loading } = usePaddleCheckout();
   const [selected, setSelected] = useState<"monthly" | "annual">("annual");
   const [busy, setBusy] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(search.checkout === "success");
 
   async function startCheckout() {
     setBusy(true);
@@ -42,6 +44,7 @@ function PremiumPage() {
         priceId: selected === "annual" ? "lexiq_premium_annual" : "lexiq_premium_monthly",
         customerEmail: user.email ?? undefined,
         customData: { userId: user.id },
+        successUrl: `${window.location.origin}/premium?checkout=success`,
       });
     } catch (e) {
       console.error(e);
