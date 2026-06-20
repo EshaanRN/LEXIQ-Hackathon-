@@ -514,7 +514,8 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   const nextMastery = MASTERY_ORDER[Math.min(idx + 1, MASTERY_ORDER.length - 1)];
   const wasMissed = prev.wasMissed;
   const becameMastered = prev.mastery !== "mastered" && nextMastery === "mastered";
-  const wasNew = prev.mastery === "unknown" || prev.mastery === "learning";
+  // Only count toward "words learned" the first time this word is ever recorded.
+  const countsAsNewLearn = !prev.firstLearnedAt;
 
   state.words[word.id] = {
     ...prev,
@@ -524,7 +525,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
     lastSeenAt: Date.now(),
     knownAtTotal:
       nextMastery === "mastered" || nextMastery === "familiar"
-        ? prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0)
+        ? prev.knownAtTotal ?? state.wordsLearnedTotal + (countsAsNewLearn ? 1 : 0)
         : prev.knownAtTotal,
     firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
     // Stop reinforcing once we hit mastered.
@@ -533,7 +534,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
   addXp(25, "Learned New Word", 5);
-  if (wasNew) {
+  if (countsAsNewLearn) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
     noteWordLearnedToday();
