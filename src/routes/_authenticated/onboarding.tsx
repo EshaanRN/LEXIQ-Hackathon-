@@ -179,33 +179,83 @@ function Onboarding() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-6 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-background via-background to-primary/10 px-6"
           >
+            {/* Soft animated background blobs */}
             <motion.div
-              initial={{ scale: 0.4, opacity: 0, rotate: -20 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 14 }}
+              aria-hidden
+              className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl"
+              animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute -right-20 bottom-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl"
+              animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
+              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {/* Nox flies in from the left, lands, then flaps */}
+            <motion.div
+              initial={{ x: -260, y: -40, rotate: -18, opacity: 0, scale: 0.7 }}
+              animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 120, damping: 14, mass: 0.8 }}
             >
-              <Nox mood="excited" size={180} />
+              <Nox mood="excited" size={200} speaking />
             </motion.div>
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={introLine}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35 }}
-                className="mt-6 text-center font-display text-2xl font-bold"
+
+            {/* Big speech card — Duolingo style */}
+            <div className="relative mt-10 w-full max-w-sm">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={introLine}
+                  initial={{ opacity: 0, y: 16, scale: 0.94 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -12, scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                  className="relative rounded-3xl border-2 border-border bg-card px-6 py-5 text-center shadow-2xl"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-l-2 border-t-2 border-border bg-card"
+                  />
+                  <p className="font-display text-xl font-bold leading-snug">
+                    {introLines[Math.min(introLine, introLines.length - 1)]}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Dots showing intro progress */}
+              <div className="mt-4 flex justify-center gap-1.5">
+                {introLines.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-1.5 rounded-full transition-all ${
+                      i <= introLine ? "w-6 bg-primary" : "w-1.5 bg-surface-2"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <button
+                onClick={() =>
+                  introLine >= introLines.length - 1
+                    ? setIntro(false)
+                    : setIntroLine((i) => i + 1)
+                }
+                className="rounded-full bg-primary px-8 py-3 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary"
               >
-                {introLines[introLine] ?? ""}
-              </motion.p>
-            </AnimatePresence>
-            <button
-              onClick={() => setIntro(false)}
-              className="mt-10 rounded-full bg-surface-2 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground ring-1 ring-border"
-            >
-              Skip intro
-            </button>
+                {introLine >= introLines.length - 1 ? "Let's go" : "Continue"}
+              </button>
+              <button
+                onClick={() => setIntro(false)}
+                className="text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground"
+              >
+                Skip intro
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
