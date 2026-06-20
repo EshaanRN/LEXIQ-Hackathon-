@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle } from "lucide-react";
 
 import { useServerFn } from "@tanstack/react-start";
 import { completeOnboarding as completeOnboardingFn } from "@/lib/onboarding.functions";
+import { Nox, type NoxMood } from "@/components/Nox";
 import { Avatar } from "@/components/Avatar";
 import {
   DICEBEAR_STYLES,
