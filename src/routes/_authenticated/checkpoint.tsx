@@ -17,7 +17,8 @@ import {
 } from "@/lib/game-store";
 import { gradeAnswerField, gradeCheckpointAnswer } from "@/lib/grade.functions";
 import { VOCAB, type VocabWord } from "@/data/vocab";
-import owlMascot from "@/assets/owl-mascot.png";
+import owlAsset from "@/assets/lexiq-owl.png.asset.json";
+const owlMascot = owlAsset.url;
 
 export const Route = createFileRoute("/_authenticated/checkpoint")({
   ssr: false,

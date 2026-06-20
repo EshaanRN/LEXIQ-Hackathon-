@@ -465,19 +465,21 @@ export function markKnown(word: VocabWord): { checkpointDue: boolean } {
   tickActive();
   const prev: WordState = state.words[word.id] ?? blank();
   const wasNew = prev.mastery === "unknown";
+  // A word counts toward "words learned" exactly once in its lifetime.
+  // If we've ever marked it learned/known before (firstLearnedAt set), skip the counter.
+  const countsAsNewLearn = wasNew && !prev.firstLearnedAt;
   state.words[word.id] = {
     ...prev,
     mastery: "mastered",
     seen: prev.seen + 1,
     correct: prev.correct + 1,
     lastSeenAt: Date.now(),
-    knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0),
+    knownAtTotal: prev.knownAtTotal ?? state.wordsLearnedTotal + (countsAsNewLearn ? 1 : 0),
     firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
-    // Auto-clear review flag once the user has fully mastered the word.
     reviewFlagged: false,
   };
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
-  if (wasNew) {
+  if (countsAsNewLearn) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
     noteWordLearnedToday();
@@ -512,7 +514,8 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   const nextMastery = MASTERY_ORDER[Math.min(idx + 1, MASTERY_ORDER.length - 1)];
   const wasMissed = prev.wasMissed;
   const becameMastered = prev.mastery !== "mastered" && nextMastery === "mastered";
-  const wasNew = prev.mastery === "unknown" || prev.mastery === "learning";
+  // Only count toward "words learned" the first time this word is ever recorded.
+  const countsAsNewLearn = !prev.firstLearnedAt;
 
   state.words[word.id] = {
     ...prev,
@@ -522,7 +525,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
     lastSeenAt: Date.now(),
     knownAtTotal:
       nextMastery === "mastered" || nextMastery === "familiar"
-        ? prev.knownAtTotal ?? state.wordsLearnedTotal + (wasNew ? 1 : 0)
+        ? prev.knownAtTotal ?? state.wordsLearnedTotal + (countsAsNewLearn ? 1 : 0)
         : prev.knownAtTotal,
     firstLearnedAt: prev.firstLearnedAt ?? Date.now(),
     // Stop reinforcing once we hit mastered.
@@ -531,7 +534,7 @@ export function markLearned(word: VocabWord): { checkpointDue: boolean } {
   state.rootStrength[word.root] = (state.rootStrength[word.root] ?? 0) + 1;
 
   addXp(25, "Learned New Word", 5);
-  if (wasNew) {
+  if (countsAsNewLearn) {
     state.wordsLearnedTotal += 1;
     pendingWordsLearned += 1;
     noteWordLearnedToday();
@@ -651,12 +654,20 @@ export function nextWord(exclude?: string | string[]): VocabWord {
 
 
 export function snoozeCheckpoint() {
-  // Push the next prompt one full interval ahead so the user isn't nagged
-  // word-after-word once they say "Later" or cancel a checkpoint.
+  // User dismissed / skipped the checkpoint. The past checkpoint is cancelled —
+  // counting restarts from now toward the NEXT interval.
+  const hadSavedSession = !!loadCheckpointSession();
   state = {
     ...state,
     wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
   };
+  // Drop any half-finished saved session so it doesn't keep offering "Resume".
+  clearCheckpointSession();
+  pushToast({
+    label: hadSavedSession
+      ? `Past checkpoint cancelled. We'll prompt again after ${state.checkpointInterval} more new words.`
+      : `Checkpoint skipped. We'll check in again after ${state.checkpointInterval} more new words.`,
+  });
   persist();
 }
 
