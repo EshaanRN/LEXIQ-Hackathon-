@@ -11,9 +11,15 @@ interface Props {
 
 const STYLE_MAP: Record<string, unknown> = styles as unknown as Record<string, unknown>;
 
+function resolveStyle(id: string): unknown {
+  // DiceBear exports are camelCase (e.g. "big-smile" → "bigSmile").
+  const camel = id.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+  return STYLE_MAP[id] ?? STYLE_MAP[camel] ?? styles.adventurer;
+}
+
 export function Avatar({ equipped, size = 96, className = "" }: Props) {
   const dataUri = useMemo(() => {
-    const style = STYLE_MAP[equipped.style as string] ?? styles.adventurer;
+    const style = resolveStyle(equipped.style as string);
     try {
       const av = createAvatar(style as never, {
         seed: equipped.seed,
