@@ -54,12 +54,10 @@ function Welcome() {
       {/* Top bar */}
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-display text-xl font-bold tracking-tight">Lexiq</span>
-        <Link
-          to="/auth"
-          className="text-sm font-semibold text-muted-foreground transition hover:text-foreground"
-        >
-          Sign in
-        </Link>
+        <nav className="flex items-center gap-5 text-sm font-semibold text-muted-foreground">
+          <Link to="/pricing" className="transition hover:text-foreground">Pricing</Link>
+          <Link to="/auth" className="transition hover:text-foreground">Sign in</Link>
+        </nav>
       </header>
 
       {/* HERO */}
@@ -261,8 +259,8 @@ function Welcome() {
           Questions, answered.
         </h2>
         <div className="mt-10 space-y-3">
-          <FaqItem q="Is Lexiq really free?"
-            a="Yes. The full word library, swipe deck, AI checkpoints, and streaks are free forever. Cosmetic items in the shop are optional." />
+          <FaqItem q="Is Lexiq free? What does Premium cost?"
+            a="The core experience — full word library, swipe deck, streaks, ranks, and basic checkpoints — is free forever. Optional Premium unlocks AI checkpoints, custom tests, and adaptive SAT practice for $4.99/month or $39/year. See the Pricing page for details." />
           <FaqItem q="How long until I see SAT/ACT score gains?"
             a="Most students notice a difference on practice sections inside 3 weeks. Vocabulary lifts reading speed and clue-based questions the fastest." />
           <FaqItem q="What if I miss a day?"
@@ -300,7 +298,18 @@ function Welcome() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Lexiq. All rights reserved.
+        <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <Link to="/refund" className="hover:text-foreground">Refunds</Link>
+          <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
+          <Link to="/trust" className="hover:text-foreground">Trust & Security</Link>
+        </nav>
+        <div>© {new Date().getFullYear()} LEXIQ. All rights reserved.</div>
+        <div className="mt-1 text-[11px] text-muted-foreground/70">
+          Payments processed by Paddle.com — our Merchant of Record.
+        </div>
       </footer>
     </main>
   );
