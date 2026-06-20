@@ -99,7 +99,7 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
         </div>
 
 
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-5">
+        <div className="absolute bottom-10 left-0 right-0 flex justify-center gap-5">
           <button
             onClick={(e) => {
               e.stopPropagation();
