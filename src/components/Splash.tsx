@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import owlAsset from "@/assets/lexiq-owl.png.asset.json";
+import owlAsset from "@/assets/lexiq-owl-transparent.png.asset.json";
 
 /** TikTok-style splash: black bg, animated owl reveal, particles. */
 export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: string }) {
@@ -31,12 +31,15 @@ export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: stri
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.6, 1] }}
             transition={{ delay: 0.35, duration: 0.7 }}
-            className="absolute -inset-2 -z-10 rounded-[2rem] bg-primary/40 blur-2xl"
+            className="absolute -inset-4 -z-10 rounded-full bg-primary/50 blur-3xl"
           />
-          <img
+          <motion.img
             src={owlAsset.url}
             alt="Lexiq owl mascot"
-            className="h-36 w-36 rounded-[2rem] object-cover glow-primary"
+            className="h-40 w-40 object-contain"
+            animate={{ y: [0, -10, 0], rotate: [-3, 3, -3] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+            style={{ filter: "drop-shadow(0 12px 24px rgba(124,58,237,0.55))" }}
           />
         </div>
 
