@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import owlAsset from "@/assets/lexiq-owl.png.asset.json";
+import owlAsset from "@/assets/lexiq-owl-transparent.png.asset.json";
 
 /** TikTok-style splash: black bg, animated owl reveal, particles. */
 export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: string }) {

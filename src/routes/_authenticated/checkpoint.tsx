@@ -17,7 +17,8 @@ import {
 } from "@/lib/game-store";
 import { gradeAnswerField, gradeCheckpointAnswer } from "@/lib/grade.functions";
 import { VOCAB, type VocabWord } from "@/data/vocab";
-import owlAsset from "@/assets/lexiq-owl.png.asset.json";
+import owlAsset from "@/assets/lexiq-owl-transparent.png.asset.json";
+import { motion } from "framer-motion";
 const owlMascot = owlAsset.url;
 
 export const Route = createFileRoute("/_authenticated/checkpoint")({
@@ -547,17 +548,46 @@ function InlineFeedback({ fb }: { fb: FieldFeedback }) {
 
 function LexiqMascot({ listening }: { listening: boolean }) {
   return (
-    <div className={`relative h-24 w-24 shrink-0 ${listening ? "animate-bounce" : ""}`}>
-      <img
-        src={owlMascot}
-        alt="Lexiq owl mascot"
-        width={96}
-        height={96}
-        loading="lazy"
-        className="h-full w-full object-contain drop-shadow-xl"
-        draggable={false}
+    <motion.button
+      type="button"
+      aria-label="Lexiq owl"
+      whileTap={{ scale: 0.9, rotate: -8 }}
+      whileHover={{ scale: 1.08, rotate: 4 }}
+      className="relative h-24 w-24 shrink-0 cursor-pointer select-none bg-transparent p-0"
+    >
+      {/* Soft glow halo that fits the dark theme */}
+      <motion.span
+        aria-hidden
+        className="absolute inset-1 -z-10 rounded-full bg-primary/40 blur-2xl"
+        animate={{ opacity: listening ? [0.5, 0.9, 0.5] : [0.3, 0.55, 0.3], scale: listening ? [1, 1.15, 1] : [1, 1.05, 1] }}
+        transition={{ duration: listening ? 0.9 : 2.4, repeat: Infinity, ease: "easeInOut" }}
       />
-    </div>
+      {/* Floating + tilt animation */}
+      <motion.div
+        className="h-full w-full"
+        animate={
+          listening
+            ? { y: [0, -6, 0, -6, 0], rotate: [-4, 4, -4, 4, -4] }
+            : { y: [0, -8, 0], rotate: [-3, 3, -3] }
+        }
+        transition={{
+          duration: listening ? 0.8 : 3.4,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <img
+          src={owlMascot}
+          alt="Lexiq owl mascot"
+          width={96}
+          height={96}
+          loading="lazy"
+          className="h-full w-full object-contain drop-shadow-[0_8px_20px_rgba(124,58,237,0.45)]"
+          draggable={false}
+          style={{ filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.35))" }}
+        />
+      </motion.div>
+    </motion.button>
   );
 }
 
