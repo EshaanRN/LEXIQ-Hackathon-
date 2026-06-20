@@ -54,6 +54,7 @@ interface SavedSession {
 
 function CheckpointPage() {
   const g = useGame();
+  const { isPremium } = usePremium();
   const [mode, setMode] = useState<Mode>("typing");
   const [count, setCount] = useState(5);
   const [phase, setPhase] = useState<Phase>("intro");
