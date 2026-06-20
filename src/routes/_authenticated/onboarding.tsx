@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle } from "lucide-react";
 
 import { useServerFn } from "@tanstack/react-start";
 import { completeOnboarding as completeOnboardingFn } from "@/lib/onboarding.functions";
+import { Nox, type NoxMood } from "@/components/Nox";
 import { Avatar } from "@/components/Avatar";
 import {
   DICEBEAR_STYLES,
@@ -33,10 +34,34 @@ const INTERESTS = [
 
 const STEPS = ["Username", "Exam", "Avatar", "Interests", "Placement", "Rank"];
 
+const STEP_MESSAGES: Record<number, string> = {
+  0: "First things first — what should the leaderboard call you?",
+  1: "Which exam are we crushing together?",
+  2: "Now make yourself look legendary.",
+  3: "Tell me what you love — I'll slip it into your example sentences.",
+  4: "Quick check! Be honest — no judgment from me. 🦉",
+  5: "Look at that! You're officially on the map.",
+};
+
+const HAPPY_LINES = [
+  "Yes! Nailed it! 🎉",
+  "Boom — you knew that one!",
+  "Look at you, wordsmith!",
+  "That's the energy I love!",
+];
+const ENCOURAGE_LINES = [
+  "All good — that's why we're here!",
+  "No worries, I'll teach you that one.",
+  "We'll add it to your list. You got this!",
+  "Brand new word unlocked for tomorrow!",
+];
+
 function Onboarding() {
   const navigate = useNavigate();
   const { user } = Route.useRouteContext() as { user: { id: string } };
   const [step, setStep] = useState(0);
+  const [intro, setIntro] = useState(true);
+  const [introLine, setIntroLine] = useState(0);
   const [username, setUsername] = useState("");
   const [exam, setExam] = useState<ExamType>("sat");
   const [avatar, setAvatar] = useState<AvatarConfig>(defaultAvatar());
@@ -45,9 +70,33 @@ function Onboarding() {
   const [correct, setCorrect] = useState(0);
   const [knownIds, setKnownIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [noxMood, setNoxMood] = useState<NoxMood>("idle");
+  const [noxMsg, setNoxMsg] = useState<string>(STEP_MESSAGES[0]);
   const completeOnboarding = useServerFn(completeOnboardingFn);
 
   const quizWords = VOCAB.slice(0, 5);
+
+  const introLines = [
+    "Hoo there! I'm Nox. 🦉",
+    "I'll be your guide here at Lexiq.",
+    "Let's set up your profile — it'll be fun, promise!",
+  ];
+
+  useEffect(() => {
+    if (!intro) return;
+    if (introLine >= introLines.length) {
+      setIntro(false);
+      return;
+    }
+    const t = setTimeout(() => setIntroLine((i) => i + 1), 1900);
+    return () => clearTimeout(t);
+  }, [intro, introLine, introLines.length]);
+
+  useEffect(() => {
+    if (intro) return;
+    setNoxMood(step === 4 ? "thinking" : step === 5 ? "excited" : "idle");
+    setNoxMsg(STEP_MESSAGES[step] ?? "");
+  }, [step, intro]);
 
   function toggleInterest(i: string) {
     setInterests((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
@@ -56,9 +105,20 @@ function Onboarding() {
     if (knew) {
       setCorrect((c) => c + 1);
       setKnownIds((ids) => [...ids, quizWords[quizIdx].id]);
+      setNoxMood("happy");
+      setNoxMsg(HAPPY_LINES[Math.floor(Math.random() * HAPPY_LINES.length)]);
+    } else {
+      setNoxMood("encourage");
+      setNoxMsg(ENCOURAGE_LINES[Math.floor(Math.random() * ENCOURAGE_LINES.length)]);
     }
-    if (quizIdx + 1 >= quizWords.length) setStep(5);
-    else setQuizIdx((i) => i + 1);
+    setTimeout(() => {
+      if (quizIdx + 1 >= quizWords.length) setStep(5);
+      else {
+        setQuizIdx((i) => i + 1);
+        setNoxMood("thinking");
+        setNoxMsg("Next one — ready?");
+      }
+    }, 1100);
   }
 
 
@@ -106,13 +166,56 @@ function Onboarding() {
   const pct = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-8">
-      <div className="mb-6">
+    <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-8">
+      <AnimatePresence>
+        {intro && (
+          <motion.div
+            key="intro"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-6 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.4, opacity: 0, rotate: -20 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 14 }}
+            >
+              <Nox mood="excited" size={180} />
+            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={introLine}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35 }}
+                className="mt-6 text-center font-display text-2xl font-bold"
+              >
+                {introLines[introLine] ?? ""}
+              </motion.p>
+            </AnimatePresence>
+            <button
+              onClick={() => setIntro(false)}
+              className="mt-10 rounded-full bg-surface-2 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground ring-1 ring-border"
+            >
+              Skip intro
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mb-4">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
           <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-500" style={{ width: `${pct}%` }} />
         </div>
         <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">Step {step + 1} of {STEPS.length}</p>
       </div>
+
+      <div className="mb-4">
+        <Nox mood={noxMood} message={noxMsg} size={72} />
+      </div>
+
 
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.25 }} className="flex-1">
