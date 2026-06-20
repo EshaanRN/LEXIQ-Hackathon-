@@ -242,6 +242,26 @@ function CheckpointPage() {
           {pickCheckpointWords(count).length === 0 && (
             <p className="text-center text-xs text-muted-foreground">Learn a few words first, then come back!</p>
           )}
+
+          <div className="pt-2">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">More ways to test yourself</p>
+            <div className="mt-2 space-y-2">
+              <PremiumToolCard
+                to="/custom-test"
+                isPremium={isPremium}
+                icon={<Pencil className="h-4 w-4 text-primary" />}
+                title="Custom Test"
+                desc="Build a quiz from your own word list."
+              />
+              <PremiumToolCard
+                to="/sat-practice"
+                isPremium={isPremium}
+                icon={<Crown className="h-4 w-4 text-gold" />}
+                title="Adaptive SAT Practice"
+                desc="AI SAT questions on words you struggle with."
+              />
+            </div>
+          </div>
         </div>
       )}
 
