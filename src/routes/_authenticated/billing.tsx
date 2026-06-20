@@ -21,8 +21,13 @@ function BillingPage() {
       const res = await portal();
       window.open(res.url, "_blank", "noopener,noreferrer");
     } catch (e) {
-      console.error(e);
-      alert("Could not open the billing portal. Please contact support.");
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("No subscription")) {
+        alert("This Premium access was granted manually and isn't linked to a billing account, so there's nothing to manage here.");
+      } else {
+        console.error(e);
+        alert("Could not open the billing portal. Please contact support.");
+      }
     } finally {
       setBusy(false);
     }
