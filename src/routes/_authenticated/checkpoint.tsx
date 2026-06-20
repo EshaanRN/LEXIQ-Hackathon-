@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2, RotateCcw, Crown, Lock, Pencil } from "lucide-react";
+import { usePremium } from "@/lib/premium";
 import { useServerFn } from "@tanstack/react-start";
 import { XPToast } from "@/components/XPToast";
 import {
@@ -53,6 +54,7 @@ interface SavedSession {
 
 function CheckpointPage() {
   const g = useGame();
+  const { isPremium } = usePremium();
   const [mode, setMode] = useState<Mode>("typing");
   const [count, setCount] = useState(5);
   const [phase, setPhase] = useState<Phase>("intro");
@@ -240,6 +242,26 @@ function CheckpointPage() {
           {pickCheckpointWords(count).length === 0 && (
             <p className="text-center text-xs text-muted-foreground">Learn a few words first, then come back!</p>
           )}
+
+          <div className="pt-2">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">More ways to test yourself</p>
+            <div className="mt-2 space-y-2">
+              <PremiumToolCard
+                to="/custom-test"
+                isPremium={isPremium}
+                icon={<Pencil className="h-4 w-4 text-primary" />}
+                title="Custom Test"
+                desc="Build a quiz from your own word list."
+              />
+              <PremiumToolCard
+                to="/sat-practice"
+                isPremium={isPremium}
+                icon={<Crown className="h-4 w-4 text-gold" />}
+                title="Adaptive SAT Practice"
+                desc="AI SAT questions on words you struggle with."
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -285,6 +307,25 @@ function ModeCard({ active, onClick, icon, title, desc }: { active: boolean; onC
       <div className="flex items-center gap-2 font-display text-base font-bold">{icon}{title}</div>
       <p className="mt-1 text-[11px] text-muted-foreground">{desc}</p>
     </button>
+  );
+}
+
+function PremiumToolCard({ to, isPremium, icon, title, desc }: { to: "/custom-test" | "/sat-practice"; isPremium: boolean; icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <Link to={to} className="flex items-center justify-between rounded-2xl bg-card p-4 ring-1 ring-border transition hover:border-primary">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-display text-base font-bold">{title}</span>
+          {!isPremium && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gold ring-1 ring-gold/40">
+              <Lock className="h-3 w-3" /> Premium
+            </span>
+          )}
+        </div>
+        <p className="mt-0.5 text-xs text-muted-foreground">{isPremium ? desc : "Upgrade to Premium to unlock."}</p>
+      </div>
+      <span className="ml-3 flex-shrink-0">{icon}</span>
+    </Link>
   );
 }
 
