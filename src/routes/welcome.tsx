@@ -298,7 +298,18 @@ function Welcome() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Lexiq. All rights reserved.
+        <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <Link to="/refund" className="hover:text-foreground">Refunds</Link>
+          <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
+          <Link to="/trust" className="hover:text-foreground">Trust & Security</Link>
+        </nav>
+        <div>© {new Date().getFullYear()} LEXIQ. All rights reserved.</div>
+        <div className="mt-1 text-[11px] text-muted-foreground/70">
+          Payments processed by Paddle.com — our Merchant of Record.
+        </div>
       </footer>
     </main>
   );
