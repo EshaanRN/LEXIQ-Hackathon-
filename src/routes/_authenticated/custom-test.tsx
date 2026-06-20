@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Crown, Loader2, Plus, Sparkles, X, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Crown, Loader2, Sparkles, CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { usePremium } from "@/lib/premium";
@@ -201,5 +201,3 @@ function PremiumGate({ title }: { title: string }) {
     </main>
   );
 }
-// silence unused-imports lint when no questions in view
-void Plus; void X;
