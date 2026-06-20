@@ -185,6 +185,11 @@ function AuthBridge() {
         xp: data.xp ?? 0,
         coins: data.coins ?? 0,
         level: data.level ?? 1,
+        exam: (data.exam ?? undefined) as never,
+        checkpoint_interval: data.checkpoint_interval ?? undefined,
+        words_learned_total: data.words_learned_total ?? undefined,
+        daily_goal: data.daily_goal ?? undefined,
+        client_state: (data.client_state ?? null) as never,
       });
     }
     supabase.auth.getUser().then(({ data }) => {
