@@ -143,9 +143,14 @@ function Onboarding() {
         },
       });
     } catch (e) {
-      setSaving(false);
-      alert(e instanceof Error ? e.message : "Couldn't save your profile. Try again.");
-      return;
+      const msg = e instanceof Error ? e.message : String(e);
+      // Treat "already completed" as success so users aren't stuck on retry.
+      if (!/already been completed/i.test(msg)) {
+        console.error("completeOnboarding failed", e);
+        setSaving(false);
+        alert(msg || "Couldn't save your profile. Try again.");
+        return;
+      }
     }
     loadStateForUser(user.id);
     applyProfile({
@@ -154,7 +159,6 @@ function Onboarding() {
       owned_items: owned,
       exam,
     });
-    // Don't repeat words the user already said they know.
     for (const id of knownIds) {
       const w = VOCAB.find((v) => v.id === id);
       if (w) markKnown(w);
@@ -336,6 +340,9 @@ export function AvatarBuilder({
   avatar, setAvatar, owned, onNext,
 }: { avatar: AvatarConfig; setAvatar: (a: AvatarConfig) => void; owned: string[]; onNext?: () => void }) {
   const [tab, setTab] = useState<"style" | "background">("style");
+  const compact = Boolean(onNext);
+  const styleList = compact ? DICEBEAR_STYLES.filter((s) => s.free).slice(0, 6) : DICEBEAR_STYLES;
+  const bgList = compact ? BACKGROUND_PALETTES.filter((b) => b.cost === 0).slice(0, 8) : BACKGROUND_PALETTES;
 
   return (
     <>
@@ -372,7 +379,7 @@ export function AvatarBuilder({
             transition={{ duration: 0.18 }}
             className="mt-3 grid grid-cols-3 gap-2"
           >
-            {DICEBEAR_STYLES.map((s) => {
+            {styleList.map((s) => {
               const unlocked = styleOwned(owned, s.id);
               const active = avatar.style === s.id;
               return (
@@ -402,7 +409,7 @@ export function AvatarBuilder({
             transition={{ duration: 0.18 }}
             className="mt-3 grid grid-cols-4 gap-2"
           >
-            {BACKGROUND_PALETTES.map((b) => {
+            {bgList.map((b) => {
               const unlocked = bgOwned(owned, b.id);
               const active = avatar.backgroundColor.join(",") === b.colors.join(",");
               return (
