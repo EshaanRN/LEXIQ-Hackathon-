@@ -729,3 +729,36 @@ export function useMounted() {
   return m;
 }
 export { RANKS };
+
+// ---------- Checkpoint session resume ----------
+function ckptKey(userId: string) { return `lexiq:ckpt-session::${userId}`; }
+export function saveCheckpointSession(data: unknown) {
+  if (typeof window === "undefined" || !state.userId) return;
+  try { localStorage.setItem(ckptKey(state.userId), JSON.stringify(data)); } catch {}
+}
+export function loadCheckpointSession<T = unknown>(): T | null {
+  if (typeof window === "undefined" || !state.userId) return null;
+  try {
+    const raw = localStorage.getItem(ckptKey(state.userId));
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch { return null; }
+}
+export function clearCheckpointSession() {
+  if (typeof window === "undefined" || !state.userId) return;
+  try { localStorage.removeItem(ckptKey(state.userId)); } catch {}
+}
+
+/** Words the user is struggling with (low mastery score or stuck in learning/practicing). */
+export function getStruggleWords(limit = 12): VocabWord[] {
+  const items: { word: VocabWord; score: number }[] = [];
+  for (const w of VOCAB) {
+    const ws = state.words[w.id];
+    if (!ws || ws.mastery === "unknown") continue;
+    const score = typeof ws.masteryScore === "number"
+      ? ws.masteryScore
+      : ws.mastery === "mastered" ? 95 : ws.mastery === "familiar" ? 80 : ws.mastery === "practicing" ? 55 : 30;
+    if (score < 76) items.push({ word: w, score });
+  }
+  items.sort((a, b) => a.score - b.score);
+  return items.slice(0, limit).map((i) => i.word);
+}
