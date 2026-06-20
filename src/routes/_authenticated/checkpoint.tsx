@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2, RotateCcw, Crown, Lock, Pencil } from "lucide-react";
+import { usePremium } from "@/lib/premium";
 import { useServerFn } from "@tanstack/react-start";
 import { XPToast } from "@/components/XPToast";
 import {
