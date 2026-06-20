@@ -195,18 +195,13 @@ function Onboarding() {
               transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            {/* Nox slides in smoothly from the side, then gentle sway */}
+            {/* Nox glides in with slow wing flaps, then settles into calm idle */}
             <motion.div
               initial={{ x: -300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             >
-              <motion.div
-                animate={{ x: [0, 6, -6, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.7 }}
-              >
-                <Nox mood="idle" size={200} speaking />
-              </motion.div>
+              <Nox mood="idle" size={200} intro />
             </motion.div>
 
             {/* Big speech card — Duolingo style */}
