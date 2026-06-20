@@ -83,17 +83,11 @@ export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) 
     return;
   }
 
-  // Kick off browser TTS immediately as a safety net while AI fetches,
-  // then cancel it the instant the AI clip is ready.
-  let cancelledBrowser = false;
-  const safety = window.setTimeout(() => {
-    if (!cancelledBrowser) browserSpeak(text);
-  }, 250);
-
+  // Wait for AI audio; only fall back to the browser voice if it fails.
+  // (Previously kicked off browser TTS as a safety net at 250ms, which caused
+  // both voices to play simultaneously when the AI clip arrived just after.)
   speakWordFn({ data: { text, style } })
     .then((res) => {
-      cancelledBrowser = true;
-      window.clearTimeout(safety);
       window.speechSynthesis?.cancel();
       const blob = b64ToBlob(res.base64, res.mime);
       const url = URL.createObjectURL(blob);
@@ -105,8 +99,7 @@ export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) 
     .catch((err) => {
       console.warn("AI TTS failed, falling back to browser voice", err);
       aiDisabled = true;
-      window.clearTimeout(safety);
-      if (!cancelledBrowser) browserSpeak(text);
+      browserSpeak(text);
     });
 }
 

@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
+import owlAsset from "@/assets/lexiq-owl.png.asset.json";
 
-/** TikTok-style splash: black bg, animated logo reveal, particles. */
+/** TikTok-style splash: black bg, animated owl reveal, particles. */
 export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: string }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black">
-      {/* particles */}
       {Array.from({ length: 18 }).map((_, i) => (
         <motion.span
           key={i}
@@ -26,23 +26,17 @@ export function Splash({ tagline = "Swipe. Learn. Level up." }: { tagline?: stri
         transition={{ type: "spring", stiffness: 240, damping: 18, delay: 0.1 }}
         className="flex flex-col items-center"
       >
-        <div
-          className="relative grid h-28 w-28 place-items-center rounded-3xl glow-primary"
-          style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))" }}
-        >
-          <motion.span
-            initial={{ y: 8, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.35 }}
-            className="font-display text-5xl font-black text-primary-foreground"
-          >
-            Lx
-          </motion.span>
+        <div className="relative">
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.6, 1] }}
             transition={{ delay: 0.35, duration: 0.7 }}
-            className="absolute -inset-1 -z-10 rounded-3xl bg-primary/30 blur-2xl"
+            className="absolute -inset-2 -z-10 rounded-[2rem] bg-primary/40 blur-2xl"
+          />
+          <img
+            src={owlAsset.url}
+            alt="Lexiq owl mascot"
+            className="h-36 w-36 rounded-[2rem] object-cover glow-primary"
           />
         </div>
 
