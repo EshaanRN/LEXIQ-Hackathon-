@@ -409,7 +409,7 @@ export function AvatarBuilder({
             transition={{ duration: 0.18 }}
             className="mt-3 grid grid-cols-4 gap-2"
           >
-            {BACKGROUND_PALETTES.map((b) => {
+            {bgList.map((b) => {
               const unlocked = bgOwned(owned, b.id);
               const active = avatar.backgroundColor.join(",") === b.colors.join(",");
               return (
