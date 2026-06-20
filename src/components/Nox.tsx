@@ -113,7 +113,7 @@ export function Nox({
     visible: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const },
     },
   };
 
@@ -123,7 +123,7 @@ export function Nox({
     y:        [0, -5, 0, -4, 0, -3, 0],
     rotate:   [0, 1.2, 0, -0.8, 0, 0.6, 0],
     scaleY:   [1, 1.018, 1, 1.014, 1, 1.01, 1],
-    transition: { duration: 2.4, ease: "easeInOut" },
+    transition: { duration: 2.4, ease: "easeInOut" as const },
   };
 
   // Calm idle: very subtle breathing + current tilt/blink
@@ -133,8 +133,8 @@ export function Nox({
     scaleY: blink ? 0.94 : 1,
     transition: {
       y: { duration: 0.3 },
-      rotate: { duration: 0.7, ease: "easeInOut" },
-      scaleY: { duration: 0.12, ease: "easeOut" },
+      rotate: { duration: 0.7, ease: "easeInOut" as const },
+      scaleY: { duration: 0.12, ease: "easeOut" as const },
     },
   };
 
@@ -142,7 +142,7 @@ export function Nox({
   const speakAnim = {
     y: [0, -1.8, 0, -1.5, 0],
     scaleY: [1, 0.988, 1, 0.988, 1],
-    transition: { duration: 0.45, repeat: Infinity, ease: "easeInOut" },
+    transition: { duration: 0.45, repeat: Infinity, ease: "easeInOut" as const },
   };
 
   return (
@@ -153,7 +153,7 @@ export function Nox({
           aria-hidden
           className={`absolute inset-0 rounded-full blur-2xl ${haloByMood[mood]}`}
           animate={{ opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" as const }}
         />
 
         {/* Main container: entrance glide on outer wrapper */}
