@@ -63,7 +63,6 @@ Grade strictly but fairly. Return only the JSON object.`;
       return object;
     } catch (e) {
       console.error("grade error", e);
-      // Fallback heuristic so the UI never blocks
       const word = data.word.toLowerCase();
       const defOk = data.definitionAnswer.length > 6;
       const sentOk = data.sentenceAnswer.toLowerCase().includes(word) && data.sentenceAnswer.length > word.length + 8;
@@ -83,3 +82,72 @@ Grade strictly but fairly. Return only the JSON object.`;
       };
     }
   });
+
+// ---- Instant per-field grading (used by speaking mode for live feedback) ----
+
+const FieldInput = z.object({
+  word: z.string().min(1).max(60),
+  definition: z.string().min(1).max(500),
+  partOfSpeech: z.string().max(60),
+  field: z.enum(["pronunciation", "definition", "sentence"]),
+  answer: z.string().min(1).max(800),
+});
+
+const FieldSchema = z.object({
+  score: z.number().min(0).max(100),
+  correct: z.boolean(),
+  feedback: z.string().max(220),
+});
+
+export const gradeAnswerField = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => FieldInput.parse(input))
+  .handler(async ({ data }) => {
+    const key = process.env.LOVABLE_API_KEY;
+    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const gateway = createLovableAiGatewayProvider(key);
+
+    // Fast heuristic fallback first so the UI never stalls.
+    const heur = quickField(data);
+
+    const sys = `You grade a single dimension of a vocabulary answer. Return JSON only.
+score: 0-100. correct: true if score >= 70. feedback: <= 1 short sentence, encouraging and specific.
+Dimension semantics:
+- pronunciation: compare a speech-to-text transcript to the target word. Allow homophone-like near matches.
+- definition: how accurately the answer captures the meaning. Allow paraphrase/synonyms.
+- sentence: does the sentence use the word correctly in meaningful context. Penalize copying the definition.`;
+
+    const prompt = `Word: "${data.word}" (${data.partOfSpeech})
+Correct meaning: ${data.definition}
+Dimension: ${data.field}
+Student answer: "${data.answer}"`;
+
+    try {
+      const { object } = await generateObject({
+        model: gateway("google/gemini-3-flash-preview"),
+        schema: FieldSchema,
+        system: sys,
+        prompt,
+      });
+      return object;
+    } catch (e) {
+      console.warn("gradeAnswerField fallback", e);
+      return heur;
+    }
+  });
+
+function quickField(d: { word: string; definition: string; field: "pronunciation" | "definition" | "sentence"; answer: string }) {
+  const w = d.word.toLowerCase();
+  const a = d.answer.toLowerCase().trim();
+  if (d.field === "pronunciation") {
+    const ok = a.includes(w) || (a.length > 2 && w.startsWith(a.slice(0, Math.min(4, a.length))));
+    const score = ok ? 85 : 35;
+    return { score, correct: ok, feedback: ok ? "Sounds right!" : `Try again — aim for "${d.word}".` };
+  }
+  if (d.field === "definition") {
+    const ok = a.length > 6;
+    return { score: ok ? 70 : 30, correct: ok, feedback: ok ? "Looks reasonable." : "Add a bit more detail." };
+  }
+  const ok = a.includes(w) && a.length > w.length + 8;
+  return { score: ok ? 75 : 35, correct: ok, feedback: ok ? "Nice usage." : `Try a sentence that actually uses "${d.word}".` };
+}

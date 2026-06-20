@@ -1,18 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Mic, Keyboard, Sparkles, CheckCircle2, XCircle, Loader2, RotateCcw } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { XPToast } from "@/components/XPToast";
 import {
   applyMasteryScore,
+  clearCheckpointSession,
   completeCheckpoint,
+  loadCheckpointSession,
   pickCheckpointWords,
+  saveCheckpointSession,
   setCheckpointInterval,
   snoozeCheckpoint,
   useGame,
 } from "@/lib/game-store";
-import { gradeCheckpointAnswer } from "@/lib/grade.functions";
-import type { VocabWord } from "@/data/vocab";
+import { gradeAnswerField, gradeCheckpointAnswer } from "@/lib/grade.functions";
+import { VOCAB, type VocabWord } from "@/data/vocab";
+import owlMascot from "@/assets/owl-mascot.png";
 
 export const Route = createFileRoute("/_authenticated/checkpoint")({
   ssr: false,
@@ -33,6 +37,20 @@ interface Scored {
   feedback: string;
 }
 
+interface SavedSession {
+  mode: Mode;
+  count: number;
+  phase: Phase;
+  queueIds: string[];
+  idx: number;
+  results: Scored[];
+  inProgress?: {
+    pron: string;
+    def: string;
+    sent: string;
+  };
+}
+
 function CheckpointPage() {
   const g = useGame();
   const [mode, setMode] = useState<Mode>("typing");
@@ -42,6 +60,54 @@ function CheckpointPage() {
   const [idx, setIdx] = useState(0);
   const [results, setResults] = useState<Scored[]>([]);
   const [lastScored, setLastScored] = useState<Scored | null>(null);
+  const [restoreOffer, setRestoreOffer] = useState<SavedSession | null>(null);
+  const [initialAnswers, setInitialAnswers] = useState<{ pron: string; def: string; sent: string } | null>(null);
+
+  // Detect a saved-in-progress session on mount and offer to resume.
+  useEffect(() => {
+    const saved = loadCheckpointSession<SavedSession>();
+    if (saved && saved.phase === "test" && saved.queueIds.length > 0 && saved.idx < saved.queueIds.length) {
+      setRestoreOffer(saved);
+    }
+  }, []);
+
+  // Persist whenever in test phase so an accidental exit can be resumed exactly.
+  useEffect(() => {
+    if (phase === "test") {
+      saveCheckpointSession({
+        mode, count, phase,
+        queueIds: queue.map((w) => w.id),
+        idx, results,
+      } satisfies SavedSession);
+    }
+    if (phase === "results") {
+      clearCheckpointSession();
+    }
+  }, [phase, mode, count, queue, idx, results]);
+
+  function resume(saved: SavedSession) {
+    const restored = saved.queueIds
+      .map((id) => VOCAB.find((w) => w.id === id))
+      .filter((w): w is VocabWord => !!w);
+    if (restored.length === 0) {
+      clearCheckpointSession();
+      setRestoreOffer(null);
+      return;
+    }
+    setMode(saved.mode);
+    setCount(saved.count);
+    setQueue(restored);
+    setIdx(Math.min(saved.idx, restored.length - 1));
+    setResults(saved.results);
+    setInitialAnswers(saved.inProgress ?? null);
+    setPhase("test");
+    setRestoreOffer(null);
+  }
+
+  function discardSaved() {
+    clearCheckpointSession();
+    setRestoreOffer(null);
+  }
 
   function start() {
     const words = pickCheckpointWords(count);
@@ -50,6 +116,7 @@ function CheckpointPage() {
     setIdx(0);
     setResults([]);
     setLastScored(null);
+    setInitialAnswers(null);
     setPhase("test");
   }
 
@@ -57,6 +124,7 @@ function CheckpointPage() {
     applyMasteryScore(s.word.id, s.totalScore);
     setResults((prev) => [...prev, s]);
     setLastScored(s);
+    setInitialAnswers(null);
   }
 
   function advance() {
@@ -80,8 +148,8 @@ function CheckpointPage() {
           to="/app"
           aria-label="Back to app"
           onClick={() => {
-            // Cancelling resets the next-prompt counter so the prompt fires only when
-            // the user has actually learned the full interval again.
+            // Cancelling DOES NOT clear the saved session — user can resume
+            // exactly where they left off. Snooze only the next-prompt counter.
             if (phase !== "results") snoozeCheckpoint();
           }}
           className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border"
@@ -90,6 +158,26 @@ function CheckpointPage() {
         </Link>
         <h1 className="font-display text-xl font-bold">Vocabulary Checkpoint</h1>
       </div>
+
+      {restoreOffer && phase === "intro" && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-primary/50 bg-primary/10 p-3">
+          <RotateCcw className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold">Resume your checkpoint?</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {restoreOffer.queueIds.length} words · on word {restoreOffer.idx + 1}. Nothing has been changed.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button onClick={() => resume(restoreOffer)} className="rounded-full bg-primary px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-foreground">
+                Resume
+              </button>
+              <button onClick={discardSaved} className="rounded-full bg-surface-2 px-4 py-1.5 text-xs font-bold uppercase tracking-widest ring-1 ring-border">
+                Start fresh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {phase === "intro" && (
         <div className="mt-6 space-y-6">
@@ -115,7 +203,7 @@ function CheckpointPage() {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Pick a mode</p>
             <div className="mt-2 grid grid-cols-2 gap-2">
               <ModeCard active={mode === "typing"} onClick={() => setMode("typing")} icon={<Keyboard className="h-5 w-5" />} title="Typing" desc="Type the definition + a sentence. Great for libraries." />
-              <ModeCard active={mode === "speaking"} onClick={() => setMode("speaking")} icon={<Mic className="h-5 w-5" />} title="Speaking" desc="Pronounce + define + use the word aloud. AI grades you." />
+              <ModeCard active={mode === "speaking"} onClick={() => setMode("speaking")} icon={<Mic className="h-5 w-5" />} title="Speaking" desc="Pronounce + define + use the word aloud. AI grades each part instantly." />
             </div>
           </div>
 
@@ -162,6 +250,15 @@ function CheckpointPage() {
           mode={mode}
           index={idx}
           total={queue.length}
+          initial={initialAnswers ?? undefined}
+          onProgress={(p) => {
+            saveCheckpointSession({
+              mode, count, phase: "test",
+              queueIds: queue.map((w) => w.id),
+              idx, results,
+              inProgress: p,
+            } satisfies SavedSession);
+          }}
           onScored={handleScored}
         />
       )}
@@ -191,17 +288,56 @@ function ModeCard({ active, onClick, icon, title, desc }: { active: boolean; onC
   );
 }
 
-function CheckpointQuestion({ word, mode, index, total, onScored }: { word: VocabWord; mode: Mode; index: number; total: number; onScored: (s: Scored) => void }) {
+interface FieldFeedback { score: number; correct: boolean; feedback: string; loading?: boolean }
+
+function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onScored }: {
+  word: VocabWord;
+  mode: Mode;
+  index: number;
+  total: number;
+  initial?: { pron: string; def: string; sent: string };
+  onProgress: (p: { pron: string; def: string; sent: string }) => void;
+  onScored: (s: Scored) => void;
+}) {
   const grade = useServerFn(gradeCheckpointAnswer);
-  const [pronunciationTranscript, setPron] = useState("");
-  const [definition, setDef] = useState("");
-  const [sentence, setSent] = useState("");
+  const gradeField = useServerFn(gradeAnswerField);
+  const [pronunciationTranscript, setPron] = useState(initial?.pron ?? "");
+  const [definition, setDef] = useState(initial?.def ?? "");
+  const [sentence, setSent] = useState(initial?.sent ?? "");
   const [listening, setListening] = useState<null | "pron" | "def" | "sent">(null);
   const [grading, setGrading] = useState(false);
+  const [pronFb, setPronFb] = useState<FieldFeedback | null>(null);
+  const [defFb, setDefFb] = useState<FieldFeedback | null>(null);
+  const [sentFb, setSentFb] = useState<FieldFeedback | null>(null);
 
   const Recognition: typeof window extends { SpeechRecognition: infer T } ? T : unknown =
     typeof window !== "undefined" ? ((window as unknown as Record<string, unknown>).SpeechRecognition ?? (window as unknown as Record<string, unknown>).webkitSpeechRecognition) : undefined;
   const speechSupported = typeof window !== "undefined" && !!Recognition;
+
+  // Save in-progress answers on every change so a refresh restores them exactly.
+  const progressRef = useRef({ pron: pronunciationTranscript, def: definition, sent: sentence });
+  useEffect(() => {
+    progressRef.current = { pron: pronunciationTranscript, def: definition, sent: sentence };
+    onProgress(progressRef.current);
+  }, [pronunciationTranscript, definition, sentence]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function checkField(field: "pronunciation" | "definition" | "sentence", answer: string) {
+    if (!answer.trim()) return;
+    const setter = field === "pronunciation" ? setPronFb : field === "definition" ? setDefFb : setSentFb;
+    setter({ score: 0, correct: false, feedback: "", loading: true });
+    try {
+      const fb = await gradeField({ data: {
+        word: word.word,
+        definition: word.studentDefinition,
+        partOfSpeech: word.partOfSpeech,
+        field, answer,
+      }});
+      setter({ ...fb, loading: false });
+      playFeedbackTone(fb.correct);
+    } catch {
+      setter(null);
+    }
+  }
 
   function listen(target: "pron" | "def" | "sent") {
     if (!Recognition) return;
@@ -215,13 +351,22 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
     rec.interimResults = false;
     rec.continuous = false;
     setListening(target);
+    let captured = "";
     rec.onresult = (e) => {
       const t = Array.from(e.results).map((r) => r[0].transcript).join(" ").trim();
-      if (target === "pron") setPron(t);
-      if (target === "def") setDef(t);
-      if (target === "sent") setSent(t);
+      captured = t;
+      if (target === "pron") { setPron(t); setPronFb(null); }
+      if (target === "def") { setDef(t); setDefFb(null); }
+      if (target === "sent") { setSent(t); setSentFb(null); }
     };
-    rec.onend = () => setListening(null);
+    rec.onend = () => {
+      setListening(null);
+      // Instant per-field grading in speaking mode — fires the moment speech ends.
+      if (mode === "speaking" && captured) {
+        const map = { pron: "pronunciation", def: "definition", sent: "sentence" } as const;
+        checkField(map[target], captured);
+      }
+    };
     rec.start();
   }
 
@@ -256,6 +401,7 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
           transcript={pronunciationTranscript}
           supported={speechSupported}
           onSpeak={() => listen("pron")}
+          feedback={pronFb}
         />
       ) : (
         <div className="rounded-3xl border border-border bg-card p-6 text-center">
@@ -264,8 +410,11 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
         </div>
       )}
 
-      <Block title={`${mode === "speaking" ? "2." : "1."} Define the word`}>
-        <textarea value={definition} onChange={(e) => setDef(e.target.value)} rows={2}
+      <Block title={`${mode === "speaking" ? "2." : "1."} Define the word`} feedback={defFb}>
+        <textarea value={definition}
+          onChange={(e) => { setDef(e.target.value); setDefFb(null); }}
+          onBlur={() => mode === "speaking" && definition.trim() && !defFb && checkField("definition", definition)}
+          rows={2}
           placeholder="Type the meaning in your own words…"
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
         {mode === "speaking" && speechSupported && (
@@ -276,8 +425,11 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
         )}
       </Block>
 
-      <Block title={`${mode === "speaking" ? "3." : "2."} Use it in a sentence`}>
-        <textarea value={sentence} onChange={(e) => setSent(e.target.value)} rows={2}
+      <Block title={`${mode === "speaking" ? "3." : "2."} Use it in a sentence`} feedback={sentFb}>
+        <textarea value={sentence}
+          onChange={(e) => { setSent(e.target.value); setSentFb(null); }}
+          onBlur={() => mode === "speaking" && sentence.trim() && !sentFb && checkField("sentence", sentence)}
+          rows={2}
           placeholder="Write an original sentence that shows the meaning."
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
         {mode === "speaking" && speechSupported && (
@@ -296,8 +448,8 @@ function CheckpointQuestion({ word, mode, index, total, onScored }: { word: Voca
   );
 }
 
-function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak }: {
-  word: VocabWord; listening: boolean; transcript: string; supported: boolean; onSpeak: () => void;
+function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, feedback }: {
+  word: VocabWord; listening: boolean; transcript: string; supported: boolean; onSpeak: () => void; feedback: FieldFeedback | null;
 }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
@@ -331,65 +483,49 @@ function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak }: 
           {transcript && (
             <p className="mt-2 max-w-xs truncate text-center text-xs italic text-muted-foreground">"{transcript}"</p>
           )}
+          {feedback && <InlineFeedback fb={feedback} />}
         </div>
       )}
     </div>
   );
 }
 
-function LexiqMascot({ listening }: { listening: boolean }) {
-  // Cute purple owl mascot — Duolingo-inspired, friendly SVG.
+function InlineFeedback({ fb }: { fb: FieldFeedback }) {
+  if (fb.loading) {
+    return <p className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" />Checking…</p>;
+  }
   return (
-    <div className={`relative h-24 w-24 shrink-0 ${listening ? "animate-bounce" : ""}`}>
-      <svg viewBox="0 0 120 120" className="h-full w-full drop-shadow-xl" aria-hidden>
-        <ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(0,0,0,0.25)" />
-        {/* feet */}
-        <ellipse cx="48" cy="106" rx="6" ry="3" fill="#f59e0b" />
-        <ellipse cx="72" cy="106" rx="6" ry="3" fill="#f59e0b" />
-        {/* body (purple gradient) */}
-        <defs>
-          <radialGradient id="owlBody" cx="50%" cy="40%" r="65%">
-            <stop offset="0%" stopColor="#a78bfa" />
-            <stop offset="60%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#6d28d9" />
-          </radialGradient>
-          <linearGradient id="owlBelly" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ede9fe" />
-            <stop offset="100%" stopColor="#c4b5fd" />
-          </linearGradient>
-        </defs>
-        {/* tufts */}
-        <path d="M28 28 Q34 14 44 26 Z" fill="#7c3aed" />
-        <path d="M92 28 Q86 14 76 26 Z" fill="#7c3aed" />
-        {/* body */}
-        <ellipse cx="60" cy="64" rx="40" ry="42" fill="url(#owlBody)" />
-        {/* wings */}
-        <path d="M22 60 Q14 80 28 96 Q34 86 32 70 Z" fill="#6d28d9" />
-        <path d="M98 60 Q106 80 92 96 Q86 86 88 70 Z" fill="#6d28d9" />
-        {/* belly */}
-        <ellipse cx="60" cy="74" rx="24" ry="28" fill="url(#owlBelly)" />
-        {/* eye whites */}
-        <circle cx="46" cy="50" r="14" fill="white" />
-        <circle cx="74" cy="50" r="14" fill="white" />
-        {/* pupils */}
-        <circle cx="47" cy="52" r="6" fill="#1f2937" />
-        <circle cx="75" cy="52" r="6" fill="#1f2937" />
-        <circle cx="49" cy="50" r="2" fill="white" />
-        <circle cx="77" cy="50" r="2" fill="white" />
-        {/* beak */}
-        <path d="M54 64 Q60 72 66 64 Q60 70 54 64 Z" fill="#fbbf24" stroke="#d97706" strokeWidth="1.2" strokeLinejoin="round" />
-        {/* cheeks */}
-        <circle cx="40" cy="68" r="4" fill="#f9a8d4" opacity="0.6" />
-        <circle cx="80" cy="68" r="4" fill="#f9a8d4" opacity="0.6" />
-      </svg>
+    <div className={`mt-2 flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${fb.correct ? "bg-success/15 text-success" : "bg-danger/15 text-danger"}`}>
+      {fb.correct ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+      <span>{fb.correct ? "Correct" : "Not quite"} · {fb.score}</span>
+      <span className="hidden text-muted-foreground sm:inline">— {fb.feedback}</span>
     </div>
   );
 }
 
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
+function LexiqMascot({ listening }: { listening: boolean }) {
+  return (
+    <div className={`relative h-24 w-24 shrink-0 ${listening ? "animate-bounce" : ""}`}>
+      <img
+        src={owlMascot}
+        alt="Lexiq owl mascot"
+        width={96}
+        height={96}
+        loading="lazy"
+        className="h-full w-full object-contain drop-shadow-xl"
+        draggable={false}
+      />
+    </div>
+  );
+}
+
+function Block({ title, children, feedback }: { title: string; children: React.ReactNode; feedback?: FieldFeedback | null }) {
   return (
     <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
-      <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-primary">{title}</p>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-primary">{title}</p>
+        {feedback && <InlineFeedback fb={feedback} />}
+      </div>
       {children}
     </div>
   );
@@ -406,7 +542,6 @@ function playFeedbackTone(correct: boolean) {
     gain.connect(ctx.destination);
     gain.gain.setValueAtTime(0.0001, now);
     if (correct) {
-      // Cheerful two-note "ding"
       [880, 1320].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         osc.type = "triangle";
@@ -420,7 +555,6 @@ function playFeedbackTone(correct: boolean) {
         osc.stop(now + i * 0.08 + 0.4);
       });
     } else {
-      // Low buzz
       const osc = ctx.createOscillator();
       osc.type = "square";
       osc.frequency.setValueAtTime(180, now);
@@ -506,6 +640,3 @@ function CheckpointResults({ results, onDone }: { results: Scored[]; onDone: () 
     </div>
   );
 }
-
-// quiet unused warning for window typing helper
-useEffect; // no-op

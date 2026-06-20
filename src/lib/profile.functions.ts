@@ -23,19 +23,8 @@ const UpdateProfilePreferencesInput = z
     message: "No profile changes provided.",
   });
 
-const VALID_STYLE_IDS = new Set<string>([
-  "adventurer",
-  "avataaars",
-  "big-smile",
-  "fun-emoji",
-  "lorelei",
-  "micah",
-  "notionists",
-  "personas",
-  "pixel-art",
-  "bottts",
-  "shapes",
-]);
+import { DICEBEAR_STYLES } from "@/lib/avatar";
+const VALID_STYLE_IDS = new Set<string>(DICEBEAR_STYLES.map((s) => s.id));
 
 function isDicebearStyleId(value: unknown): value is DicebearStyleId {
   return typeof value === "string" && VALID_STYLE_IDS.has(value);

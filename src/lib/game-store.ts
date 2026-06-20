@@ -153,7 +153,15 @@ async function syncProfile() {
     // NOTE: xp, coins, level, words_learned_total, and owned_items are
     // server-authoritative — they're only mutated by economy/shop server fns.
     // Syncing them from client state would let a tampered localStorage
-    // forge balances.
+    // forge balances. mastery_scores IS user-owned and safe to mirror.
+    const scores: Record<string, number> = {};
+    for (const [id, ws] of Object.entries(state.words)) {
+      if (typeof ws.masteryScore === "number") scores[id] = ws.masteryScore;
+      else {
+        const m = ws.mastery;
+        scores[id] = m === "mastered" ? 95 : m === "familiar" ? 80 : m === "practicing" ? 60 : m === "learning" ? 35 : 0;
+      }
+    }
     await supabase
       .from("profiles")
       .update({
@@ -161,6 +169,7 @@ async function syncProfile() {
         equipped: state.avatar as never,
         exam: state.exam,
         checkpoint_interval: state.checkpointInterval,
+        mastery_scores: scores as never,
       })
       .eq("id", state.userId);
   } catch (e) {
@@ -720,3 +729,36 @@ export function useMounted() {
   return m;
 }
 export { RANKS };
+
+// ---------- Checkpoint session resume ----------
+function ckptKey(userId: string) { return `lexiq:ckpt-session::${userId}`; }
+export function saveCheckpointSession(data: unknown) {
+  if (typeof window === "undefined" || !state.userId) return;
+  try { localStorage.setItem(ckptKey(state.userId), JSON.stringify(data)); } catch {}
+}
+export function loadCheckpointSession<T = unknown>(): T | null {
+  if (typeof window === "undefined" || !state.userId) return null;
+  try {
+    const raw = localStorage.getItem(ckptKey(state.userId));
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch { return null; }
+}
+export function clearCheckpointSession() {
+  if (typeof window === "undefined" || !state.userId) return;
+  try { localStorage.removeItem(ckptKey(state.userId)); } catch {}
+}
+
+/** Words the user is struggling with (low mastery score or stuck in learning/practicing). */
+export function getStruggleWords(limit = 12): VocabWord[] {
+  const items: { word: VocabWord; score: number }[] = [];
+  for (const w of VOCAB) {
+    const ws = state.words[w.id];
+    if (!ws || ws.mastery === "unknown") continue;
+    const score = typeof ws.masteryScore === "number"
+      ? ws.masteryScore
+      : ws.mastery === "mastered" ? 95 : ws.mastery === "familiar" ? 80 : ws.mastery === "practicing" ? 55 : 30;
+    if (score < 76) items.push({ word: w, score });
+  }
+  items.sort((a, b) => a.score - b.score);
+  return items.slice(0, limit).map((i) => i.word);
+}

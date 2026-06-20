@@ -22,10 +22,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
+import { Route as AuthenticatedSatPracticeRouteImport } from './routes/_authenticated/sat-practice'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCustomTestRouteImport } from './routes/_authenticated/custom-test'
 import { Route as AuthenticatedCheckpointRouteImport } from './routes/_authenticated/checkpoint'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedAvatarRouteImport } from './routes/_authenticated/avatar'
@@ -96,6 +98,12 @@ const AuthenticatedShopRoute = AuthenticatedShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSatPracticeRoute =
+  AuthenticatedSatPracticeRouteImport.update({
+    id: '/sat-practice',
+    path: '/sat-practice',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
@@ -114,6 +122,11 @@ const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCustomTestRoute = AuthenticatedCustomTestRouteImport.update({
+  id: '/custom-test',
+  path: '/custom-test',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCheckpointRoute = AuthenticatedCheckpointRouteImport.update({
@@ -157,10 +170,12 @@ export interface FileRoutesByFullPath {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/custom-test': typeof AuthenticatedCustomTestRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/premium': typeof AuthenticatedPremiumRoute
+  '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -180,10 +195,12 @@ export interface FileRoutesByTo {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/custom-test': typeof AuthenticatedCustomTestRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/premium': typeof AuthenticatedPremiumRoute
+  '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog': typeof BlogIndexRoute
@@ -205,10 +222,12 @@ export interface FileRoutesById {
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/_authenticated/custom-test': typeof AuthenticatedCustomTestRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
+  '/_authenticated/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -230,10 +249,12 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/billing'
     | '/checkpoint'
+    | '/custom-test'
     | '/dashboard'
     | '/history'
     | '/onboarding'
     | '/premium'
+    | '/sat-practice'
     | '/shop'
     | '/blog/$slug'
     | '/blog/'
@@ -253,10 +274,12 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/billing'
     | '/checkpoint'
+    | '/custom-test'
     | '/dashboard'
     | '/history'
     | '/onboarding'
     | '/premium'
+    | '/sat-practice'
     | '/shop'
     | '/blog/$slug'
     | '/blog'
@@ -277,10 +300,12 @@ export interface FileRouteTypes {
     | '/_authenticated/avatar'
     | '/_authenticated/billing'
     | '/_authenticated/checkpoint'
+    | '/_authenticated/custom-test'
     | '/_authenticated/dashboard'
     | '/_authenticated/history'
     | '/_authenticated/onboarding'
     | '/_authenticated/premium'
+    | '/_authenticated/sat-practice'
     | '/_authenticated/shop'
     | '/blog/$slug'
     | '/blog/'
@@ -396,6 +421,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShopRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/sat-practice': {
+      id: '/_authenticated/sat-practice'
+      path: '/sat-practice'
+      fullPath: '/sat-practice'
+      preLoaderRoute: typeof AuthenticatedSatPracticeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
       path: '/premium'
@@ -422,6 +454,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custom-test': {
+      id: '/_authenticated/custom-test'
+      path: '/custom-test'
+      fullPath: '/custom-test'
+      preLoaderRoute: typeof AuthenticatedCustomTestRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/checkpoint': {
@@ -467,10 +506,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvatarRoute: typeof AuthenticatedAvatarRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCheckpointRoute: typeof AuthenticatedCheckpointRoute
+  AuthenticatedCustomTestRoute: typeof AuthenticatedCustomTestRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
+  AuthenticatedSatPracticeRoute: typeof AuthenticatedSatPracticeRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
 }
 
@@ -479,10 +520,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvatarRoute: AuthenticatedAvatarRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCheckpointRoute: AuthenticatedCheckpointRoute,
+  AuthenticatedCustomTestRoute: AuthenticatedCustomTestRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
+  AuthenticatedSatPracticeRoute: AuthenticatedSatPracticeRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
 }
 
@@ -507,13 +550,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
