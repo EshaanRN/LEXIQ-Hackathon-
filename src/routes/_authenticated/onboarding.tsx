@@ -340,6 +340,9 @@ export function AvatarBuilder({
   avatar, setAvatar, owned, onNext,
 }: { avatar: AvatarConfig; setAvatar: (a: AvatarConfig) => void; owned: string[]; onNext?: () => void }) {
   const [tab, setTab] = useState<"style" | "background">("style");
+  const compact = Boolean(onNext);
+  const styleList = compact ? DICEBEAR_STYLES.filter((s) => s.free).slice(0, 6) : DICEBEAR_STYLES;
+  const bgList = compact ? BACKGROUND_PALETTES.filter((b) => b.cost === 0).slice(0, 8) : BACKGROUND_PALETTES;
 
   return (
     <>
