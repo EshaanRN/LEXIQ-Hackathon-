@@ -59,13 +59,17 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
         <div className="flex h-full flex-col p-5">
           <div className="flex items-center justify-between">
             <DifficultyChip d={word.difficulty} />
-            <div className="flex items-center gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${i < word.frequency ? "fill-gold text-gold" : "text-muted-foreground/40"}`}
-                />
-              ))}
+            <div className="flex items-center gap-1" aria-label={`Difficulty: ${word.difficulty}`}>
+              {(() => {
+                const count = word.difficulty === "hard" ? 5 : word.difficulty === "medium" ? 3 : 2;
+                const tone = word.difficulty === "hard" ? "fill-danger text-danger" : word.difficulty === "medium" ? "fill-gold text-gold" : "fill-success text-success";
+                return Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-3 w-3 ${i < count ? tone : "text-muted-foreground/30"}`}
+                  />
+                ));
+              })()}
             </div>
           </div>
 

@@ -18,8 +18,10 @@ export type Database = {
         Row: {
           avatar: Json
           checkpoint_interval: number
+          client_state: Json
           coins: number
           created_at: string
+          daily_goal: number
           equipped: Json
           exam: string
           id: string
@@ -41,8 +43,10 @@ export type Database = {
         Insert: {
           avatar?: Json
           checkpoint_interval?: number
+          client_state?: Json
           coins?: number
           created_at?: string
+          daily_goal?: number
           equipped?: Json
           exam?: string
           id: string
@@ -64,8 +68,10 @@ export type Database = {
         Update: {
           avatar?: Json
           checkpoint_interval?: number
+          client_state?: Json
           coins?: number
           created_at?: string
+          daily_goal?: number
           equipped?: Json
           exam?: string
           id?: string
