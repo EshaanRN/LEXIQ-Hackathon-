@@ -35,7 +35,8 @@ function TermsPage() {
           <Block title="1. Acceptance of Terms">
             By creating a Lexiq account or using LearnLexiq (the "Service") you agree to these Terms of Service ("Terms")
             and our <Link to="/privacy" className="underline">Privacy Policy</Link>. If you do not agree, do not use the
-            Service. These Terms form a binding contract between you and Lexiq ("we", "us", "our").
+            Service. These Terms form a binding contract between you and LEXIQ ("Lexiq", "we", "us", "our"), the legal
+            entity operating the Service.
           </Block>
 
           <Block title="2. Eligibility & accounts">
