@@ -28,8 +28,8 @@ function PrivacyPage() {
 
         <section className="mt-8 space-y-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-white/80">
           <Block title="1. Who we are">
-            Lexiq ("we", "us", "our") is the operator of the LearnLexiq vocabulary learning service available at
-            learnlexiq.com (the "Service"). You can contact us at <a className="underline" href="mailto:support@learnlexiq.com">support@learnlexiq.com</a>
+            LEXIQ ("Lexiq", "we", "us", "our") is the legal entity that operates the LearnLexiq vocabulary learning service available at
+            learnlexiq.com (the "Service") and acts as the data controller for personal data described in this notice. You can contact us at <a className="underline" href="mailto:support@learnlexiq.com">support@learnlexiq.com</a>
             for any privacy question, including data access, correction, or deletion requests.
           </Block>
 
