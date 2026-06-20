@@ -54,12 +54,10 @@ function Welcome() {
       {/* Top bar */}
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-display text-xl font-bold tracking-tight">Lexiq</span>
-        <Link
-          to="/auth"
-          className="text-sm font-semibold text-muted-foreground transition hover:text-foreground"
-        >
-          Sign in
-        </Link>
+        <nav className="flex items-center gap-5 text-sm font-semibold text-muted-foreground">
+          <Link to="/pricing" className="transition hover:text-foreground">Pricing</Link>
+          <Link to="/auth" className="transition hover:text-foreground">Sign in</Link>
+        </nav>
       </header>
 
       {/* HERO */}
