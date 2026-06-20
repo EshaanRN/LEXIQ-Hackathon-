@@ -310,6 +310,25 @@ function ModeCard({ active, onClick, icon, title, desc }: { active: boolean; onC
   );
 }
 
+function PremiumToolCard({ to, isPremium, icon, title, desc }: { to: "/custom-test" | "/sat-practice"; isPremium: boolean; icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <Link to={to} className="flex items-center justify-between rounded-2xl bg-card p-4 ring-1 ring-border transition hover:border-primary">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-display text-base font-bold">{title}</span>
+          {!isPremium && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gold ring-1 ring-gold/40">
+              <Lock className="h-3 w-3" /> Premium
+            </span>
+          )}
+        </div>
+        <p className="mt-0.5 text-xs text-muted-foreground">{isPremium ? desc : "Upgrade to Premium to unlock."}</p>
+      </div>
+      <span className="ml-3 flex-shrink-0">{icon}</span>
+    </Link>
+  );
+}
+
 interface FieldFeedback { score: number; correct: boolean; feedback: string; loading?: boolean }
 
 function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onScored }: {
