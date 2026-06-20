@@ -259,8 +259,8 @@ function Welcome() {
           Questions, answered.
         </h2>
         <div className="mt-10 space-y-3">
-          <FaqItem q="Is Lexiq really free?"
-            a="Yes. The full word library, swipe deck, AI checkpoints, and streaks are free forever. Cosmetic items in the shop are optional." />
+          <FaqItem q="Is Lexiq free? What does Premium cost?"
+            a="The core experience — full word library, swipe deck, streaks, ranks, and basic checkpoints — is free forever. Optional Premium unlocks AI checkpoints, custom tests, and adaptive SAT practice for $4.99/month or $39/year. See the Pricing page for details." />
           <FaqItem q="How long until I see SAT/ACT score gains?"
             a="Most students notice a difference on practice sections inside 3 weeks. Vocabulary lifts reading speed and clue-based questions the fastest." />
           <FaqItem q="What if I miss a day?"
