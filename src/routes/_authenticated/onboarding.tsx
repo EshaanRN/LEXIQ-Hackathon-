@@ -379,7 +379,7 @@ export function AvatarBuilder({
             transition={{ duration: 0.18 }}
             className="mt-3 grid grid-cols-3 gap-2"
           >
-            {DICEBEAR_STYLES.map((s) => {
+            {styleList.map((s) => {
               const unlocked = styleOwned(owned, s.id);
               const active = avatar.style === s.id;
               return (
