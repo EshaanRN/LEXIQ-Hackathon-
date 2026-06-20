@@ -143,9 +143,14 @@ function Onboarding() {
         },
       });
     } catch (e) {
-      setSaving(false);
-      alert(e instanceof Error ? e.message : "Couldn't save your profile. Try again.");
-      return;
+      const msg = e instanceof Error ? e.message : String(e);
+      // Treat "already completed" as success so users aren't stuck on retry.
+      if (!/already been completed/i.test(msg)) {
+        console.error("completeOnboarding failed", e);
+        setSaving(false);
+        alert(msg || "Couldn't save your profile. Try again.");
+        return;
+      }
     }
     loadStateForUser(user.id);
     applyProfile({
@@ -154,7 +159,6 @@ function Onboarding() {
       owned_items: owned,
       exam,
     });
-    // Don't repeat words the user already said they know.
     for (const id of knownIds) {
       const w = VOCAB.find((v) => v.id === id);
       if (w) markKnown(w);
