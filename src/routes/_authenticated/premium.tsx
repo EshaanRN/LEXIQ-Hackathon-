@@ -142,6 +142,26 @@ function PremiumPage() {
           </button>
         )}
 
+        {isPremium && (
+          <div className="mt-6 space-y-2">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Premium tools</p>
+            <Link to="/custom-test" className="flex items-center justify-between rounded-2xl bg-card p-4 ring-1 ring-border hover:border-primary">
+              <div>
+                <p className="font-display text-base font-bold">Custom Test</p>
+                <p className="text-xs text-muted-foreground">Build a quiz from your own word list.</p>
+              </div>
+              <Sparkles className="h-4 w-4 text-primary" />
+            </Link>
+            <Link to="/sat-practice" className="flex items-center justify-between rounded-2xl bg-card p-4 ring-1 ring-border hover:border-primary">
+              <div>
+                <p className="font-display text-base font-bold">Adaptive SAT Practice</p>
+                <p className="text-xs text-muted-foreground">AI SAT questions on words you struggle with.</p>
+              </div>
+              <Crown className="h-4 w-4 text-gold" />
+            </Link>
+          </div>
+        )}
+
         <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[10px] uppercase tracking-widest text-muted-foreground/70">
           <ShieldCheck className="h-3 w-3" /> Secure billing · cancel anytime
         </p>
