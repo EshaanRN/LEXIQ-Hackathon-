@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import owlAsset from "@/assets/lexiq-owl-transparent.png.asset.json";
 
@@ -5,39 +6,15 @@ const owlSrc = owlAsset.url;
 
 export type NoxMood = "idle" | "happy" | "encourage" | "thinking" | "excited";
 
-// Subtle body sway — never jumpy.
-const bodyAnim: Record<NoxMood, { y: number[]; rotate: number[]; duration: number }> = {
-  idle:      { y: [0, -2, 0],   rotate: [-1, 1, -1],   duration: 4.5 },
-  thinking:  { y: [0, -1, 0],   rotate: [-3, 2, -3],   duration: 3.2 },
-  happy:     { y: [0, -6, 0],   rotate: [-3, 3, -3],   duration: 0.9 },
-  excited:   { y: [0, -8, -2, -6, 0], rotate: [-4, 4, -3, 4, 0], duration: 0.8 },
-  encourage: { y: [0, -2, 0],   rotate: [-1, 2, -1],   duration: 2.4 },
-};
-
-// Wing-flap rhythm per mood. Strong horizontal squash so the silhouette reads as flapping.
-const flapDuration: Record<NoxMood, number> = {
-  idle: 1.6,
-  thinking: 1.8,
-  happy: 0.45,
-  excited: 0.32,
-  encourage: 1.3,
-};
-const flapAmp: Record<NoxMood, number> = {
-  idle: 0.06,
-  thinking: 0.05,
-  happy: 0.22,
-  excited: 0.3,
-  encourage: 0.1,
-};
-
 const haloByMood: Record<NoxMood, string> = {
-  idle:      "bg-primary/30",
-  thinking:  "bg-accent/40",
-  happy:     "bg-emerald-400/50",
-  excited:   "bg-amber-400/60",
-  encourage: "bg-rose-400/40",
+  idle:      "bg-primary/25",
+  thinking:  "bg-accent/30",
+  happy:     "bg-emerald-400/40",
+  excited:   "bg-amber-400/45",
+  encourage: "bg-rose-400/30",
 };
 
+// Brief mood emotes (one-shot, not looping)
 const emoteByMood: Record<NoxMood, string | null> = {
   idle:      null,
   thinking:  "💭",
@@ -46,119 +23,133 @@ const emoteByMood: Record<NoxMood, string | null> = {
   encourage: "💪",
 };
 
-function Sparkles({ active }: { active: boolean }) {
-  if (!active) return null;
-  return (
-    <>
-      {[0, 1, 2, 3, 4].map((i) => (
-        <motion.span
-          key={i}
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 text-xs text-amber-300"
-          initial={{ opacity: 0, x: 0, y: 0, scale: 0.4 }}
-          animate={{
-            opacity: [0, 1, 0],
-            x: [0, Math.cos((i / 5) * Math.PI * 2) * 70],
-            y: [0, Math.sin((i / 5) * Math.PI * 2) * 70],
-            scale: [0.4, 1.2, 0.4],
-          }}
-          transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.13, ease: "easeOut" }}
-        >
-          ✦
-        </motion.span>
-      ))}
-    </>
-  );
-}
-
-/**
- * Animated beak overlay — opens/closes while `speaking` is true.
- * Positioned over the owl's beak area. Tweak top/left % if the artwork shifts.
- */
-function Beak({ speaking, size }: { speaking: boolean; size: number }) {
-  const w = size * 0.13;
-  return (
-    <motion.span
-      aria-hidden
-      className="pointer-events-none absolute rounded-[40%] bg-[#1a0f0a]"
-      style={{
-        width: w,
-        left: `calc(50% - ${w / 2}px)`,
-        top: "57%",
-        transformOrigin: "50% 0%",
-        boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.08)",
-      }}
-      animate={
-        speaking
-          ? { height: [w * 0.18, w * 0.55, w * 0.22, w * 0.5, w * 0.2], opacity: 0.85 }
-          : { height: w * 0.18, opacity: 0.7 }
-      }
-      transition={speaking ? { duration: 0.42, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-    />
-  );
-}
+// Short celebration burst on entering happy/excited
+const moodBurst: Partial<Record<NoxMood, { y: number[]; scale: number[]; duration: number }>> = {
+  happy:   { y: [0, -10, 0], scale: [1, 1.06, 1], duration: 0.55 },
+  excited: { y: [0, -14, -2, -8, 0], scale: [1, 1.08, 1, 1.04, 1], duration: 0.75 },
+};
 
 export function Nox({
   message,
   mood = "idle",
   size = 96,
-  speaking = false,
+  speaking: speakingProp,
 }: {
   message?: string;
   mood?: NoxMood;
   size?: number;
-  /** When true, the beak opens/closes to simulate talking. Auto-on whenever a message is showing. */
+  /** Force speaking on. Normally Nox auto-speaks for ~2.4s when `message` changes. */
   speaking?: boolean;
 }) {
-  const body = bodyAnim[mood];
+  // Speaking burst: triggers on each new message, lasts ~2.4s, then stops.
+  const [speaking, setSpeaking] = useState(false);
+  const lastMsg = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (speakingProp) {
+      setSpeaking(true);
+      return;
+    }
+    if (!message) {
+      setSpeaking(false);
+      return;
+    }
+    if (message === lastMsg.current) return;
+    lastMsg.current = message;
+    setSpeaking(true);
+    const t = window.setTimeout(() => setSpeaking(false), 2400);
+    return () => window.clearTimeout(t);
+  }, [message, speakingProp]);
+
+  // Occasional blink (140ms scaleY squish) — every 4–7s
+  const [blink, setBlink] = useState(false);
+  useEffect(() => {
+    let id: number;
+    const loop = () => {
+      id = window.setTimeout(() => {
+        setBlink(true);
+        window.setTimeout(() => setBlink(false), 140);
+        loop();
+      }, 4000 + Math.random() * 3000);
+    };
+    loop();
+    return () => window.clearTimeout(id);
+  }, []);
+
+  // Occasional gentle head tilt — every 6–11s
+  const [tilt, setTilt] = useState(0);
+  useEffect(() => {
+    let id: number;
+    const loop = () => {
+      id = window.setTimeout(() => {
+        setTilt(Math.random() > 0.5 ? 3 : -3);
+        window.setTimeout(() => setTilt(0), 900);
+        loop();
+      }, 6000 + Math.random() * 5000);
+    };
+    loop();
+    return () => window.clearTimeout(id);
+  }, []);
+
   const emote = emoteByMood[mood];
-  const celebrating = mood === "happy" || mood === "excited";
-  const isSpeaking = speaking || Boolean(message);
-  const amp = flapAmp[mood];
+  const burst = moodBurst[mood];
 
   return (
     <div className="flex items-end gap-3">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
+        {/* Soft halo — subtle pulse only */}
         <motion.span
           aria-hidden
           className={`absolute inset-0 rounded-full blur-2xl ${haloByMood[mood]}`}
-          animate={{
-            scale: celebrating ? [1, 1.4, 1] : [1, 1.12, 1],
-            opacity: [0.5, 0.85, 0.5],
-          }}
-          transition={{ duration: celebrating ? 0.6 : 2.8, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ opacity: [0.35, 0.55, 0.35] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        <Sparkles active={celebrating} />
-
-        {/* Gentle body sway */}
+        {/* Layer 1: head tilt + blink squish + subtle breathing */}
         <motion.div
           className="absolute inset-0 origin-bottom"
-          animate={{ y: body.y, rotate: body.rotate }}
-          transition={{ duration: body.duration, repeat: Infinity, ease: "easeInOut" }}
+          animate={{
+            rotate: tilt,
+            scaleY: blink ? 0.93 : 1,
+          }}
+          transition={{
+            rotate: { duration: 0.7, ease: "easeInOut" },
+            scaleY: { duration: 0.14, ease: "easeOut" },
+          }}
         >
-          {/* Wing flap = horizontal squash with quick down-stroke */}
           <motion.div
             className="h-full w-full"
-            style={{ transformOrigin: "50% 60%" }}
-            animate={{
-              scaleX: [1, 1 + amp, 1 - amp * 0.6, 1 + amp * 0.7, 1],
-              scaleY: [1, 1 - amp * 0.5, 1 + amp * 0.3, 1 - amp * 0.3, 1],
-            }}
-            transition={{ duration: flapDuration[mood], repeat: Infinity, ease: "easeInOut" }}
+            animate={{ scale: [1, 1.015, 1] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="relative h-full w-full">
-              <img
+            {/* Layer 2: speaking nod (only while speaking) + mood burst (one-shot via key) */}
+            <motion.div
+              key={mood}
+              className="h-full w-full"
+              animate={burst
+                ? { y: burst.y, scale: burst.scale }
+                : { y: 0, scale: 1 }}
+              transition={burst
+                ? { duration: burst.duration, ease: "easeOut" }
+                : { duration: 0.3 }}
+            >
+              <motion.img
                 src={owlSrc}
                 alt="Nox the owl"
-                className="h-full w-full object-contain drop-shadow-[0_10px_28px_rgba(124,92,255,0.5)]"
+                className="h-full w-full object-contain drop-shadow-[0_10px_24px_rgba(124,92,255,0.45)]"
                 draggable={false}
+                animate={speaking
+                  ? { y: [0, -1.5, 0, -1.5, 0], scaleY: [1, 0.985, 1, 0.985, 1] }
+                  : { y: 0, scaleY: 1 }}
+                transition={speaking
+                  ? { duration: 0.42, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 0.25 }}
+                style={{ transformOrigin: "50% 60%" }}
               />
-              <Beak speaking={isSpeaking} size={size} />
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
 
+        {/* Thinking dots (subtle, only while pondering) */}
         <AnimatePresence>
           {mood === "thinking" && (
             <motion.div
@@ -172,24 +163,25 @@ export function Nox({
                 <motion.span
                   key={i}
                   className="block h-1 w-1 rounded-full bg-accent"
-                  animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
-                  transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18 }}
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.2 }}
                 />
               ))}
             </motion.div>
           )}
         </AnimatePresence>
 
+        {/* One-shot mood emote */}
         <AnimatePresence>
           {emote && (
             <motion.span
               key={`emote-${mood}`}
               aria-hidden
               className="absolute -right-2 -top-2 select-none text-2xl"
-              initial={{ opacity: 0, scale: 0.3, rotate: -30 }}
-              animate={{ opacity: 1, scale: [0.3, 1.25, 1], rotate: [0, -8, 6, 0] }}
+              initial={{ opacity: 0, scale: 0.4, rotate: -20 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
               exit={{ opacity: 0, scale: 0.5 }}
-              transition={{ duration: 0.55, ease: "backOut" }}
+              transition={{ duration: 0.35, ease: "backOut" }}
             >
               {emote}
             </motion.span>
@@ -201,10 +193,10 @@ export function Nox({
         {message && (
           <motion.div
             key={message}
-            initial={{ opacity: 0, x: -8, y: 4, scale: 0.9 }}
+            initial={{ opacity: 0, x: -8, y: 4, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -8, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 360, damping: 24 }}
+            exit={{ opacity: 0, x: -8, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 340, damping: 26 }}
             className="relative mb-2 max-w-[220px] rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-2.5 text-sm shadow-lg"
           >
             <span

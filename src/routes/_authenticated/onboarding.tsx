@@ -195,13 +195,18 @@ function Onboarding() {
               transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            {/* Nox flies in from the left, lands, then flaps */}
+            {/* Nox slides in smoothly from the side, then gentle sway */}
             <motion.div
-              initial={{ x: -260, y: -40, rotate: -18, opacity: 0, scale: 0.7 }}
-              animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 120, damping: 14, mass: 0.8 }}
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Nox mood="excited" size={200} speaking />
+              <motion.div
+                animate={{ x: [0, 6, -6, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.7 }}
+              >
+                <Nox mood="idle" size={200} speaking />
+              </motion.div>
             </motion.div>
 
             {/* Big speech card — Duolingo style */}
