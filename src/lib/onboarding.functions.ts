@@ -56,28 +56,57 @@ export const completeOnboarding = createServerFn({ method: "POST" })
     const { userId } = context;
     const safeAvatar = sanitizeOnboardingAvatar(data.avatar);
     const starterItems = defaultOwned();
-    // owned_items is server-authoritative (REVOKEd from authenticated),
-    // so onboarding completion must run as admin.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: updatedProfile, error } = await supabaseAdmin
+
+    // If this user already finished onboarding, treat as success (idempotent).
+    const { data: existing } = await supabaseAdmin
       .from("profiles")
-      .update({
-        username: data.username,
-        avatar: safeAvatar as never,
-        equipped: safeAvatar as never,
-        owned_items: starterItems,
-        interests: data.interests,
-        starting_rank: data.startingRank,
-        exam: data.exam,
-        onboarding_complete: true,
-      })
+      .select("id, username, onboarding_complete")
       .eq("id", userId)
-      .eq("onboarding_complete", false)
-      .select("id")
       .maybeSingle();
-    if (error) throw error;
-    if (!updatedProfile) {
-      throw new Error("Onboarding has already been completed.");
+    if (existing?.onboarding_complete) {
+      return { ok: true as const, username: existing.username ?? data.username };
     }
-    return { ok: true as const };
+
+    // Resolve a unique username — if taken, append a short suffix and retry.
+    const baseUsername = data.username.trim().slice(0, 32) || `Player${Math.floor(Math.random() * 9999)}`;
+    let finalUsername = baseUsername;
+    let updatedId: string | null = null;
+    let lastError: { code?: string; message: string } | null = null;
+
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const { data: row, error } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          username: finalUsername,
+          avatar: safeAvatar as never,
+          equipped: safeAvatar as never,
+          owned_items: starterItems,
+          interests: data.interests,
+          starting_rank: data.startingRank,
+          exam: data.exam,
+          onboarding_complete: true,
+        })
+        .eq("id", userId)
+        .eq("onboarding_complete", false)
+        .select("id")
+        .maybeSingle();
+
+      if (!error) {
+        updatedId = row?.id ?? null;
+        break;
+      }
+      lastError = error;
+      if (error.code === "23505") {
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        finalUsername = `${baseUsername.slice(0, 28)}${suffix}`;
+        continue;
+      }
+      throw error;
+    }
+
+    if (!updatedId) {
+      throw new Error(lastError?.message ?? "Could not complete onboarding.");
+    }
+    return { ok: true as const, username: finalUsername };
   });
