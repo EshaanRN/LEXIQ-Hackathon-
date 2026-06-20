@@ -14,7 +14,6 @@ const haloByMood: Record<NoxMood, string> = {
   encourage: "bg-rose-400/30",
 };
 
-// Brief mood emotes (one-shot, not looping)
 const emoteByMood: Record<NoxMood, string | null> = {
   idle:      null,
   thinking:  "💭",
@@ -23,10 +22,9 @@ const emoteByMood: Record<NoxMood, string | null> = {
   encourage: "💪",
 };
 
-// Short celebration burst on entering happy/excited
 const moodBurst: Partial<Record<NoxMood, { y: number[]; scale: number[]; duration: number }>> = {
-  happy:   { y: [0, -10, 0], scale: [1, 1.06, 1], duration: 0.55 },
-  excited: { y: [0, -14, -2, -8, 0], scale: [1, 1.08, 1, 1.04, 1], duration: 0.75 },
+  happy:   { y: [0, -8, 0], scale: [1, 1.04, 1], duration: 0.55 },
+  excited: { y: [0, -10, -2, -6, 0], scale: [1, 1.05, 1, 1.03, 1], duration: 0.75 },
 };
 
 export function Nox({
@@ -34,14 +32,15 @@ export function Nox({
   mood = "idle",
   size = 96,
   speaking: speakingProp,
+  intro = false,
 }: {
   message?: string;
   mood?: NoxMood;
   size?: number;
-  /** Force speaking on. Normally Nox auto-speaks for ~2.4s when `message` changes. */
   speaking?: boolean;
+  intro?: boolean;
 }) {
-  // Speaking burst: triggers on each new message, lasts ~2.4s, then stops.
+  // Speaking burst
   const [speaking, setSpeaking] = useState(false);
   const lastMsg = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -60,31 +59,43 @@ export function Nox({
     return () => window.clearTimeout(t);
   }, [message, speakingProp]);
 
-  // Occasional blink (140ms scaleY squish) — every 4–7s
+  // Intro phase: glide in with wing flaps, then settle
+  const [introPhase, setIntroPhase] = useState(intro ? "entering" : "settled");
+  useEffect(() => {
+    if (!intro) {
+      setIntroPhase("settled");
+      return;
+    }
+    setIntroPhase("entering");
+    const t = window.setTimeout(() => setIntroPhase("settled"), 2600);
+    return () => window.clearTimeout(t);
+  }, [intro]);
+
+  // Occasional blink (120ms)
   const [blink, setBlink] = useState(false);
   useEffect(() => {
     let id: number;
     const loop = () => {
       id = window.setTimeout(() => {
         setBlink(true);
-        window.setTimeout(() => setBlink(false), 140);
+        window.setTimeout(() => setBlink(false), 120);
         loop();
-      }, 4000 + Math.random() * 3000);
+      }, 3500 + Math.random() * 4000);
     };
     loop();
     return () => window.clearTimeout(id);
   }, []);
 
-  // Occasional gentle head tilt — every 6–11s
+  // Occasional gentle head tilt — every 7–12s
   const [tilt, setTilt] = useState(0);
   useEffect(() => {
     let id: number;
     const loop = () => {
       id = window.setTimeout(() => {
-        setTilt(Math.random() > 0.5 ? 3 : -3);
-        window.setTimeout(() => setTilt(0), 900);
+        setTilt(Math.random() > 0.5 ? 2.5 : -2.5);
+        window.setTimeout(() => setTilt(0), 800);
         loop();
-      }, 6000 + Math.random() * 5000);
+      }, 7000 + Math.random() * 5000);
     };
     loop();
     return () => window.clearTimeout(id);
@@ -92,64 +103,112 @@ export function Nox({
 
   const emote = emoteByMood[mood];
   const burst = moodBurst[mood];
+  const isEntering = introPhase === "entering";
+
+  // Entrance with wing flap:
+  // - Gentle glide from left
+  // - Slow buoyant wing beats: body rises slightly, tilts, stretches subtly
+  const entranceVariants = {
+    hidden:  { x: -220, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
+
+  // Slow, smooth wing flap cycle on the image itself
+  // 2 flaps total during entrance (~2.4s), then settle
+  const wingFlapAnim = {
+    y:        [0, -5, 0, -4, 0, -3, 0],
+    rotate:   [0, 1.2, 0, -0.8, 0, 0.6, 0],
+    scaleY:   [1, 1.018, 1, 1.014, 1, 1.01, 1],
+    transition: { duration: 2.4, ease: "easeInOut" },
+  };
+
+  // Calm idle: very subtle breathing + current tilt/blink
+  const idleAnim = {
+    y: 0,
+    rotate: tilt,
+    scaleY: blink ? 0.94 : 1,
+    transition: {
+      y: { duration: 0.3 },
+      rotate: { duration: 0.7, ease: "easeInOut" },
+      scaleY: { duration: 0.12, ease: "easeOut" },
+    },
+  };
+
+  // Speaking nod: gentle vertical pulse (beak motion simulation)
+  const speakAnim = {
+    y: [0, -1.8, 0, -1.5, 0],
+    scaleY: [1, 0.988, 1, 0.988, 1],
+    transition: { duration: 0.45, repeat: Infinity, ease: "easeInOut" },
+  };
 
   return (
     <div className="flex items-end gap-3">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
-        {/* Soft halo — subtle pulse only */}
+        {/* Soft ambient halo */}
         <motion.span
           aria-hidden
           className={`absolute inset-0 rounded-full blur-2xl ${haloByMood[mood]}`}
-          animate={{ opacity: [0.35, 0.55, 0.35] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ opacity: [0.3, 0.5, 0.3] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Layer 1: head tilt + blink squish + subtle breathing */}
+        {/* Main container: entrance glide on outer wrapper */}
         <motion.div
-          className="absolute inset-0 origin-bottom"
-          animate={{
-            rotate: tilt,
-            scaleY: blink ? 0.93 : 1,
-          }}
-          transition={{
-            rotate: { duration: 0.7, ease: "easeInOut" },
-            scaleY: { duration: 0.14, ease: "easeOut" },
-          }}
+          className="absolute inset-0"
+          variants={entranceVariants}
+          initial={isEntering ? "hidden" : false}
+          animate="visible"
         >
+          {/* Breathing layer */}
           <motion.div
             className="h-full w-full"
-            animate={{ scale: [1, 1.015, 1] }}
-            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ scale: [1, 1.012, 1] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            {/* Layer 2: speaking nod (only while speaking) + mood burst (one-shot via key) */}
+            {/* Mood burst + wing flap / idle / speaking */}
             <motion.div
               key={mood}
               className="h-full w-full"
               animate={burst
                 ? { y: burst.y, scale: burst.scale }
-                : { y: 0, scale: 1 }}
+                : isEntering
+                  ? wingFlapAnim
+                  : speaking
+                    ? speakAnim
+                    : idleAnim}
               transition={burst
                 ? { duration: burst.duration, ease: "easeOut" }
-                : { duration: 0.3 }}
+                : undefined}
+              style={{ transformOrigin: "50% 65%" }}
             >
+              {/* Drop shadow that subtly pulses during wing beats */}
               <motion.img
                 src={owlSrc}
                 alt="Nox the owl"
-                className="h-full w-full object-contain drop-shadow-[0_10px_24px_rgba(124,92,255,0.45)]"
+                className="h-full w-full object-contain"
                 draggable={false}
-                animate={speaking
-                  ? { y: [0, -1.5, 0, -1.5, 0], scaleY: [1, 0.985, 1, 0.985, 1] }
-                  : { y: 0, scaleY: 1 }}
-                transition={speaking
-                  ? { duration: 0.42, repeat: Infinity, ease: "easeInOut" }
-                  : { duration: 0.25 }}
-                style={{ transformOrigin: "50% 60%" }}
+                animate={isEntering
+                  ? { filter: [
+                      "drop-shadow(0 10px 24px rgba(124,92,255,0.35)",
+                      "drop-shadow(0 14px 32px rgba(124,92,255,0.45)",
+                      "drop-shadow(0 10px 24px rgba(124,92,255,0.35)",
+                      "drop-shadow(0 13px 28px rgba(124,92,255,0.42)",
+                      "drop-shadow(0 10px 24px rgba(124,92,255,0.35)",
+                      "drop-shadow(0 12px 26px rgba(124,92,255,0.40)",
+                      "drop-shadow(0 10px 24px rgba(124,92,255,0.35))",
+                    ] }
+                  : { filter: "drop-shadow(0 10px 24px rgba(124,92,255,0.35))" }}
+                transition={isEntering ? { duration: 2.4, ease: "easeInOut" } : { duration: 0.3 }}
               />
             </motion.div>
           </motion.div>
         </motion.div>
 
-        {/* Thinking dots (subtle, only while pondering) */}
+        {/* Thinking dots */}
         <AnimatePresence>
           {mood === "thinking" && (
             <motion.div
