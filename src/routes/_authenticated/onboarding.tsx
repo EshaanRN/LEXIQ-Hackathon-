@@ -166,13 +166,56 @@ function Onboarding() {
   const pct = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-8">
-      <div className="mb-6">
+    <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-8">
+      <AnimatePresence>
+        {intro && (
+          <motion.div
+            key="intro"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-6 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.4, opacity: 0, rotate: -20 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 14 }}
+            >
+              <Nox mood="excited" size={180} />
+            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={introLine}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35 }}
+                className="mt-6 text-center font-display text-2xl font-bold"
+              >
+                {introLines[introLine] ?? ""}
+              </motion.p>
+            </AnimatePresence>
+            <button
+              onClick={() => setIntro(false)}
+              className="mt-10 rounded-full bg-surface-2 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground ring-1 ring-border"
+            >
+              Skip intro
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mb-4">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
           <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-500" style={{ width: `${pct}%` }} />
         </div>
         <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">Step {step + 1} of {STEPS.length}</p>
       </div>
+
+      <div className="mb-4">
+        <Nox mood={noxMood} message={noxMsg} size={72} />
+      </div>
+
 
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.25 }} className="flex-1">
