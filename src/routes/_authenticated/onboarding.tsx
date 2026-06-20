@@ -79,16 +79,17 @@ function Onboarding() {
   const introLines = [
     "Hoo there! I'm Nox. 🦉",
     "I'll be your guide here at Lexiq.",
-    "Let's set up your profile — it'll be fun, promise!",
+    "Ready? Let's build your profile!",
   ];
 
+  // Auto-advance the intro lines, but the user can also tap to skip ahead.
   useEffect(() => {
     if (!intro) return;
     if (introLine >= introLines.length) {
-      setIntro(false);
-      return;
+      const t = setTimeout(() => setIntro(false), 600);
+      return () => clearTimeout(t);
     }
-    const t = setTimeout(() => setIntroLine((i) => i + 1), 1900);
+    const t = setTimeout(() => setIntroLine((i) => i + 1), 2400);
     return () => clearTimeout(t);
   }, [intro, introLine, introLines.length]);
 
