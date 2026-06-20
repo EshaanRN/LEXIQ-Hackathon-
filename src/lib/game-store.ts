@@ -264,6 +264,8 @@ export function applyProfile(p: {
   exam?: ExamType;
   checkpoint_interval?: number;
   words_learned_total?: number;
+  daily_goal?: number;
+  client_state?: Record<string, unknown> | null;
 }) {
   state = {
     ...state,
@@ -279,7 +281,55 @@ export function applyProfile(p: {
       typeof p.words_learned_total === "number" && p.words_learned_total > state.wordsLearnedTotal
         ? p.words_learned_total
         : state.wordsLearnedTotal,
+    dailyGoal: typeof p.daily_goal === "number" && p.daily_goal > 0 ? p.daily_goal : state.dailyGoal,
   };
+  // Merge cross-device snapshot — server wins when it's newer than the local snapshot.
+  const cs = p.client_state as {
+    syncedAt?: number;
+    words?: Record<string, WordState>;
+    streak?: number;
+    lastActiveDay?: string | null;
+    wordsLearnedToday?: number;
+    goalDay?: string | null;
+    goalCelebratedDay?: string | null;
+    wordsAtLastCheckpoint?: number;
+    checkpointsPassed?: number;
+    perfectCheckpoints?: number;
+    rootStrength?: Record<string, number>;
+    rootBonusGiven?: string[];
+    activeMs?: number;
+    lastBonusActiveMs?: number;
+  } | null | undefined;
+  if (cs && typeof cs === "object" && cs.syncedAt) {
+    const localSyncedAt = (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt ?? 0;
+    if (cs.syncedAt >= localSyncedAt) {
+      // Merge per-word state: take the entry with the higher seen count or later lastSeenAt.
+      const mergedWords: Record<string, WordState> = { ...state.words };
+      for (const [id, ws] of Object.entries(cs.words ?? {})) {
+        const local = mergedWords[id];
+        if (!local || (ws.lastSeenAt ?? 0) >= (local.lastSeenAt ?? 0)) {
+          mergedWords[id] = ws;
+        }
+      }
+      state = {
+        ...state,
+        words: mergedWords,
+        streak: Math.max(state.streak, cs.streak ?? 0),
+        lastActiveDay: cs.lastActiveDay ?? state.lastActiveDay,
+        wordsLearnedToday: Math.max(state.wordsLearnedToday, cs.wordsLearnedToday ?? 0),
+        goalDay: cs.goalDay ?? state.goalDay,
+        goalCelebratedDay: cs.goalCelebratedDay ?? state.goalCelebratedDay,
+        wordsAtLastCheckpoint: Math.max(state.wordsAtLastCheckpoint, cs.wordsAtLastCheckpoint ?? 0),
+        checkpointsPassed: Math.max(state.checkpointsPassed, cs.checkpointsPassed ?? 0),
+        perfectCheckpoints: Math.max(state.perfectCheckpoints, cs.perfectCheckpoints ?? 0),
+        rootStrength: { ...state.rootStrength, ...(cs.rootStrength ?? {}) },
+        rootBonusGiven: Array.from(new Set([...state.rootBonusGiven, ...(cs.rootBonusGiven ?? [])])),
+        activeMs: Math.max(state.activeMs, cs.activeMs ?? 0),
+        lastBonusActiveMs: Math.max(state.lastBonusActiveMs, cs.lastBonusActiveMs ?? 0),
+      };
+      (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt = cs.syncedAt;
+    }
+  }
   state.rank = rankFor(state.xp);
   notify();
 }
