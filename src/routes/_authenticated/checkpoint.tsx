@@ -284,6 +284,17 @@ function CheckpointPage() {
             } satisfies SavedSession);
           }}
           onScored={handleScored}
+          onSkip={() => {
+            // Skip = mark as not learned and move on so user never gets stuck.
+            handleScored({
+              word: queue[idx],
+              pronunciationScore: 0,
+              definitionScore: 0,
+              contextScore: 0,
+              totalScore: 0,
+              feedback: "Skipped — we'll show this word again soon.",
+            });
+          }}
         />
       )}
 
@@ -333,7 +344,7 @@ function PremiumToolCard({ to, isPremium, icon, title, desc }: { to: "/custom-te
 
 interface FieldFeedback { score: number; correct: boolean; feedback: string; loading?: boolean }
 
-function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onScored }: {
+function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onScored, onSkip }: {
   word: VocabWord;
   mode: Mode;
   index: number;
@@ -341,6 +352,7 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
   initial?: { pron: string; def: string; sent: string };
   onProgress: (p: { pron: string; def: string; sent: string }) => void;
   onScored: (s: Scored) => void;
+  onSkip: () => void;
 }) {
   const grade = useServerFn(gradeCheckpointAnswer);
   const gradeField = useServerFn(gradeAnswerField);
@@ -352,10 +364,14 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
   const [pronFb, setPronFb] = useState<FieldFeedback | null>(null);
   const [defFb, setDefFb] = useState<FieldFeedback | null>(null);
   const [sentFb, setSentFb] = useState<FieldFeedback | null>(null);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [forceTyping, setForceTyping] = useState(false);
+  const recRef = useRef<{ stop: () => void; abort?: () => void } | null>(null);
+  const watchdogRef = useRef<number | null>(null);
 
   const Recognition: typeof window extends { SpeechRecognition: infer T } ? T : unknown =
     typeof window !== "undefined" ? ((window as unknown as Record<string, unknown>).SpeechRecognition ?? (window as unknown as Record<string, unknown>).webkitSpeechRecognition) : undefined;
-  const speechSupported = typeof window !== "undefined" && !!Recognition;
+  const speechSupported = typeof window !== "undefined" && !!Recognition && !forceTyping;
 
   // Save in-progress answers on every change so a refresh restores them exactly.
   const progressRef = useRef({ pron: pronunciationTranscript, def: definition, sent: sentence });
@@ -363,6 +379,15 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
     progressRef.current = { pron: pronunciationTranscript, def: definition, sent: sentence };
     onProgress(progressRef.current);
   }, [pronunciationTranscript, definition, sentence]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cleanup any in-flight recognition / watchdog when unmounting or word changes.
+  useEffect(() => {
+    return () => {
+      if (watchdogRef.current) window.clearTimeout(watchdogRef.current);
+      try { recRef.current?.stop(); } catch { /* noop */ }
+      recRef.current = null;
+    };
+  }, []);
 
   async function checkField(field: "pronunciation" | "definition" | "sentence", answer: string) {
     if (!answer.trim()) return;
@@ -382,19 +407,80 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
     }
   }
 
-  function listen(target: "pron" | "def" | "sent") {
-    if (!Recognition) return;
+  function clearWatchdog() {
+    if (watchdogRef.current) {
+      window.clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+  }
+
+  async function listen(target: "pron" | "def" | "sent") {
+    if (!Recognition) {
+      setVoiceError("Voice input isn't supported on this browser. Type your answer instead.");
+      return;
+    }
+    setVoiceError(null);
+
+    // Pre-flight mic permission on mobile so we get a clear error instead of
+    // silent recognition that never fires onresult.
+    try {
+      if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Release immediately; SpeechRecognition opens its own stream.
+        stream.getTracks().forEach((t) => t.stop());
+      }
+    } catch (err) {
+      const name = (err as { name?: string })?.name ?? "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        setVoiceError("Microphone blocked. Allow mic access in your browser settings, or type your answer.");
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        setVoiceError("No microphone found. Type your answer instead.");
+      } else {
+        setVoiceError("Couldn't access the microphone. Type your answer instead.");
+      }
+      return;
+    }
+
     const R = Recognition as unknown as { new (): {
-      lang: string; interimResults: boolean; continuous: boolean;
+      lang: string; interimResults: boolean; continuous: boolean; maxAlternatives?: number;
       onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-      onend: (() => void) | null; start: () => void; stop: () => void;
+      onend: (() => void) | null;
+      onerror: ((e: { error?: string; message?: string }) => void) | null;
+      onaudiostart?: (() => void) | null;
+      onspeechend?: (() => void) | null;
+      start: () => void; stop: () => void; abort?: () => void;
     } };
-    const rec = new R();
+
+    let rec: InstanceType<typeof R>;
+    try {
+      rec = new R();
+    } catch {
+      setVoiceError("Voice input failed to start. Type your answer instead.");
+      return;
+    }
     rec.lang = "en-US";
     rec.interimResults = false;
     rec.continuous = false;
+    rec.maxAlternatives = 1;
+    recRef.current = rec;
     setListening(target);
     let captured = "";
+    let ended = false;
+
+    const finish = () => {
+      if (ended) return;
+      ended = true;
+      clearWatchdog();
+      setListening(null);
+      recRef.current = null;
+      if (mode === "speaking" && captured) {
+        const map = { pron: "pronunciation", def: "definition", sent: "sentence" } as const;
+        checkField(map[target], captured);
+      } else if (!captured) {
+        setVoiceError("We didn't catch that. Try again or type your answer.");
+      }
+    };
+
     rec.onresult = (e) => {
       const t = Array.from(e.results).map((r) => r[0].transcript).join(" ").trim();
       captured = t;
@@ -402,16 +488,49 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
       if (target === "def") { setDef(t); setDefFb(null); }
       if (target === "sent") { setSent(t); setSentFb(null); }
     };
-    rec.onend = () => {
-      setListening(null);
-      // Instant per-field grading in speaking mode — fires the moment speech ends.
-      if (mode === "speaking" && captured) {
-        const map = { pron: "pronunciation", def: "definition", sent: "sentence" } as const;
-        checkField(map[target], captured);
+    rec.onerror = (e) => {
+      const code = e?.error ?? "";
+      if (code === "not-allowed" || code === "service-not-allowed") {
+        setVoiceError("Microphone permission denied. Allow mic access or type your answer.");
+      } else if (code === "no-speech") {
+        setVoiceError("We didn't hear anything. Try again or type your answer.");
+      } else if (code === "audio-capture") {
+        setVoiceError("No microphone detected. Type your answer instead.");
+      } else if (code === "network") {
+        setVoiceError("Network issue with speech recognition. Try again or type your answer.");
+      } else if (code === "aborted") {
+        // user-cancelled, no error
+      } else if (code) {
+        setVoiceError("Voice input had a problem. Try again or type your answer.");
       }
+      finish();
     };
-    rec.start();
+    rec.onend = () => finish();
+
+    // Watchdog: if nothing happens within 8s, stop and surface a fallback.
+    clearWatchdog();
+    watchdogRef.current = window.setTimeout(() => {
+      try { rec.stop(); } catch { /* noop */ }
+      // If stop didn't trigger onend quickly, force-finish.
+      window.setTimeout(() => finish(), 500);
+    }, 8000);
+
+    try {
+      rec.start();
+    } catch (err) {
+      // Some browsers throw if start() is called twice in quick succession.
+      const msg = (err as { message?: string })?.message ?? "";
+      setVoiceError(msg.includes("already") ? "Already listening — please wait a moment." : "Voice input failed to start. Type your answer instead.");
+      finish();
+    }
   }
+
+  function cancelListening() {
+    try { recRef.current?.stop(); } catch { /* noop */ }
+    clearWatchdog();
+    setListening(null);
+  }
+
 
   async function submit() {
     setGrading(true);
@@ -444,12 +563,27 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
           transcript={pronunciationTranscript}
           supported={speechSupported}
           onSpeak={() => listen("pron")}
+          onCancel={cancelListening}
           feedback={pronFb}
+          voiceError={voiceError}
+          onUseTyping={() => { setForceTyping(true); setVoiceError(null); }}
         />
       ) : (
         <div className="rounded-3xl border border-border bg-card p-6 text-center">
           <h2 className="font-display text-5xl font-bold text-gradient-primary">{word.word}</h2>
           <p className="mt-2 text-xs text-muted-foreground">{word.pronunciation} · {word.partOfSpeech}</p>
+        </div>
+      )}
+
+      {mode === "speaking" && forceTyping && (
+        <div className="rounded-2xl border border-border bg-surface-2 px-4 py-2 text-[11px] text-muted-foreground">
+          Voice input disabled — type the word's pronunciation/spelling below.
+          <input
+            value={pronunciationTranscript}
+            onChange={(e) => { setPron(e.target.value); setPronFb(null); }}
+            placeholder={`Type "${word.word}"`}
+            className="mt-2 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+          />
         </div>
       )}
 
@@ -487,12 +621,27 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
         className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary disabled:opacity-40">
         {grading ? <><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />AI grading…</> : "Submit Answer"}
       </button>
+
+      <button
+        onClick={() => { cancelListening(); onSkip(); }}
+        className="w-full rounded-full bg-surface-2 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground ring-1 ring-border transition hover:text-foreground"
+      >
+        Skip this word
+      </button>
     </div>
   );
 }
 
-function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, feedback }: {
-  word: VocabWord; listening: boolean; transcript: string; supported: boolean; onSpeak: () => void; feedback: FieldFeedback | null;
+function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, onCancel, feedback, voiceError, onUseTyping }: {
+  word: VocabWord;
+  listening: boolean;
+  transcript: string;
+  supported: boolean;
+  onSpeak: () => void;
+  onCancel: () => void;
+  feedback: FieldFeedback | null;
+  voiceError: string | null;
+  onUseTyping: () => void;
 }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
@@ -507,12 +656,17 @@ function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, fe
       </div>
 
       {!supported ? (
-        <p className="mt-4 text-xs text-danger">Speech recognition isn't supported here. Try Chrome or switch to typing.</p>
+        <div className="mt-4 space-y-2">
+          <p className="text-xs text-danger">Speech recognition isn't supported on this browser.</p>
+          <button onClick={onUseTyping} className="rounded-full bg-primary px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary-foreground">
+            Type the answer instead
+          </button>
+        </div>
       ) : (
         <div className="mt-5 flex flex-col items-center">
-          <button onClick={onSpeak} disabled={listening}
-            aria-label={listening ? "Listening" : "Tap to speak"}
-            className={`relative grid h-20 w-20 place-items-center rounded-full text-primary-foreground transition ${
+          <button onClick={listening ? onCancel : onSpeak}
+            aria-label={listening ? "Stop listening" : "Tap to speak"}
+            className={`relative grid h-20 w-20 place-items-center rounded-full text-primary-foreground transition active:scale-95 ${
               listening
                 ? "bg-danger animate-pulse ring-4 ring-danger/30"
                 : "bg-primary glow-primary hover:scale-105 ring-4 ring-primary/20"
@@ -521,12 +675,26 @@ function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, fe
             <Mic className="relative h-9 w-9" />
           </button>
           <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            {listening ? "Listening…" : "Tap to speak"}
+            {listening ? "Listening… tap to stop" : "Tap to speak"}
           </p>
           {transcript && (
             <p className="mt-2 max-w-xs truncate text-center text-xs italic text-muted-foreground">"{transcript}"</p>
           )}
           {feedback && <InlineFeedback fb={feedback} />}
+
+          {voiceError && (
+            <div className="mt-3 w-full max-w-sm rounded-2xl border border-danger/40 bg-danger/10 p-3 text-center">
+              <p className="text-[11px] text-danger">{voiceError}</p>
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
+                <button onClick={onSpeak} className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
+                  Retry
+                </button>
+                <button onClick={onUseTyping} className="rounded-full bg-surface-2 px-3 py-1 text-[10px] font-bold uppercase tracking-widest ring-1 ring-border">
+                  Type instead
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
