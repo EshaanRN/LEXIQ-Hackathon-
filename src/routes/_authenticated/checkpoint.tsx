@@ -621,12 +621,27 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
         className="w-full rounded-full bg-primary py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground glow-primary disabled:opacity-40">
         {grading ? <><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />AI grading…</> : "Submit Answer"}
       </button>
+
+      <button
+        onClick={() => { cancelListening(); onSkip(); }}
+        className="w-full rounded-full bg-surface-2 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground ring-1 ring-border transition hover:text-foreground"
+      >
+        Skip this word
+      </button>
     </div>
   );
 }
 
-function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, feedback }: {
-  word: VocabWord; listening: boolean; transcript: string; supported: boolean; onSpeak: () => void; feedback: FieldFeedback | null;
+function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, onCancel, feedback, voiceError, onUseTyping }: {
+  word: VocabWord;
+  listening: boolean;
+  transcript: string;
+  supported: boolean;
+  onSpeak: () => void;
+  onCancel: () => void;
+  feedback: FieldFeedback | null;
+  voiceError: string | null;
+  onUseTyping: () => void;
 }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
@@ -641,12 +656,17 @@ function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, fe
       </div>
 
       {!supported ? (
-        <p className="mt-4 text-xs text-danger">Speech recognition isn't supported here. Try Chrome or switch to typing.</p>
+        <div className="mt-4 space-y-2">
+          <p className="text-xs text-danger">Speech recognition isn't supported on this browser.</p>
+          <button onClick={onUseTyping} className="rounded-full bg-primary px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary-foreground">
+            Type the answer instead
+          </button>
+        </div>
       ) : (
         <div className="mt-5 flex flex-col items-center">
-          <button onClick={onSpeak} disabled={listening}
-            aria-label={listening ? "Listening" : "Tap to speak"}
-            className={`relative grid h-20 w-20 place-items-center rounded-full text-primary-foreground transition ${
+          <button onClick={listening ? onCancel : onSpeak}
+            aria-label={listening ? "Stop listening" : "Tap to speak"}
+            className={`relative grid h-20 w-20 place-items-center rounded-full text-primary-foreground transition active:scale-95 ${
               listening
                 ? "bg-danger animate-pulse ring-4 ring-danger/30"
                 : "bg-primary glow-primary hover:scale-105 ring-4 ring-primary/20"
@@ -655,12 +675,26 @@ function DuoSpeakingHeader({ word, listening, transcript, supported, onSpeak, fe
             <Mic className="relative h-9 w-9" />
           </button>
           <p className="mt-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            {listening ? "Listening…" : "Tap to speak"}
+            {listening ? "Listening… tap to stop" : "Tap to speak"}
           </p>
           {transcript && (
             <p className="mt-2 max-w-xs truncate text-center text-xs italic text-muted-foreground">"{transcript}"</p>
           )}
           {feedback && <InlineFeedback fb={feedback} />}
+
+          {voiceError && (
+            <div className="mt-3 w-full max-w-sm rounded-2xl border border-danger/40 bg-danger/10 p-3 text-center">
+              <p className="text-[11px] text-danger">{voiceError}</p>
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
+                <button onClick={onSpeak} className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
+                  Retry
+                </button>
+                <button onClick={onUseTyping} className="rounded-full bg-surface-2 px-3 py-1 text-[10px] font-bold uppercase tracking-widest ring-1 ring-border">
+                  Type instead
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
