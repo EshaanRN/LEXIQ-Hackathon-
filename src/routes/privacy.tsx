@@ -34,17 +34,41 @@ function PrivacyPage() {
           </Block>
 
           <Block title="2. What we collect">
-            <strong className="block text-white">Account information.</strong>
-            When you create an account we receive an email address, an authentication identifier, and (when you sign in
-            with Google) your Google display name and profile picture. We never receive or store your Google password.
+            <strong className="block text-white">Email address.</strong>
+            We require your email address to create your account, sign you in, verify ownership, recover access if you
+            forget your password, send security alerts, and (with your separate consent) send optional product updates.
+            You can't use Lexiq without an email on file because it is the identifier we use to keep your learning
+            progress tied to you across devices.
+            <strong className="mt-3 block text-white">Microphone audio (Speaking Mode).</strong>
+            When you choose Speaking Mode in a checkpoint, your browser will prompt you for microphone permission. If
+            you allow it, we capture short audio clips of you pronouncing the target vocabulary word and send the
+            resulting speech-to-text transcript (not the raw audio) to our AI grader to score your pronunciation. We do
+            not record continuous audio, we do not access your microphone outside of an active Speaking question, and
+            we do not store the raw audio after the transcript is produced. You can deny or revoke microphone
+            permission at any time in your browser settings — Typing Mode works without it.
+            <strong className="mt-3 block text-white">Account information.</strong>
+            When you sign in with Google, we also receive your Google display name, profile picture, and an opaque
+            user identifier. We never receive or store your Google password.
             <strong className="mt-3 block text-white">Profile and learning data.</strong>
             Username, avatar selection, equipped items, exam target (SAT or ACT), daily goals, words learned, mastery
-            scores, streaks, XP, coins, owned items, checkpoint results, and review flags.
+            scores, streaks, XP, coins, owned items, checkpoint results, speaking-mode transcripts and scores, and
+            review flags.
             <strong className="mt-3 block text-white">Device and usage data.</strong>
             IP address, browser type, device model, operating system, referring URLs, pages viewed, and crash diagnostics
             collected automatically for security and reliability.
             <strong className="mt-3 block text-white">Cookies and local storage.</strong>
             See our <a className="underline" href="/cookies">Cookie Policy</a>.
+          </Block>
+
+          <Block title="2a. Device permissions we may request">
+            Lexiq runs in your browser and only uses the permissions strictly needed for the feature you're using:
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li><strong>Microphone</strong> — used only while you are in Speaking Mode on a checkpoint, to capture your pronunciation of the target word. Required if you want speaking practice; optional otherwise.</li>
+              <li><strong>Audio output (speaker)</strong> — used to play AI-generated pronunciations of vocabulary words. No permission prompt is needed.</li>
+              <li><strong>Local storage / cookies</strong> — used to keep you signed in, cache offline progress, and remember your preferences. See the <a className="underline" href="/cookies">Cookie Policy</a>.</li>
+              <li><strong>Notifications, camera, location, contacts, files</strong> — Lexiq does <em>not</em> request these. If your browser ever prompts you for them while using Lexiq, deny the request and contact <a className="underline" href="mailto:support@learnlexiq.com">support@learnlexiq.com</a>.</li>
+            </ul>
+            You can revoke any browser permission at any time from your browser's site settings without losing your account.
           </Block>
 
           <Block title="3. How we use your data">

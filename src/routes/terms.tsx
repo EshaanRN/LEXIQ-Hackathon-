@@ -40,15 +40,30 @@ function TermsPage() {
           </Block>
 
           <Block title="2. Eligibility & accounts">
-            You must be at least 13 years old (or the digital-consent age in your country) to create an account. You are
-            responsible for the accuracy of your registration information, for keeping your credentials secure, and for
-            any activity under your account. Notify us immediately of any unauthorized use.
+            You must be at least 13 years old (or the digital-consent age in your country) to create an account. A
+            valid email address is required to register, sign in, recover your account, and receive security
+            notifications — you cannot use the Service without one. You are responsible for the accuracy of your
+            registration information, for keeping your credentials secure, and for any activity under your account.
+            Notify us immediately of any unauthorized use.
           </Block>
 
           <Block title="3. Google Sign-In and third-party authentication">
             When you sign in with Google you authorize Google to share your basic profile fields (email, name, picture)
             with us. We do not receive your Google password. Your use of Google Sign-In is also subject to Google's terms
             and privacy policy. You may revoke our access from your Google Account at any time.
+          </Block>
+
+          <Block title="3a. Device permissions (microphone, audio, storage)">
+            Some features of the Service require permissions from your browser or device:
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li><strong>Microphone access</strong> is required to use Speaking Mode in checkpoints. When you start a Speaking question your browser will ask for permission; we only capture audio during that question and only to grade your pronunciation. By using Speaking Mode you consent to this capture. Typing Mode does not require a microphone.</li>
+              <li><strong>Audio output</strong> is used to play AI-generated pronunciations of vocabulary words.</li>
+              <li><strong>Cookies and local storage</strong> are used to keep you signed in and to save your learning progress, as described in our <Link to="/cookies" className="underline">Cookie Policy</Link>.</li>
+            </ul>
+            You may deny or revoke any of these permissions in your browser at any time. Denying microphone access only
+            disables Speaking Mode; the rest of the Service continues to work. The Service does not request access to
+            your camera, location, contacts, photos, or files — if it ever appears to, stop using it and contact
+            support.
           </Block>
 
           <Block title="4. Acceptable use">
