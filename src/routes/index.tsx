@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { Sparkles, Target, Brain, TrendingUp, ArrowRight } from "lucide-react";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -121,100 +121,3 @@ function HomePage() {
   );
 }
 
-function LandingPage() {
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* Ambient background orbs — matches the existing app design */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-primary/25 blur-[140px]" />
-        <div className="absolute bottom-[-200px] right-[-80px] h-[420px] w-[420px] rounded-full bg-accent/25 blur-[140px]" />
-      </div>
-
-      <div className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-6 py-20 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-surface-2/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground ring-1 ring-border backdrop-blur">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          AI-Powered SAT &amp; ACT Prep
-        </div>
-
-        <h1 className="mt-8 font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-7xl">
-          LearnLexiq
-        </h1>
-
-        <p className="mt-4 max-w-xl text-xl font-medium text-primary sm:text-2xl">
-          AI-powered SAT vocabulary learning through interactive swiping
-        </p>
-
-        <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Master the high-frequency words that show up on the SAT and ACT through
-          an addictive, swipe-based learning experience. Our AI personalizes
-          every session to your level so you learn faster and retain longer.
-        </p>
-
-        <div className="mt-10 grid w-full max-w-md gap-3 text-left">
-          <FeatureBullet
-            icon={<Target className="h-5 w-5" />}
-            title="Swipe-based vocabulary learning"
-            description="Right if you know it, left to learn it. One word at a time."
-          />
-          <FeatureBullet
-            icon={<Brain className="h-5 w-5" />}
-            title="SAT word practice and review"
-            description="2,000+ high-frequency test words sourced from real SAT and ACT releases."
-          />
-          <FeatureBullet
-            icon={<Sparkles className="h-5 w-5" />}
-            title="Personalized learning system"
-            description="AI placement quiz tunes your deck to your exact level — no wasted reps."
-          />
-          <FeatureBullet
-            icon={<TrendingUp className="h-5 w-5" />}
-            title="Progress tracking"
-            description="XP, streaks, ranks, and detailed stats to keep you motivated."
-          />
-        </div>
-
-        <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row">
-          <Link
-            to="/welcome"
-            className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 font-display text-sm font-bold uppercase tracking-widest text-primary-foreground transition-transform hover:scale-[1.03] glow-primary"
-          >
-            Get started — free
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-          <Link
-            to="/auth"
-            className="rounded-full px-6 py-3.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
-          >
-            I already have an account →
-          </Link>
-        </div>
-
-        <p className="mt-6 text-xs text-muted-foreground">
-          No credit card required. Built for students, by students.
-        </p>
-      </div>
-    </main>
-  );
-}
-
-function FeatureBullet({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm transition hover:border-primary/30">
-      <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-display text-base font-bold">{title}</h3>
-        <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-}
