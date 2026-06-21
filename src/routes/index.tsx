@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { Sparkles, Target, Brain, TrendingUp, ArrowRight } from "lucide-react";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
