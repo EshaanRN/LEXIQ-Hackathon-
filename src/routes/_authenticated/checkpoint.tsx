@@ -284,6 +284,17 @@ function CheckpointPage() {
             } satisfies SavedSession);
           }}
           onScored={handleScored}
+          onSkip={() => {
+            // Skip = mark as not learned and move on so user never gets stuck.
+            handleScored({
+              word: queue[idx],
+              pronunciationScore: 0,
+              definitionScore: 0,
+              contextScore: 0,
+              totalScore: 0,
+              feedback: "Skipped — we'll show this word again soon.",
+            });
+          }}
         />
       )}
 
