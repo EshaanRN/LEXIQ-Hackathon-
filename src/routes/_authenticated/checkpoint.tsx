@@ -563,12 +563,27 @@ function CheckpointQuestion({ word, mode, index, total, initial, onProgress, onS
           transcript={pronunciationTranscript}
           supported={speechSupported}
           onSpeak={() => listen("pron")}
+          onCancel={cancelListening}
           feedback={pronFb}
+          voiceError={voiceError}
+          onUseTyping={() => { setForceTyping(true); setVoiceError(null); }}
         />
       ) : (
         <div className="rounded-3xl border border-border bg-card p-6 text-center">
           <h2 className="font-display text-5xl font-bold text-gradient-primary">{word.word}</h2>
           <p className="mt-2 text-xs text-muted-foreground">{word.pronunciation} · {word.partOfSpeech}</p>
+        </div>
+      )}
+
+      {mode === "speaking" && forceTyping && (
+        <div className="rounded-2xl border border-border bg-surface-2 px-4 py-2 text-[11px] text-muted-foreground">
+          Voice input disabled — type the word's pronunciation/spelling below.
+          <input
+            value={pronunciationTranscript}
+            onChange={(e) => { setPron(e.target.value); setPronFb(null); }}
+            placeholder={`Type "${word.word}"`}
+            className="mt-2 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+          />
         </div>
       )}
 
