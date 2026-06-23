@@ -75,7 +75,8 @@ export function AdSlot({ variant = "banner", className = "", slot }: Props) {
           </div>
           <Link
             to="/premium"
-            className="block w-full bg-black/60 py-1 text-center text-[9px] font-semibold uppercase tracking-widest text-white/90 hover:bg-black/80"
+            className="block w-full py-1 text-center text-[9px] font-semibold uppercase tracking-widest text-white/90 hover:brightness-110"
+            style={{ background: "linear-gradient(135deg, #1a0b2e 0%, #4c1d95 100%)" }}
           >
             Go Premium · Remove ads
           </Link>
