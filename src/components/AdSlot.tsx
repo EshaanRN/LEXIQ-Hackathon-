@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { usePremium } from "@/lib/premium";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { AxiomAd } from "@/components/AxiomAd";
 
 /**
  * Real AdSense ad slot (with placeholder fallback). Hides for Premium users.
@@ -69,12 +69,13 @@ export function AdSlot({ variant = "banner", className = "", slot }: Props) {
           data-full-width-responsive="true"
         />
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center text-muted-foreground">
-          <Sparkles className="h-5 w-5 opacity-50" />
-          <p className="text-[11px] uppercase tracking-widest">Ad space</p>
+        <div className="flex h-full w-full flex-col">
+          <div className="flex-1">
+            <AxiomAd compact={variant === "banner"} />
+          </div>
           <Link
             to="/premium"
-            className="mt-2 rounded-full bg-primary/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary ring-1 ring-primary/30 hover:bg-primary/25"
+            className="mb-2 mx-auto rounded-full bg-primary/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary ring-1 ring-primary/30 hover:bg-primary/25"
           >
             Go Premium · Remove ads
           </Link>

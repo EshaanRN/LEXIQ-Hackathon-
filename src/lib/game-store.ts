@@ -83,9 +83,11 @@ const MAX_GAP_MS = 30 * 1000;
 function storageKey(userId: string) {
   return `sat-swipe-state::${userId}`;
 }
+// Daily cycle resets at 5 AM local time. Subtract 5 hours so any timestamp
+// before 5 AM is bucketed into the previous calendar day's key.
+const DAY_RESET_HOUR = 5;
 function todayKey() {
-  // Local-time date so "today" resets at the user's midnight, not UTC midnight.
-  const d = new Date();
+  const d = new Date(Date.now() - DAY_RESET_HOUR * 60 * 60 * 1000);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -360,7 +362,7 @@ export function levelForXp(xp: number) {
 function touchStreak() {
   const today = todayKey();
   if (state.lastActiveDay === today) return;
-  const y = new Date(Date.now() - 86400000);
+  const y = new Date(Date.now() - DAY_RESET_HOUR * 60 * 60 * 1000 - 86400000);
   const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
   state.streak = state.lastActiveDay === yesterday ? state.streak + 1 : 1;
   state.lastActiveDay = today;
