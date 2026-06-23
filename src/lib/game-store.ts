@@ -362,7 +362,7 @@ export function levelForXp(xp: number) {
 function touchStreak() {
   const today = todayKey();
   if (state.lastActiveDay === today) return;
-  const y = new Date(Date.now() - 86400000);
+  const y = new Date(Date.now() - DAY_RESET_HOUR * 60 * 60 * 1000 - 86400000);
   const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
   state.streak = state.lastActiveDay === yesterday ? state.streak + 1 : 1;
   state.lastActiveDay = today;
