@@ -1,9 +1,8 @@
-import { Dumbbell, Apple, Sparkles } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 
 /**
- * House ad for Axiom — an upcoming free, adaptive personal fitness +
- * personalized diet app for kids and adults. Shown when no live ad network
- * unit is available so we always promote something instead of a blank slot.
+ * House ad for Axiom — upcoming free adaptive fitness + diet app.
+ * Purple/black theme with white text.
  */
 export function AxiomAd({ compact = false }: { compact?: boolean }) {
   return (
@@ -11,54 +10,50 @@ export function AxiomAd({ compact = false }: { compact?: boolean }) {
       href="https://axiom.app"
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="group relative flex h-full w-full flex-col items-center justify-center gap-2 overflow-hidden p-4 text-center"
+      className={`group relative flex h-full w-full items-center overflow-hidden text-white ${
+        compact ? "gap-3 px-3 py-2" : "flex-col justify-center gap-1.5 p-3 text-center"
+      }`}
+      style={{
+        background:
+          "linear-gradient(135deg, #0a0a0f 0%, #1a0b2e 45%, #4c1d95 100%)",
+      }}
     >
-      {/* gradient backdrop */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.25),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(34,197,94,0.25),transparent_60%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay [background-image:linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.06)_50%,transparent_100%)]" />
+      {/* glow accents */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(168,85,247,0.35),transparent_60%)]" />
 
-      <div className="relative flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white shadow-lg shadow-blue-500/30">
-          <Dumbbell className="h-4 w-4" />
-        </span>
-        <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
-          Axiom
-        </span>
-        <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-emerald-300 ring-1 ring-emerald-400/40">
-          Free
-        </span>
+      <span
+        className={`relative grid place-items-center rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-lg shadow-purple-900/50 ${
+          compact ? "h-8 w-8 shrink-0" : "h-9 w-9"
+        }`}
+      >
+        <Dumbbell className={compact ? "h-4 w-4" : "h-5 w-5"} />
+      </span>
+
+      <div
+        className={`relative ${compact ? "min-w-0 flex-1 text-left" : "flex flex-col items-center"}`}
+      >
+        <div className={`flex items-center gap-1.5 ${compact ? "" : "justify-center"}`}>
+          <span className="font-display text-base font-extrabold tracking-tight text-white">
+            Axiom
+          </span>
+          <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-white ring-1 ring-white/30">
+            Free
+          </span>
+        </div>
+        <p
+          className={`text-[10px] text-white/80 ${compact ? "truncate" : "mt-0.5 max-w-[36ch]"}`}
+        >
+          Adaptive fitness + personalized diet — kids & adults.
+        </p>
       </div>
 
-      {!compact && (
-        <p className="relative max-w-[42ch] text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-          Adaptive fitness + personalized diet
-        </p>
-      )}
-      <p className="relative max-w-[44ch] text-xs text-foreground/80">
-        Interactive workouts and meal plans built for{" "}
-        <span className="font-bold text-foreground">kids and adults</span> — adapts to you every day.
-      </p>
-
-      {!compact && (
-        <div className="relative mt-1 flex flex-wrap items-center justify-center gap-1.5">
-          <Tag icon={<Dumbbell className="h-3 w-3" />} label="Adaptive" />
-          <Tag icon={<Apple className="h-3 w-3" />} label="Diet" />
-          <Tag icon={<Sparkles className="h-3 w-3" />} label="Personalized" />
-        </div>
-      )}
-
-      <span className="relative mt-1 rounded-full bg-foreground px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-background transition group-hover:scale-105">
-        Coming Soon — Get Notified
+      <span
+        className={`relative whitespace-nowrap rounded-full bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-purple-900 transition group-hover:scale-105 ${
+          compact ? "shrink-0" : "mt-1"
+        }`}
+      >
+        Coming Soon
       </span>
     </a>
-  );
-}
-
-function Tag({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-surface-2/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-foreground/80 ring-1 ring-border">
-      {icon}
-      {label}
-    </span>
   );
 }

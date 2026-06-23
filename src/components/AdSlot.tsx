@@ -47,16 +47,16 @@ export function AdSlot({ variant = "banner", className = "", slot }: Props) {
 
   const sizeCls =
     variant === "sidebar"
-      ? "min-h-[600px] w-full max-w-[300px]"
-      : "min-h-[90px] w-full";
+      ? "h-[260px] w-full max-w-[300px]"
+      : "h-[72px] w-full";
 
   return (
     <aside
       aria-label="Sponsored content"
-      className={`relative overflow-hidden rounded-2xl border border-dashed border-border bg-surface-2/60 ${sizeCls} ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-border bg-surface-2/60 ${sizeCls} ${className}`}
     >
-      <span className="absolute left-2 top-2 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white/80">
-        Sponsored
+      <span className="absolute left-2 top-1.5 z-10 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-white/80">
+        Ad
       </span>
       {useReal ? (
         <ins
@@ -70,12 +70,12 @@ export function AdSlot({ variant = "banner", className = "", slot }: Props) {
         />
       ) : (
         <div className="flex h-full w-full flex-col">
-          <div className="flex-1">
+          <div className="min-h-0 flex-1">
             <AxiomAd compact={variant === "banner"} />
           </div>
           <Link
             to="/premium"
-            className="mb-2 mx-auto rounded-full bg-primary/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary ring-1 ring-primary/30 hover:bg-primary/25"
+            className="block w-full bg-black/60 py-1 text-center text-[9px] font-semibold uppercase tracking-widest text-white/90 hover:bg-black/80"
           >
             Go Premium · Remove ads
           </Link>
