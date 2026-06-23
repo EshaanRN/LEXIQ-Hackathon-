@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Sparkles, X } from "lucide-react";
 import { activeTimer, useActiveMs } from "@/lib/active-timer";
 import { usePremium } from "@/lib/premium";
+import { AxiomAd } from "@/components/AxiomAd";
 
 const INTERVAL_MS = 5 * 60 * 1000; // 5 active minutes
 const COUNTDOWN_S = 5;
