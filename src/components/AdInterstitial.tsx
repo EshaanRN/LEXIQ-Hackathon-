@@ -27,8 +27,8 @@ function InterstitialAdBody() {
 
   if (!useReal) {
     return (
-      <div className="mt-5 flex h-44 items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2/60 text-xs uppercase tracking-widest text-muted-foreground">
-        Ad placeholder
+      <div className="mt-5 min-h-[11rem] overflow-hidden rounded-2xl border border-border bg-surface-2/60">
+        <AxiomAd />
       </div>
     );
   }
