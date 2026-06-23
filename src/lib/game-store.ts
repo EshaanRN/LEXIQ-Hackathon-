@@ -83,9 +83,11 @@ const MAX_GAP_MS = 30 * 1000;
 function storageKey(userId: string) {
   return `sat-swipe-state::${userId}`;
 }
+// Daily cycle resets at 5 AM local time. Subtract 5 hours so any timestamp
+// before 5 AM is bucketed into the previous calendar day's key.
+const DAY_RESET_HOUR = 5;
 function todayKey() {
-  // Local-time date so "today" resets at the user's midnight, not UTC midnight.
-  const d = new Date();
+  const d = new Date(Date.now() - DAY_RESET_HOUR * 60 * 60 * 1000);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
