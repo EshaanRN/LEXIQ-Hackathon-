@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { usePremium } from "@/lib/premium";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { AxiomAd } from "@/components/AxiomAd";
 
 /**
  * Real AdSense ad slot (with placeholder fallback). Hides for Premium users.
