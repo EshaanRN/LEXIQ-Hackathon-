@@ -34,6 +34,11 @@ export type Database = {
           owned_items: string[]
           premium_plan: string | null
           premium_until: string | null
+          referral_code: string | null
+          referral_count: number
+          referral_month_granted: boolean
+          referral_year_granted: boolean
+          referred_by: string | null
           starting_rank: string | null
           updated_at: string
           username: string | null
@@ -59,6 +64,11 @@ export type Database = {
           owned_items?: string[]
           premium_plan?: string | null
           premium_until?: string | null
+          referral_code?: string | null
+          referral_count?: number
+          referral_month_granted?: boolean
+          referral_year_granted?: boolean
+          referred_by?: string | null
           starting_rank?: string | null
           updated_at?: string
           username?: string | null
@@ -84,13 +94,26 @@ export type Database = {
           owned_items?: string[]
           premium_plan?: string | null
           premium_until?: string | null
+          referral_code?: string | null
+          referral_count?: number
+          referral_month_granted?: boolean
+          referral_year_granted?: boolean
+          referred_by?: string | null
           starting_rank?: string | null
           updated_at?: string
           username?: string | null
           words_learned_total?: number
           xp?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
@@ -145,6 +168,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_referral_for: {
+        Args: { p_code: string; p_user: string }
+        Returns: Json
+      }
+      generate_referral_code: { Args: never; Returns: string }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
