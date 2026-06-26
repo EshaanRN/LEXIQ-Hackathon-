@@ -170,6 +170,15 @@ function ScoreGain() {
 /* -------------------------------------------------------------------------- */
 
 export function LandingPage() {
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("ref");
+      if (ref && /^[A-Za-z0-9]{3,16}$/.test(ref)) {
+        localStorage.setItem("lexiq:pending-ref", ref.toUpperCase());
+      }
+    } catch { /* noop */ }
+  }, []);
   return (
     <main className="relative min-h-screen overflow-hidden">
       {/* Ambient orbs */}
