@@ -26,7 +26,9 @@ export const Route = createFileRoute("/_authenticated/checkpoint")({
   component: CheckpointPage,
 });
 
-const INTERVALS = [5, 10, 20, 25, 50, 75, 100];
+const INTERVALS = [5, 10, 15, 20, 25, 50, 75, 100];
+const COUNTS = [3, 5, 8, 10, 15, 20, 25];
+
 
 type Mode = "typing" | "speaking";
 type Phase = "intro" | "test" | "results";
@@ -214,14 +216,20 @@ function CheckpointPage() {
           <div>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Words per checkpoint</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {[3, 5, 8, 10].map((n) => (
-                <button key={n} onClick={() => setCount(n)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ${count === n ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 ring-border"}`}>
-                  {n}
-                </button>
-              ))}
+              {COUNTS.map((n) => {
+                const available = pickCheckpointWords(n).length;
+                const disabled = available === 0;
+                return (
+                  <button key={n} onClick={() => setCount(n)} disabled={disabled}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 disabled:opacity-30 ${count === n ? "bg-primary text-primary-foreground ring-primary" : "bg-surface-2 ring-border"}`}>
+                    {n}
+                  </button>
+                );
+              })}
             </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">We'll quiz the {Math.min(count, pickCheckpointWords(count).length)} words you most recently learned.</p>
           </div>
+
 
           <div>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Prompt me every…</p>

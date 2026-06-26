@@ -702,8 +702,9 @@ export function isCheckpointDue() {
   return since > 0 && since >= state.checkpointInterval;
 }
 
-/** Pick N words for a checkpoint — words the user has learned but not yet
- * fully mastered, preferring earliest "learning"/"practicing"/"familiar". */
+/** Pick N words for a checkpoint — prioritises words the user most RECENTLY
+ *  learned (so today's session gets quizzed first), then falls back to older
+ *  learned-but-not-mastered words. Ordering: newest firstLearnedAt → lowest mastery → recent lastSeenAt. */
 export function pickCheckpointWords(count: number): VocabWord[] {
   const pool = examPool();
   const learned = pool
@@ -712,12 +713,18 @@ export function pickCheckpointWords(count: number): VocabWord[] {
       return m && m !== "unknown";
     })
     .sort((a, b) => {
-      const ma = MASTERY_ORDER.indexOf(state.words[a.id].mastery);
-      const mb = MASTERY_ORDER.indexOf(state.words[b.id].mastery);
-      return ma - mb;
+      const wa = state.words[a.id];
+      const wb = state.words[b.id];
+      // Newest learned first.
+      const fa = wa.firstLearnedAt ?? wa.lastSeenAt ?? 0;
+      const fb = wb.firstLearnedAt ?? wb.lastSeenAt ?? 0;
+      if (fb !== fa) return fb - fa;
+      // Then lowest mastery first.
+      return MASTERY_ORDER.indexOf(wa.mastery) - MASTERY_ORDER.indexOf(wb.mastery);
     });
   return learned.slice(0, count);
 }
+
 
 /** Record per-word mastery score (0-100) from a checkpoint test. */
 export function applyMasteryScore(wordId: string, score: number) {
