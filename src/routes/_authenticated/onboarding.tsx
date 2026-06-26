@@ -164,8 +164,18 @@ function Onboarding() {
       const w = VOCAB.find((v) => v.id === id);
       if (w) markKnown(w);
     }
+    // Claim a pending referral, if any. Best-effort; never block sign-in.
+    try {
+      const pending = typeof window !== "undefined" ? localStorage.getItem("lexiq:pending-ref") : null;
+      if (pending) {
+        const { claimReferral } = await import("@/lib/referral.functions");
+        await claimReferral({ data: { code: pending } }).catch(() => null);
+        localStorage.removeItem("lexiq:pending-ref");
+      }
+    } catch { /* noop */ }
     navigate({ to: "/app", replace: true });
   }
+
 
 
   const pct = ((step + 1) / STEPS.length) * 100;
