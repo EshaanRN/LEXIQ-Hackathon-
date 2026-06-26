@@ -35,23 +35,26 @@ function Feed() {
       initial.push(w);
     }
     setQueue(initial);
-    // If user reached the checkpoint threshold previously and dismissed/reloaded,
-    // re-prompt on mount so they never miss a milestone test.
     if (isCheckpointDue()) setCheckpointPrompt(true);
+    // Periodic re-check: if user dismissed the modal without snoozing (e.g. tap
+    // outside) and keeps learning, we re-surface it every 30s while still due.
     const id = setInterval(() => {
       if (document.visibilityState === "visible") {
         tickActive();
-        // Re-check in case async server reconciliation crossed the threshold.
         if (isCheckpointDue()) setCheckpointPrompt(true);
       }
-    }, 15_000);
+    }, 30_000);
     const onFocus = () => { if (isCheckpointDue()) setCheckpointPrompt(true); };
+    const onVis = () => { if (document.visibilityState === "visible" && isCheckpointDue()) setCheckpointPrompt(true); };
     window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVis);
     return () => {
       clearInterval(id);
       window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
+
 
   function advance() {
     setQueue((q) => {
