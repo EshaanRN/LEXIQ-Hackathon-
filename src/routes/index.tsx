@@ -56,6 +56,15 @@ function HomePage() {
 
   useEffect(() => {
     let cancelled = false;
+    // Capture referral code from ?ref=XYZ so we can claim it after onboarding.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("ref");
+      if (ref && /^[A-Za-z0-9]{3,16}$/.test(ref)) {
+        localStorage.setItem("lexiq:pending-ref", ref.toUpperCase());
+      }
+    } catch { /* noop */ }
+
 
     async function checkAuth() {
       // Dynamic import avoids SSR issues with browser-only Supabase client
