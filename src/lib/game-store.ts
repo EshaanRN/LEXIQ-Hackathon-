@@ -730,15 +730,18 @@ export function isCheckpointDue() {
 
 export function shouldShowCheckpointPrompt() {
   const dueAt = state.wordsAtLastCheckpoint + state.checkpointInterval;
-  return isCheckpointDue() && state.checkpointPromptedAtTotal < dueAt;
+  const learnedSincePrompt = state.wordsLearnedTotal - state.checkpointPromptedAtTotal;
+  return isCheckpointDue() && (
+    state.checkpointPromptedAtTotal < dueAt ||
+    learnedSincePrompt >= state.checkpointInterval
+  );
 }
 
 export function markCheckpointPromptShown() {
   if (!isCheckpointDue()) return;
-  const dueAt = state.wordsAtLastCheckpoint + state.checkpointInterval;
   state = {
     ...state,
-    checkpointPromptedAtTotal: Math.max(state.checkpointPromptedAtTotal, dueAt),
+    checkpointPromptedAtTotal: Math.max(state.checkpointPromptedAtTotal, state.wordsLearnedTotal),
   };
   persist();
 }
