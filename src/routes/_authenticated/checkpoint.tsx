@@ -12,7 +12,6 @@ import {
   pickCheckpointWords,
   saveCheckpointSession,
   setCheckpointInterval,
-  snoozeCheckpoint,
   useGame,
 } from "@/lib/game-store";
 import { gradeAnswerField, gradeCheckpointAnswer } from "@/lib/grade.functions";
@@ -153,11 +152,6 @@ function CheckpointPage() {
         <Link
           to="/app"
           aria-label="Back to app"
-          onClick={() => {
-            // Cancelling DOES NOT clear the saved session — user can resume
-            // exactly where they left off. Snooze only the next-prompt counter.
-            if (phase !== "results") snoozeCheckpoint();
-          }}
           className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 ring-1 ring-border"
         >
           <ArrowLeft className="h-4 w-4" />

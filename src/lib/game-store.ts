@@ -1,6 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { VOCAB, type VocabWord, type ExamType } from "@/data/vocab";
-import { supabase } from "@/integrations/supabase/client";
 import { defaultAvatar, defaultOwned, type AvatarConfig } from "@/lib/avatar";
 
 export type Mastery = "unknown" | "learning" | "practicing" | "familiar" | "mastered";
@@ -166,6 +165,7 @@ async function syncProfile() {
       words: state.words,
       streak: state.streak,
       lastActiveDay: state.lastActiveDay,
+      wordsLearnedTotal: state.wordsLearnedTotal,
       wordsLearnedToday: state.wordsLearnedToday,
       goalDay: state.goalDay,
       goalCelebratedDay: state.goalCelebratedDay,
@@ -177,18 +177,17 @@ async function syncProfile() {
       activeMs: state.activeMs,
       lastBonusActiveMs: state.lastBonusActiveMs,
     };
-    await supabase
-      .from("profiles")
-      .update({
-        avatar: state.avatar as never,
-        equipped: state.avatar as never,
+    const { syncClientProgress } = await import("@/lib/progress.functions");
+    await syncClientProgress({
+      data: {
+        avatar: state.avatar as unknown as Record<string, unknown>,
         exam: state.exam,
-        checkpoint_interval: state.checkpointInterval,
-        mastery_scores: scores as never,
-        daily_goal: state.dailyGoal,
-        client_state: clientState as never,
-      })
-      .eq("id", state.userId);
+        checkpointInterval: state.checkpointInterval,
+        masteryScores: scores,
+        dailyGoal: state.dailyGoal,
+        clientState,
+      },
+    });
   } catch (e) {
     console.warn("profile sync failed", e);
   }
@@ -222,11 +221,12 @@ async function flushEconomy() {
     const res = await awardEconomy({ data: { xp, coins, wordsLearnedDelta: wld } });
     state = {
       ...state,
-      xp: res.xp,
-      coins: res.coins,
-      level: res.level,
-      wordsLearnedTotal: res.wordsLearnedTotal,
-      rank: rankFor(res.xp),
+      // Do not let an older in-flight flush overwrite newer local progress.
+      xp: Math.max(state.xp, res.xp),
+      coins: Math.max(state.coins, res.coins),
+      level: Math.max(state.level, res.level),
+      wordsLearnedTotal: Math.max(state.wordsLearnedTotal, res.wordsLearnedTotal),
+      rank: rankFor(Math.max(state.xp, res.xp)),
     };
     notify();
   } catch (e) {
@@ -291,6 +291,7 @@ export function applyProfile(p: {
     words?: Record<string, WordState>;
     streak?: number;
     lastActiveDay?: string | null;
+    wordsLearnedTotal?: number;
     wordsLearnedToday?: number;
     goalDay?: string | null;
     goalCelebratedDay?: string | null;
@@ -318,6 +319,7 @@ export function applyProfile(p: {
         words: mergedWords,
         streak: Math.max(state.streak, cs.streak ?? 0),
         lastActiveDay: cs.lastActiveDay ?? state.lastActiveDay,
+        wordsLearnedTotal: Math.max(state.wordsLearnedTotal, cs.wordsLearnedTotal ?? 0),
         wordsLearnedToday: Math.max(state.wordsLearnedToday, cs.wordsLearnedToday ?? 0),
         goalDay: cs.goalDay ?? state.goalDay,
         goalCelebratedDay: cs.goalCelebratedDay ?? state.goalCelebratedDay,
@@ -331,6 +333,9 @@ export function applyProfile(p: {
       };
       (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt = cs.syncedAt;
     }
+  }
+  if (state.wordsAtLastCheckpoint > state.wordsLearnedTotal) {
+    state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
   }
   state.rank = rankFor(state.xp);
   notify();
@@ -680,8 +685,15 @@ export function setExam(exam: ExamType) {
   persist();
 }
 export function setCheckpointInterval(n: number) {
-  state = { ...state, checkpointInterval: n };
-  notify();
+  const clamped = Math.max(5, Math.min(100, Math.round(n)));
+  state = {
+    ...state,
+    checkpointInterval: clamped,
+    // Changing cadence starts a fresh cycle, so "every 5 words" means the
+    // next 5 NEW words from this moment.
+    wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
+  };
+  pushToast({ label: `Checkpoint reminder set: every ${clamped} new words.` });
   persist();
 }
 
