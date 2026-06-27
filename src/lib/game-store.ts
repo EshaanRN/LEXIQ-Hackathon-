@@ -256,6 +256,9 @@ export function loadStateForUser(userId: string) {
   if (next.wordsAtLastCheckpoint > next.wordsLearnedTotal) {
     next.wordsAtLastCheckpoint = next.wordsLearnedTotal;
   }
+  if (next.checkpointPromptedAtTotal > next.wordsLearnedTotal) {
+    next.checkpointPromptedAtTotal = next.wordsLearnedTotal;
+  }
   state = next;
   notify();
 }
