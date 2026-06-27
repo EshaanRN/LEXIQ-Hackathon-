@@ -48,6 +48,8 @@ interface GameState {
   wordsLearnedTotal: number;
   /** Count snapshot at last successful checkpoint */
   wordsAtLastCheckpoint: number;
+  /** Total-word milestone that has already shown a checkpoint reminder */
+  checkpointPromptedAtTotal: number;
   /** Pass count of checkpoints (for rewards) */
   checkpointsPassed: number;
   perfectCheckpoints: number;
@@ -115,6 +117,7 @@ function defaultState(userId: string | null): GameState {
     checkpointInterval: 20,
     wordsLearnedTotal: 0,
     wordsAtLastCheckpoint: 0,
+    checkpointPromptedAtTotal: 0,
     checkpointsPassed: 0,
     perfectCheckpoints: 0,
     dailyGoal: 15,
