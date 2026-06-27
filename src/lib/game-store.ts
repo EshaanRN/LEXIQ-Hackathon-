@@ -679,6 +679,7 @@ export function snoozeCheckpoint() {
   state = {
     ...state,
     wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
+    checkpointPromptedAtTotal: Math.max(0, state.wordsLearnedTotal),
   };
   // Drop any half-finished saved session so it doesn't keep offering "Resume".
   clearCheckpointSession();
@@ -704,6 +705,7 @@ export function setCheckpointInterval(n: number) {
     // Changing cadence starts a fresh cycle, so "every 5 words" means the
     // next 5 NEW words from this moment.
     wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
+    checkpointPromptedAtTotal: Math.max(0, state.wordsLearnedTotal),
   };
   pushToast({ label: `Checkpoint reminder set: every ${clamped} new words.` });
   persist();
@@ -724,6 +726,19 @@ export function dailyGoalProgress() {
 export function isCheckpointDue() {
   const since = state.wordsLearnedTotal - state.wordsAtLastCheckpoint;
   return since > 0 && since >= state.checkpointInterval;
+}
+
+export function shouldShowCheckpointPrompt() {
+  return isCheckpointDue() && state.checkpointPromptedAtTotal < state.wordsLearnedTotal;
+}
+
+export function markCheckpointPromptShown() {
+  if (!isCheckpointDue()) return;
+  state = {
+    ...state,
+    checkpointPromptedAtTotal: Math.max(state.checkpointPromptedAtTotal, state.wordsLearnedTotal),
+  };
+  persist();
 }
 
 /** Pick N words for a checkpoint — prioritises words the user most RECENTLY
