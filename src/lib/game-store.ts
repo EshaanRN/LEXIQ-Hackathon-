@@ -173,6 +173,7 @@ async function syncProfile() {
       goalDay: state.goalDay,
       goalCelebratedDay: state.goalCelebratedDay,
       wordsAtLastCheckpoint: state.wordsAtLastCheckpoint,
+      checkpointPromptedAtTotal: state.checkpointPromptedAtTotal,
       checkpointsPassed: state.checkpointsPassed,
       perfectCheckpoints: state.perfectCheckpoints,
       rootStrength: state.rootStrength,
@@ -299,6 +300,7 @@ export function applyProfile(p: {
     goalDay?: string | null;
     goalCelebratedDay?: string | null;
     wordsAtLastCheckpoint?: number;
+    checkpointPromptedAtTotal?: number;
     checkpointsPassed?: number;
     perfectCheckpoints?: number;
     rootStrength?: Record<string, number>;
@@ -327,6 +329,7 @@ export function applyProfile(p: {
         goalDay: cs.goalDay ?? state.goalDay,
         goalCelebratedDay: cs.goalCelebratedDay ?? state.goalCelebratedDay,
         wordsAtLastCheckpoint: Math.max(state.wordsAtLastCheckpoint, cs.wordsAtLastCheckpoint ?? 0),
+        checkpointPromptedAtTotal: Math.max(state.checkpointPromptedAtTotal, cs.checkpointPromptedAtTotal ?? 0),
         checkpointsPassed: Math.max(state.checkpointsPassed, cs.checkpointsPassed ?? 0),
         perfectCheckpoints: Math.max(state.perfectCheckpoints, cs.perfectCheckpoints ?? 0),
         rootStrength: { ...state.rootStrength, ...(cs.rootStrength ?? {}) },
@@ -339,6 +342,9 @@ export function applyProfile(p: {
   }
   if (state.wordsAtLastCheckpoint > state.wordsLearnedTotal) {
     state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
+  }
+  if (state.checkpointPromptedAtTotal > state.wordsLearnedTotal) {
+    state.checkpointPromptedAtTotal = state.wordsLearnedTotal;
   }
   state.rank = rankFor(state.xp);
   notify();
