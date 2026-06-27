@@ -3,6 +3,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const EconomyInput = z.object({
+  // Current client queue format: small already-computed deltas.
+  xp: z.number().int().min(0).max(5000).default(0),
+  coins: z.number().int().min(0).max(5000).default(0),
+  wordsLearnedDelta: z.number().int().min(0).max(100).default(0),
+
+  // Legacy/event format kept for compatibility with older callers.
   learnedWords: z.number().int().min(0).max(20).default(0),
   masteredMissed: z.number().int().min(0).max(20).default(0),
   rootMastered: z.number().int().min(0).max(5).default(0),
@@ -15,7 +21,7 @@ const EconomyInput = z.object({
 });
 
 function computeEconomyAward(data: z.infer<typeof EconomyInput>) {
-  const xp =
+  const legacyXp =
     data.learnedWords * 25
     + data.masteredMissed * 50
     + data.rootMastered * 100
@@ -23,7 +29,7 @@ function computeEconomyAward(data: z.infer<typeof EconomyInput>) {
     + data.perfectCheckpoints * 250
     + data.studyBonuses * 10;
 
-  const coins =
+  const legacyCoins =
     data.learnedWords * 5
     + data.masteredMissed * 25
     + data.rootMastered * 50
@@ -33,9 +39,13 @@ function computeEconomyAward(data: z.infer<typeof EconomyInput>) {
     + data.masteryMilestones25 * 250
     + data.masteryMilestones100 * 1000;
 
-  const wordsLearnedDelta = data.learnedWords;
+  const legacyWordsLearnedDelta = data.learnedWords;
 
-  return { xp, coins, wordsLearnedDelta };
+  return {
+    xp: data.xp + legacyXp,
+    coins: data.coins + legacyCoins,
+    wordsLearnedDelta: data.wordsLearnedDelta + legacyWordsLearnedDelta,
+  };
 }
 
 function levelForXp(xp: number) {
