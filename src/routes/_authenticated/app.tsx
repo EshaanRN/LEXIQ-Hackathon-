@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
@@ -9,7 +9,16 @@ import { SearchBar } from "@/components/SearchBar";
 import { DailyGoal } from "@/components/DailyGoal";
 import { AdSlot } from "@/components/AdSlot";
 import { AdInterstitial } from "@/components/AdInterstitial";
-import { markKnown, markUnknown, markLearned, nextWord, tickActive, snoozeCheckpoint, isCheckpointDue } from "@/lib/game-store";
+import {
+  markKnown,
+  markUnknown,
+  markLearned,
+  nextWord,
+  tickActive,
+  snoozeCheckpoint,
+  markCheckpointPromptShown,
+  shouldShowCheckpointPrompt,
+} from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -24,6 +33,18 @@ function Feed() {
   const [viewing, setViewing] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
 
+  const triggerCheckpointPrompt = useCallback(() => {
+    if (!shouldShowCheckpointPrompt()) return;
+    markCheckpointPromptShown();
+    setCheckpointPrompt(true);
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        new Notification("Lexiq checkpoint ready", {
+          body: "You hit your word goal for this checkpoint. Take it now or skip to restart the next cycle.",
+        });
+      } catch { /* browser blocked notification */ }
+    }
+  }, []);
 
 
 
@@ -35,17 +56,18 @@ function Feed() {
       initial.push(w);
     }
     setQueue(initial);
-    if (isCheckpointDue()) setCheckpointPrompt(true);
-    // Periodic re-check: if user dismissed the modal without snoozing (e.g. tap
-    // outside) and keeps learning, we re-surface it every 30s while still due.
+    triggerCheckpointPrompt();
+    // Periodic re-check catches cross-device progress syncs and any missed
+    // render, but each milestone only notifies once until the user skips or
+    // completes the checkpoint.
     const id = setInterval(() => {
       if (document.visibilityState === "visible") {
         tickActive();
-        if (isCheckpointDue()) setCheckpointPrompt(true);
+        triggerCheckpointPrompt();
       }
     }, 30_000);
-    const onFocus = () => { if (isCheckpointDue()) setCheckpointPrompt(true); };
-    const onVis = () => { if (document.visibilityState === "visible" && isCheckpointDue()) setCheckpointPrompt(true); };
+    const onFocus = () => { triggerCheckpointPrompt(); };
+    const onVis = () => { if (document.visibilityState === "visible") triggerCheckpointPrompt(); };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVis);
     return () => {
@@ -53,7 +75,7 @@ function Feed() {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, []);
+  }, [triggerCheckpointPrompt]);
 
 
   function advance() {
@@ -68,7 +90,7 @@ function Feed() {
     if (!top) return;
     const { checkpointDue } = markKnown(top);
     advance();
-    if (checkpointDue) setCheckpointPrompt(true);
+    if (checkpointDue) triggerCheckpointPrompt();
   }
   function handleUnknown() {
     const top = queue[0];
@@ -81,7 +103,7 @@ function Feed() {
     const { checkpointDue } = markLearned(learning);
     setLearning(null);
     advance();
-    if (checkpointDue) setCheckpointPrompt(true);
+    if (checkpointDue) triggerCheckpointPrompt();
   }
   function handleSkipLearn() {
     setLearning(null);
@@ -152,7 +174,7 @@ function Feed() {
           <div className="w-full max-w-sm rounded-3xl bg-card p-6 ring-1 ring-border text-center">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Milestone</p>
             <h2 className="mt-1 font-display text-2xl font-bold text-gradient-primary">Ready for a Vocabulary Checkpoint?</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Prove mastery of what you've learned. +100 XP for passing — or skip and keep swiping.</p>
+            <p className="mt-2 text-sm text-muted-foreground">You reached your checkpoint interval. Take it now, or tap Not now to cancel this checkpoint and restart the count for the next set of new words.</p>
             <div className="mt-5 flex gap-2">
               <button onClick={() => { snoozeCheckpoint(); setCheckpointPrompt(false); }}
                 className="flex-1 rounded-full bg-surface-2 py-3 text-xs font-bold uppercase tracking-widest ring-1 ring-border">Not now</button>
