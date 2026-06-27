@@ -256,6 +256,7 @@ export function loadStateForUser(userId: string) {
   if (next.wordsAtLastCheckpoint > next.wordsLearnedTotal) {
     next.wordsAtLastCheckpoint = next.wordsLearnedTotal;
   }
+  next.checkpointPromptedAtTotal ??= next.wordsAtLastCheckpoint ?? 0;
   if (next.checkpointPromptedAtTotal > next.wordsLearnedTotal) {
     next.checkpointPromptedAtTotal = next.wordsLearnedTotal;
   }
@@ -346,6 +347,7 @@ export function applyProfile(p: {
   if (state.wordsAtLastCheckpoint > state.wordsLearnedTotal) {
     state.wordsAtLastCheckpoint = state.wordsLearnedTotal;
   }
+  state.checkpointPromptedAtTotal ??= state.wordsAtLastCheckpoint ?? 0;
   if (state.checkpointPromptedAtTotal > state.wordsLearnedTotal) {
     state.checkpointPromptedAtTotal = state.wordsLearnedTotal;
   }
