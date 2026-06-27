@@ -780,6 +780,7 @@ export function completeCheckpoint(scores: Record<string, number>, perfect: bool
   state = {
     ...state,
     wordsAtLastCheckpoint: Math.max(0, state.wordsLearnedTotal),
+    checkpointPromptedAtTotal: Math.max(0, state.wordsLearnedTotal),
     checkpointsPassed: state.checkpointsPassed + 1,
     perfectCheckpoints: perfect ? state.perfectCheckpoints + 1 : state.perfectCheckpoints,
   };
