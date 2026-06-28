@@ -25,10 +25,9 @@ export function ReferralCard() {
   if (!code) return null;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://learnlexiq.com";
   const shareUrl = `${origin}/?ref=${code}`;
-  const starterGoal = 5;
-  const monthGoal = 10;
-  const yearGoal = 20;
-  const target = count < starterGoal ? starterGoal : count < monthGoal ? monthGoal : yearGoal;
+  const monthGoal = 5;
+  const yearGoal = 15;
+  const target = count < monthGoal ? monthGoal : yearGoal;
   const pct = Math.min(100, Math.round((count / target) * 100));
 
   async function copy() {
