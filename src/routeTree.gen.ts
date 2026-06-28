@@ -24,6 +24,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedSatPracticeRouteImport } from './routes/_authenticated/sat-practice'
+import { Route as AuthenticatedReferRouteImport } from './routes/_authenticated/refer'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
@@ -110,6 +111,11 @@ const AuthenticatedSatPracticeRoute =
     path: '/sat-practice',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReferRoute = AuthenticatedReferRouteImport.update({
+  id: '/refer',
+  path: '/refer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof AuthenticatedHistoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/premium': typeof AuthenticatedPremiumRoute
+  '/refer': typeof AuthenticatedReferRoute
   '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/history': typeof AuthenticatedHistoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/premium': typeof AuthenticatedPremiumRoute
+  '/refer': typeof AuthenticatedReferRoute
   '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
+  '/_authenticated/refer': typeof AuthenticatedReferRoute
   '/_authenticated/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/onboarding'
     | '/premium'
+    | '/refer'
     | '/sat-practice'
     | '/shop'
     | '/blog/$slug'
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/onboarding'
     | '/premium'
+    | '/refer'
     | '/sat-practice'
     | '/shop'
     | '/blog/$slug'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/_authenticated/history'
     | '/_authenticated/onboarding'
     | '/_authenticated/premium'
+    | '/_authenticated/refer'
     | '/_authenticated/sat-practice'
     | '/_authenticated/shop'
     | '/blog/$slug'
@@ -448,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSatPracticeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/refer': {
+      id: '/_authenticated/refer'
+      path: '/refer'
+      fullPath: '/refer'
+      preLoaderRoute: typeof AuthenticatedReferRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
       path: '/premium'
@@ -531,6 +550,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
+  AuthenticatedReferRoute: typeof AuthenticatedReferRoute
   AuthenticatedSatPracticeRoute: typeof AuthenticatedSatPracticeRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
 }
@@ -545,6 +565,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
+  AuthenticatedReferRoute: AuthenticatedReferRoute,
   AuthenticatedSatPracticeRoute: AuthenticatedSatPracticeRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
 }

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield } from "lucide-react";
+import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield, Gift } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { XPToast } from "@/components/XPToast";
@@ -95,6 +95,15 @@ function AvatarPage() {
         <Link to="/premium" className="flex items-center gap-3 px-4 py-3 text-sm font-semibold hover:bg-surface">
           <Crown className="h-4 w-4 text-gold" />
           Lexiq Premium
+        </Link>
+        <Link to="/refer" className="flex items-center justify-between gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
+          <span className="flex items-center gap-3">
+            <Gift className="h-4 w-4 text-primary" />
+            Get Free Premium
+          </span>
+          <span className="rounded-full bg-gradient-to-r from-primary to-accent px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary-foreground">
+            Free
+          </span>
         </Link>
         <Link to="/billing" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
           <CreditCard className="h-4 w-4 text-muted-foreground" />
