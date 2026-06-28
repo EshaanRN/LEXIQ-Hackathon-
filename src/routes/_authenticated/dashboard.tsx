@@ -84,9 +84,6 @@ function Dashboard() {
         Take a Checkpoint
       </Link>
 
-      <div className="mt-6">
-        <ReferralCard />
-      </div>
 
 
 
