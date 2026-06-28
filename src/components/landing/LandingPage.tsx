@@ -603,107 +603,123 @@ function Quote({ text, author, gain }: { text: string; author: string; gain?: st
 
 function PhoneMockup() {
   return (
-    <div className="relative">
-      {/* glow behind */}
-      <div className="pointer-events-none absolute inset-0 -z-10 rounded-[3rem] bg-gradient-to-br from-primary/40 to-accent/30 blur-3xl" />
+    <div className="relative [transform-style:preserve-3d] [transform:rotateY(-10deg)_rotateX(6deg)]">
+      {/* Layered glows */}
+      <div className="pointer-events-none absolute -inset-10 -z-20 rounded-[4rem] bg-gradient-to-br from-primary/50 via-accent/30 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[3.5rem] bg-gradient-to-tr from-accent/30 via-transparent to-primary/40 blur-2xl" />
 
-      {/* Floating mini-card: left */}
-      <div className="absolute -left-10 top-16 hidden rotate-[-8deg] rounded-2xl border border-border bg-card/80 px-3 py-2 text-[10px] font-semibold shadow-xl backdrop-blur sm:block [animation:lex-float_8s_ease-in-out_infinite]">
-        <div className="flex items-center gap-1.5">
-          <Flame className="h-3 w-3 text-danger" />
-          <span>12-day streak</span>
-        </div>
+      {/* Floating chips — in front of phone */}
+      <div className="absolute -left-14 top-10 z-30 hidden rotate-[-8deg] rounded-2xl border border-border bg-card/90 px-3 py-2 text-[11px] font-semibold shadow-2xl backdrop-blur-md sm:flex items-center gap-1.5 [animation:lex-float_8s_ease-in-out_infinite]">
+        <Flame className="h-3.5 w-3.5 text-danger" />
+        <span>12-day streak</span>
       </div>
-      {/* Floating mini-card: right */}
-      <div className="absolute -right-8 bottom-20 hidden rotate-[6deg] rounded-2xl border border-border bg-card/80 px-3 py-2 text-[10px] font-semibold shadow-xl backdrop-blur sm:block [animation:lex-float_10s_ease-in-out_-2s_infinite]">
-        <div className="flex items-center gap-1.5">
-          <Zap className="h-3 w-3 text-gold" />
-          <span>+50 XP</span>
-        </div>
+      <div className="absolute -right-12 top-32 z-30 hidden rotate-[5deg] rounded-2xl border border-gold/40 bg-gradient-to-br from-gold/20 to-card/90 px-3 py-2 text-[11px] font-bold shadow-2xl backdrop-blur-md sm:flex items-center gap-1.5 [animation:lex-float_9s_ease-in-out_-1s_infinite]">
+        <Zap className="h-3.5 w-3.5 text-gold" />
+        <span>+50 XP</span>
+      </div>
+      <div className="absolute -right-16 bottom-24 z-30 hidden rotate-[8deg] rounded-2xl border border-success/40 bg-card/90 px-3 py-2 text-[11px] font-semibold shadow-2xl backdrop-blur-md sm:flex items-center gap-1.5 [animation:lex-float_11s_ease-in-out_-3s_infinite]">
+        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+        <span>Mastered "ephemeral"</span>
+      </div>
+      <div className="absolute -left-16 bottom-16 z-30 hidden rotate-[-6deg] rounded-2xl border border-primary/40 bg-card/90 px-3 py-2 text-[11px] font-semibold shadow-2xl backdrop-blur-md sm:flex items-center gap-1.5 [animation:lex-float_10s_ease-in-out_-2s_infinite]">
+        <Trophy className="h-3.5 w-3.5 text-primary" />
+        <span>Level 7 · Wordsmith</span>
       </div>
 
-      <div className="relative w-[300px] rounded-[2.75rem] border border-border bg-background p-3 shadow-2xl ring-1 ring-white/5 sm:w-[330px]">
-        {/* notch */}
-        <div className="absolute left-1/2 top-3 z-10 h-6 w-28 -translate-x-1/2 rounded-b-2xl rounded-t-md bg-black" />
+      {/* Side buttons */}
+      <div className="absolute -left-[3px] top-28 z-0 h-8 w-[3px] rounded-l bg-zinc-700" />
+      <div className="absolute -left-[3px] top-44 z-0 h-12 w-[3px] rounded-l bg-zinc-700" />
+      <div className="absolute -left-[3px] top-60 z-0 h-12 w-[3px] rounded-l bg-zinc-700" />
+      <div className="absolute -right-[3px] top-40 z-0 h-16 w-[3px] rounded-r bg-zinc-700" />
 
-        <div className="overflow-hidden rounded-[2.25rem] bg-background">
-          {/* status bar */}
-          <div className="flex items-center justify-between px-6 pt-3 pb-2 text-[10px] font-semibold text-foreground">
-            <span>9:41</span>
-            <span className="opacity-70">●●●●</span>
-          </div>
+      {/* Phone body */}
+      <div className="relative z-10 w-[300px] rounded-[2.75rem] bg-gradient-to-b from-zinc-800 via-zinc-900 to-black p-[3px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.7)] sm:w-[330px]">
+        <div className="rounded-[2.65rem] bg-black p-2.5 ring-1 ring-white/5">
+          <div className="relative overflow-hidden rounded-[2.25rem] bg-background">
+            {/* Dynamic Island */}
+            <div className="absolute left-1/2 top-2 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-black" />
 
-          {/* HUD */}
-          <div className="flex items-center justify-between px-5 pb-3">
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-accent font-display text-xs font-bold text-primary-foreground">
-                LX
+            {/* Screen glare */}
+            <div className="pointer-events-none absolute inset-0 z-20 rounded-[2.25rem] bg-gradient-to-br from-white/10 via-transparent to-transparent mix-blend-overlay" />
+
+            {/* status bar */}
+            <div className="flex items-center justify-between px-6 pt-3 pb-2 text-[10px] font-semibold text-foreground">
+              <span>9:41</span>
+              <span className="opacity-70">●●●●</span>
+            </div>
+
+            {/* HUD */}
+            <div className="mt-5 flex items-center justify-between px-5 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-accent font-display text-xs font-bold text-primary-foreground shadow-lg">
+                  LX
+                </div>
+                <div>
+                  <p className="font-display text-xs font-bold">Lvl 7</p>
+                  <p className="text-[9px] text-muted-foreground">Wordsmith</p>
+                </div>
               </div>
-              <div>
-                <p className="font-display text-xs font-bold">Lvl 7</p>
-                <p className="text-[9px] text-muted-foreground">Wordsmith</p>
+              <div className="flex items-center gap-2 text-[10px]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-1 font-semibold">
+                  <Flame className="h-3 w-3 text-danger" />12
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-1 font-semibold">
+                  <Zap className="h-3 w-3 text-gold" />2,340
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-[10px]">
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-1 font-semibold">
-                <Flame className="h-3 w-3 text-danger" />12
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-1 font-semibold">
-                <Zap className="h-3 w-3 text-gold" />2,340
-              </span>
-            </div>
-          </div>
 
-          {/* card */}
-          <div className="px-5">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-gradient-to-br from-primary/30 via-card to-accent/20 p-5 ring-1 ring-border">
-              <div className="flex items-center justify-between text-[9px] uppercase tracking-widest text-muted-foreground">
-                <span>SAT · adjective</span>
-                <Heart className="h-3 w-3 text-danger" />
-              </div>
-              <div className="mt-8 text-center">
-                <h3 className="font-display text-4xl font-bold tracking-tight">
-                  ephemeral
-                </h3>
-                <p className="mt-2 text-[10px] text-muted-foreground">
-                  /əˈfem(ə)rəl/
-                </p>
-              </div>
-              <div className="absolute inset-x-5 bottom-5">
-                <div className="rounded-2xl bg-background/60 p-3 backdrop-blur ring-1 ring-border">
-                  <p className="text-[10px] uppercase tracking-widest text-primary">
-                    Definition
+            {/* card */}
+            <div className="px-5">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-gradient-to-br from-primary/30 via-card to-accent/20 p-5 ring-1 ring-border shadow-xl">
+                <div className="flex items-center justify-between text-[9px] uppercase tracking-widest text-muted-foreground">
+                  <span>SAT · adjective</span>
+                  <Heart className="h-3 w-3 text-danger" />
+                </div>
+                <div className="mt-8 text-center">
+                  <h3 className="font-display text-4xl font-bold tracking-tight">
+                    ephemeral
+                  </h3>
+                  <p className="mt-2 text-[10px] text-muted-foreground">
+                    /əˈfem(ə)rəl/
                   </p>
-                  <p className="mt-1 text-xs leading-snug">
-                    Lasting for a very short time.
-                  </p>
+                </div>
+                <div className="absolute inset-x-5 bottom-5">
+                  <div className="rounded-2xl bg-background/60 p-3 backdrop-blur ring-1 ring-border">
+                    <p className="text-[10px] uppercase tracking-widest text-primary">
+                      Definition
+                    </p>
+                    <p className="mt-1 text-xs leading-snug">
+                      Lasting for a very short time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center justify-center gap-3 pb-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-danger/15 ring-1 ring-danger/40">
+                  <BookOpen className="h-4 w-4 text-danger" />
+                </div>
+                <div className="grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground glow-primary">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-success/15 ring-1 ring-success/40">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
                 </div>
               </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-center gap-3 pb-3">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-danger/15 ring-1 ring-danger/40">
-                <BookOpen className="h-4 w-4 text-danger" />
-              </div>
-              <div className="grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground glow-primary">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-success/15 ring-1 ring-success/40">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-              </div>
+            {/* bottom nav */}
+            <div className="flex items-center justify-around border-t border-border bg-card/60 px-4 py-2 backdrop-blur">
+              {[Sparkles, Brain, Trophy, ShoppingBag].map((Icon, i) => (
+                <div
+                  key={i}
+                  className={`grid h-8 w-8 place-items-center rounded-xl ${i === 0 ? "bg-primary/15 text-primary" : "text-muted-foreground"}`}
+                >
+                  <Icon className="h-4 w-4" />
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* bottom nav */}
-          <div className="flex items-center justify-around border-t border-border bg-card/60 px-4 py-2 backdrop-blur">
-            {[Sparkles, Brain, Trophy, ShoppingBag].map((Icon, i) => (
-              <div
-                key={i}
-                className={`grid h-8 w-8 place-items-center rounded-xl ${i === 0 ? "bg-primary/15 text-primary" : "text-muted-foreground"}`}
-              >
-                <Icon className="h-4 w-4" />
-              </div>
-            ))}
           </div>
         </div>
       </div>
