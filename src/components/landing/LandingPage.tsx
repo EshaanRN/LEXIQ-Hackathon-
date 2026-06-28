@@ -267,7 +267,7 @@ export function LandingPage() {
         </div>
 
         {/* Phone mockup */}
-        <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 relative mx-auto">
+        <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 relative mx-auto px-12 py-10 [perspective:1400px]">
           <PhoneMockup />
         </div>
       </section>
