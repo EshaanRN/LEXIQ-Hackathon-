@@ -58,9 +58,9 @@ export function ReferralCard() {
         <p className="font-display text-sm font-bold uppercase tracking-widest">Earn free Premium</p>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Share Lexiq with at least <span className="font-bold text-foreground">5 friends</span> using your code.
-        When they create accounts: <span className="font-bold text-foreground">10 sign-ups = 1 month</span> Premium ·
-        <span className="font-bold text-foreground"> 20 = 1 year</span>. Free, no card needed.
+        Invite friends with your code. When they create accounts:
+        <span className="font-bold text-foreground"> 5 sign-ups = 1 month</span> Premium ·
+        <span className="font-bold text-foreground"> 15 = 1 year</span>. Free, no card needed.
       </p>
 
       <div className="mt-3 flex items-center gap-2 rounded-2xl bg-surface-2 p-2 ring-1 ring-border">
@@ -81,11 +81,11 @@ export function ReferralCard() {
         <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-2">
           <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${pct}%` }} />
         </div>
-        <div className="mt-2 grid grid-cols-3 gap-1 text-center text-[10px] font-bold uppercase tracking-widest">
-          <span className={count >= starterGoal ? "text-success" : "text-muted-foreground"}>5 invited</span>
-          <span className={count >= monthGoal ? "text-success" : "text-muted-foreground"}>10 = month</span>
-          <span className={count >= yearGoal ? "text-success" : "text-muted-foreground"}>20 = year</span>
+        <div className="mt-2 grid grid-cols-2 gap-1 text-center text-[10px] font-bold uppercase tracking-widest">
+          <span className={count >= monthGoal ? "text-success" : "text-muted-foreground"}>5 = month</span>
+          <span className={count >= yearGoal ? "text-success" : "text-muted-foreground"}>15 = year</span>
         </div>
+      </div>
       </div>
 
       {(monthGranted || yearGranted) && (
