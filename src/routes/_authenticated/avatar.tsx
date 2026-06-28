@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield } from "lucide-react";
+import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield, Gift } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { XPToast } from "@/components/XPToast";
