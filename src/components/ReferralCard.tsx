@@ -42,7 +42,7 @@ export function ReferralCard() {
       try {
         await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share({
           title: "Try Lexiq — vocab that actually sticks",
-          text: "I'm prepping for the SAT/ACT on Lexiq. Use my link to sign up — I'm sharing it with 5 friends, and 10 sign-ups unlock a free month of Premium!",
+          text: "I'm prepping for the SAT/ACT on Lexiq. Use my link to sign up — 5 friends = 1 free month of Premium, 15 = a full year!",
           url: shareUrl,
         });
         return;
