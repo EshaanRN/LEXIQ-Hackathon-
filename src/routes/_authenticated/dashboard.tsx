@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ArrowLeft, Coins, Zap, Flame, Trophy, Target, BookOpen, Mic } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
-import { ReferralCard } from "@/components/ReferralCard";
 import { levelForXp, useGame } from "@/lib/game-store";
 import { VOCAB } from "@/data/vocab";
 
