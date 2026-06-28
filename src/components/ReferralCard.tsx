@@ -86,7 +86,6 @@ export function ReferralCard() {
           <span className={count >= yearGoal ? "text-success" : "text-muted-foreground"}>15 = year</span>
         </div>
       </div>
-      </div>
 
       {(monthGranted || yearGranted) && (
         <div className="mt-3 flex items-center gap-2 rounded-2xl bg-gold/10 p-2 text-xs ring-1 ring-gold/40">
