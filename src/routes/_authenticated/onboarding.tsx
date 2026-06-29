@@ -173,6 +173,9 @@ function Onboarding() {
         localStorage.removeItem("lexiq:pending-ref");
       }
     } catch { /* noop */ }
+    try {
+      if (typeof window !== "undefined") localStorage.setItem("lexiq:show-tutorial", "1");
+    } catch { /* noop */ }
     navigate({ to: "/app", replace: true });
   }
 
