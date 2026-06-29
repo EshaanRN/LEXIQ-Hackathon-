@@ -88,6 +88,13 @@ export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) 
   // both voices to play simultaneously when the AI clip arrived just after.)
   speakWordFn({ data: { text, style } })
     .then((res) => {
+      if (res.fallback) {
+        if (res.reason === "payment_required" || res.reason === "missing_key") {
+          aiDisabled = true;
+        }
+        browserSpeak(text);
+        return;
+      }
       window.speechSynthesis?.cancel();
       const blob = b64ToBlob(res.base64, res.mime);
       const url = URL.createObjectURL(blob);

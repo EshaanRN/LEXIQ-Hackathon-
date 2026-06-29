@@ -17,33 +17,42 @@ export const speakWord = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => Input.parse(input))
   .handler(async ({ data }) => {
     const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    if (!key) return { fallback: true as const, reason: "missing_key" };
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/speech", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-        "Lovable-API-Key": key,
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-4o-mini-tts",
-        voice: "nova",
-        input: data.text,
-        response_format: "mp3",
-        speed: data.style === "word" ? 0.92 : 1.0,
-      }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("https://ai.gateway.lovable.dev/v1/audio/speech", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${key}`,
+          "Lovable-API-Key": key,
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-4o-mini-tts",
+          voice: "nova",
+          input: data.text,
+          response_format: "mp3",
+          speed: data.style === "word" ? 0.92 : 1.0,
+        }),
+      });
+    } catch {
+      return { fallback: true as const, reason: "network" };
+    }
 
     if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      throw new Error(`TTS gateway failed: ${res.status} ${body.slice(0, 200)}`);
+      // 402 = out of credits, 429 = rate limited, 5xx = transient — all
+      // should silently fall back to the browser voice instead of crashing
+      // the page with a server-function runtime error.
+      return {
+        fallback: true as const,
+        reason: res.status === 402 ? "payment_required" : `http_${res.status}`,
+      };
     }
 
     const buf = new Uint8Array(await res.arrayBuffer());
-    // Base64 encode
     let bin = "";
     for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
     const b64 = typeof btoa === "function" ? btoa(bin) : Buffer.from(buf).toString("base64");
-    return { mime: "audio/mpeg", base64: b64 };
+    return { fallback: false as const, mime: "audio/mpeg", base64: b64 };
   });
