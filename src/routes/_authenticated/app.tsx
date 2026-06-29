@@ -199,6 +199,8 @@ function Feed() {
           </div>
         </div>
       )}
+
+      {showTutorial && <NoxTutorial onDone={dismissTutorial} />}
     </main>
   );
 }
