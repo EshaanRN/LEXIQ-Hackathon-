@@ -8,6 +8,7 @@ import { LearnSheet } from "@/components/LearnSheet";
 import { SearchBar } from "@/components/SearchBar";
 import { DailyGoal } from "@/components/DailyGoal";
 import { AdSlot } from "@/components/AdSlot";
+import { NoxTutorial } from "@/components/NoxTutorial";
 import { AdInterstitial } from "@/components/AdInterstitial";
 import {
   markKnown,
