@@ -8,6 +8,7 @@ import { LearnSheet } from "@/components/LearnSheet";
 import { SearchBar } from "@/components/SearchBar";
 import { DailyGoal } from "@/components/DailyGoal";
 import { AdSlot } from "@/components/AdSlot";
+import { NoxTutorial } from "@/components/NoxTutorial";
 import { AdInterstitial } from "@/components/AdInterstitial";
 import {
   markKnown,
@@ -32,6 +33,20 @@ function Feed() {
   const [learning, setLearning] = useState<VocabWord | null>(null);
   const [viewing, setViewing] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && localStorage.getItem("lexiq:show-tutorial") === "1") {
+        setShowTutorial(true);
+      }
+    } catch { /* noop */ }
+  }, []);
+
+  function dismissTutorial() {
+    setShowTutorial(false);
+    try { localStorage.removeItem("lexiq:show-tutorial"); } catch { /* noop */ }
+  }
 
   const triggerCheckpointPrompt = useCallback(() => {
     if (!shouldShowCheckpointPrompt()) return;
@@ -184,6 +199,8 @@ function Feed() {
           </div>
         </div>
       )}
+
+      {showTutorial && <NoxTutorial onDone={dismissTutorial} />}
     </main>
   );
 }
