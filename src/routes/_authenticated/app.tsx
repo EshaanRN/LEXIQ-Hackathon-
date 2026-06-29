@@ -33,6 +33,20 @@ function Feed() {
   const [learning, setLearning] = useState<VocabWord | null>(null);
   const [viewing, setViewing] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && localStorage.getItem("lexiq:show-tutorial") === "1") {
+        setShowTutorial(true);
+      }
+    } catch { /* noop */ }
+  }, []);
+
+  function dismissTutorial() {
+    setShowTutorial(false);
+    try { localStorage.removeItem("lexiq:show-tutorial"); } catch { /* noop */ }
+  }
 
   const triggerCheckpointPrompt = useCallback(() => {
     if (!shouldShowCheckpointPrompt()) return;
