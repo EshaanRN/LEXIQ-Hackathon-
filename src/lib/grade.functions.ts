@@ -63,25 +63,22 @@ Grade strictly but fairly. Return only the JSON object.`;
       return object;
     } catch (e) {
       console.error("grade error", e);
-      const word = data.word.toLowerCase();
-      const defOk = data.definitionAnswer.length > 6;
-      const sentOk = data.sentenceAnswer.toLowerCase().includes(word) && data.sentenceAnswer.length > word.length + 8;
-      const pronOk = data.mode === "typing"
-        ? true
-        : (data.pronunciationTranscript ?? "").toLowerCase().includes(word.slice(0, Math.min(5, word.length)));
-      const def = defOk ? 70 : 30;
-      const ctx = sentOk ? 75 : 35;
-      const pron = data.mode === "typing" ? 100 : pronOk ? 80 : 40;
+      const pron = data.mode === "typing"
+        ? 100
+        : scorePronunciation(data.word, data.pronunciationTranscript ?? "");
+      const def = scoreDefinition(data.word, data.definition, data.definitionAnswer);
+      const ctx = scoreSentence(data.word, data.definition, data.sentenceAnswer);
       const total = Math.round(pron * 0.2 + def * 0.4 + ctx * 0.4);
       return {
         pronunciationScore: pron,
         definitionScore: def,
         contextScore: ctx,
         totalScore: total,
-        feedback: "Couldn't reach the AI grader; using a basic check. Try again in a moment for a full grade.",
+        feedback: buildFeedback(pron, def, ctx, data.mode),
       };
     }
   });
+
 
 // ---- Instant per-field grading (used by speaking mode for live feedback) ----
 
