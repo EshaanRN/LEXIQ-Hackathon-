@@ -58,7 +58,10 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
 
         <div className="flex h-full flex-col p-5">
           <div className="flex items-center justify-between">
-            <DifficultyChip d={word.difficulty} />
+            <div className="flex items-center gap-2">
+              <DifficultyChip d={word.difficulty} />
+              <ExamChip e={word.exam} />
+            </div>
             <div className="flex items-center gap-1" aria-label={`Difficulty: ${word.difficulty}`}>
               {(() => {
                 const count = word.difficulty === "hard" ? 5 : word.difficulty === "medium" ? 3 : 2;
@@ -72,6 +75,7 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
               })()}
             </div>
           </div>
+
 
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.3em] text-muted-foreground">
@@ -145,3 +149,19 @@ function DifficultyChip({ d }: { d: string }) {
     </span>
   );
 }
+
+function ExamChip({ e }: { e: string }) {
+  const label = e === "both" ? "SAT · ACT" : e.toUpperCase();
+  const tone =
+    e === "sat"
+      ? "bg-primary/15 text-primary ring-primary/30"
+      : e === "act"
+      ? "bg-accent/15 text-accent ring-accent/30"
+      : "bg-gradient-to-r from-primary/20 to-accent/20 text-foreground ring-primary/30";
+  return (
+    <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ring-1 ${tone}`}>
+      {label}
+    </span>
+  );
+}
+
