@@ -58,7 +58,10 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
 
         <div className="flex h-full flex-col p-5">
           <div className="flex items-center justify-between">
-            <DifficultyChip d={word.difficulty} />
+            <div className="flex items-center gap-2">
+              <DifficultyChip d={word.difficulty} />
+              <ExamChip e={word.exam} />
+            </div>
             <div className="flex items-center gap-1" aria-label={`Difficulty: ${word.difficulty}`}>
               {(() => {
                 const count = word.difficulty === "hard" ? 5 : word.difficulty === "medium" ? 3 : 2;
@@ -72,6 +75,7 @@ export function SwipeCard({ word, onKnown, onUnknown, active }: Props) {
               })()}
             </div>
           </div>
+
 
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.3em] text-muted-foreground">
