@@ -149,3 +149,19 @@ function DifficultyChip({ d }: { d: string }) {
     </span>
   );
 }
+
+function ExamChip({ e }: { e: string }) {
+  const label = e === "both" ? "SAT · ACT" : e.toUpperCase();
+  const tone =
+    e === "sat"
+      ? "bg-primary/15 text-primary ring-primary/30"
+      : e === "act"
+      ? "bg-accent/15 text-accent ring-accent/30"
+      : "bg-gradient-to-r from-primary/20 to-accent/20 text-foreground ring-primary/30";
+  return (
+    <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ring-1 ${tone}`}>
+      {label}
+    </span>
+  );
+}
+
