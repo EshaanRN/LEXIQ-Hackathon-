@@ -5,7 +5,7 @@ import { activeTimer, useActiveMs } from "@/lib/active-timer";
 import { usePremium } from "@/lib/premium";
 import { AxiomAd } from "@/components/AxiomAd";
 
-const INTERVAL_MS = 5 * 60 * 1000; // 5 active minutes
+const INTERVAL_MS = 2.5 * 60 * 1000; // every 2 min 30 sec of active use
 const COUNTDOWN_S = 5;
 
 const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
