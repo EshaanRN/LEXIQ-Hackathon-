@@ -107,7 +107,7 @@ function ReferPage() {
     await copy();
   }
 
-  async function submitFriendCode(e: React.FormEvent) {
+  async function submitFriendCode(e: FormEvent) {
     e.preventDefault();
     const c = claimInput.trim().toUpperCase();
     if (!c || c.length < 3) return;
