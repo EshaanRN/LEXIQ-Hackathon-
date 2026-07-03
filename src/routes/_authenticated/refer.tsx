@@ -11,11 +11,16 @@ export const Route = createFileRoute("/_authenticated/refer")({
 
 function ReferPage() {
   const fetchRef = useServerFn(getMyReferral);
+  const submitClaim = useServerFn(claimReferral);
   const [code, setCode] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [monthGranted, setMonthGranted] = useState(false);
   const [yearGranted, setYearGranted] = useState(false);
+  const [referredByCode, setReferredByCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [claimInput, setClaimInput] = useState("");
+  const [claimBusy, setClaimBusy] = useState(false);
+  const [claimMsg, setClaimMsg] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const lastSnapRef = useRef<{ count: number; m: boolean; y: boolean } | null>(null);
 
