@@ -32,6 +32,7 @@ function ReferPage() {
       setCount(r.count);
       setMonthGranted(r.monthGranted);
       setYearGranted(r.yearGranted);
+      setReferredByCode(r.referredByCode ?? null);
       // Detect newly-granted rewards and notify
       if (prev) {
         if (!prev.y && r.yearGranted) fireReward("🎉 You just unlocked 1 YEAR of Lexiq Premium — free!");
