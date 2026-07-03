@@ -31,14 +31,24 @@ export const getMyReferral = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("profiles")
-      .select("referral_code, referral_count, referral_month_granted, referral_year_granted")
+      .select("referral_code, referral_count, referral_month_granted, referral_year_granted, referred_by")
       .eq("id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
+    let referredByCode: string | null = null;
+    if (data?.referred_by) {
+      const { data: ref } = await supabaseAdmin
+        .from("profiles")
+        .select("referral_code")
+        .eq("id", data.referred_by as string)
+        .maybeSingle();
+      referredByCode = (ref?.referral_code as string | null) ?? null;
+    }
     return {
       code: (data?.referral_code as string | null) ?? null,
       count: (data?.referral_count as number | null) ?? 0,
       monthGranted: !!data?.referral_month_granted,
       yearGranted: !!data?.referral_year_granted,
+      referredByCode,
     };
   });
