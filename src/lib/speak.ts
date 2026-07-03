@@ -62,6 +62,13 @@ function stopCurrent() {
   }
 }
 
+// A 1-frame silent WAV data URL used to unlock <audio> playback inside the
+// user gesture on iOS Safari and Chrome mobile. Without this, calling
+// .play() *after* an awaited fetch loses the gesture context and either
+// fails silently or delays several seconds until the OS grants playback.
+const SILENT_WAV =
+  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+
 export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) {
   if (typeof window === "undefined") return;
   const style = opts.style ?? "word";
@@ -69,12 +76,33 @@ export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) 
 
   stopCurrent();
 
-  // Cached AI audio → play instantly.
+  // Create + start the Audio element SYNCHRONOUSLY while we still have the
+  // user-gesture context. Priming with a silent clip unlocks playback so we
+  // can swap `src` to the real audio the moment the network call resolves —
+  // no perceptible mobile delay, no "play was blocked" fallback.
+  const a = new Audio();
+  a.preload = "auto";
+  a.src = SILENT_WAV;
+  currentAudio = a;
+  const primed = a.play().catch(() => {});
+  // Also nudge speechSynthesis awake so the browser fallback is instant if
+  // the AI call fails.
+  try { window.speechSynthesis?.resume(); } catch { /* noop */ }
+
+  const swap = (url: string) => {
+    if (currentAudio !== a) return; // superseded by a newer speak() call
+    const start = () => {
+      a.src = url;
+      a.play().catch(() => browserSpeak(text));
+    };
+    // Wait for the silent prime to actually start before switching src, so
+    // the second play() inherits the unlocked state.
+    primed.then(start, start);
+  };
+
   const cached = audioCache.get(key);
   if (cached) {
-    const a = new Audio(cached);
-    currentAudio = a;
-    a.play().catch(() => browserSpeak(text));
+    swap(cached);
     return;
   }
 
@@ -83,11 +111,9 @@ export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) 
     return;
   }
 
-  // Wait for AI audio; only fall back to the browser voice if it fails.
-  // (Previously kicked off browser TTS as a safety net at 250ms, which caused
-  // both voices to play simultaneously when the AI clip arrived just after.)
   speakWordFn({ data: { text, style } })
     .then((res) => {
+      if (currentAudio !== a) return;
       if (res.fallback) {
         if (res.reason === "payment_required" || res.reason === "missing_key") {
           aiDisabled = true;
@@ -99,9 +125,7 @@ export function speak(text: string, opts: { style?: "word" | "sentence" } = {}) 
       const blob = b64ToBlob(res.base64, res.mime);
       const url = URL.createObjectURL(blob);
       audioCache.set(key, url);
-      const a = new Audio(url);
-      currentAudio = a;
-      a.play().catch(() => browserSpeak(text));
+      swap(url);
     })
     .catch((err) => {
       console.warn("AI TTS failed, falling back to browser voice", err);

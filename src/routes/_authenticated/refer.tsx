@@ -77,7 +77,7 @@ function ReferPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://learnlexiq.com";
+  const origin = "https://learnlexiq.com";
   const shareUrl = code ? `${origin}/?ref=${code}` : "";
   const monthGoal = 5;
   const yearGoal = 15;
