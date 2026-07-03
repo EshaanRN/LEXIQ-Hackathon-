@@ -10,6 +10,7 @@ import { DailyGoal } from "@/components/DailyGoal";
 import { AdSlot } from "@/components/AdSlot";
 import { NoxTutorial } from "@/components/NoxTutorial";
 import { AdInterstitial } from "@/components/AdInterstitial";
+import { StudyModeSelector } from "@/components/StudyModeSelector";
 import {
   markKnown,
   markUnknown,
@@ -148,6 +149,18 @@ function Feed() {
       <HUD />
       <RankBar />
       <DailyGoal />
+      <StudyModeSelector
+        onChange={() => {
+          // Rebuild the queue immediately so the new exam filter takes effect
+          // without waiting for the current top card to be swiped.
+          const initial: VocabWord[] = [];
+          for (let i = 0; i < 3; i++) {
+            const w = nextWord(initial.map((x) => x.id));
+            initial.push(w);
+          }
+          setQueue(initial);
+        }}
+      />
       <SearchBar onSelect={setViewing} />
 
       <div className="relative mx-5 my-3 flex-1 min-h-0">
