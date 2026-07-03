@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Crown, Gift, Share2, Copy, Check, Sparkles } from "lucide-react";
 import { getMyReferral, claimReferral } from "@/lib/referral.functions";
