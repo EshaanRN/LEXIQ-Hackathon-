@@ -220,6 +220,48 @@ function ReferPage() {
         </button>
       </div>
 
+      {/* Referred by / enter a friend's code */}
+      <div className="mt-4 rounded-3xl bg-card p-4 ring-1 ring-border">
+        <div className="flex items-center gap-2">
+          <Gift className="h-4 w-4 text-gold" />
+          <p className="font-display text-sm font-bold uppercase tracking-widest">Were you invited?</p>
+        </div>
+        {referredByCode ? (
+          <div className="mt-3 flex items-center justify-between rounded-2xl bg-surface-2 p-3 ring-1 ring-border">
+            <div>
+              <p className="text-xs text-muted-foreground">You were referred by</p>
+              <p className="font-mono text-lg font-bold">{referredByCode}</p>
+            </div>
+            <Check className="h-5 w-5 text-success" />
+          </div>
+        ) : (
+          <>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Enter a friend's Lexiq code so they get credit toward their free Premium.
+            </p>
+            <form onSubmit={submitFriendCode} className="mt-3 flex items-center gap-2">
+              <input
+                value={claimInput}
+                onChange={(e) => setClaimInput(e.target.value.toUpperCase())}
+                maxLength={16}
+                placeholder="ENTER CODE"
+                className="flex-1 rounded-2xl bg-surface-2 px-3 py-2.5 text-center font-mono text-sm ring-1 ring-border outline-none focus:ring-primary"
+              />
+              <button
+                type="submit"
+                disabled={claimBusy || claimInput.trim().length < 3}
+                className="rounded-full bg-primary px-4 py-2.5 font-display text-xs font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-50"
+              >
+                {claimBusy ? "…" : "Apply"}
+              </button>
+            </form>
+            {claimMsg && (
+              <p className="mt-2 text-xs text-muted-foreground">{claimMsg}</p>
+            )}
+          </>
+        )}
+      </div>
+
       {/* How it works */}
       <div className="mt-4 rounded-3xl bg-card p-4 ring-1 ring-border">
         <div className="flex items-center gap-2">
