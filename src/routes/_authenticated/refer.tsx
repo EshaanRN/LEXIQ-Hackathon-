@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Crown, Gift, Share2, Copy, Check, Sparkles } from "lucide-react";
-import { getMyReferral } from "@/lib/referral.functions";
+import { getMyReferral, claimReferral } from "@/lib/referral.functions";
 
 export const Route = createFileRoute("/_authenticated/refer")({
   ssr: false,
@@ -11,11 +11,16 @@ export const Route = createFileRoute("/_authenticated/refer")({
 
 function ReferPage() {
   const fetchRef = useServerFn(getMyReferral);
+  const submitClaim = useServerFn(claimReferral);
   const [code, setCode] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [monthGranted, setMonthGranted] = useState(false);
   const [yearGranted, setYearGranted] = useState(false);
+  const [referredByCode, setReferredByCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [claimInput, setClaimInput] = useState("");
+  const [claimBusy, setClaimBusy] = useState(false);
+  const [claimMsg, setClaimMsg] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const lastSnapRef = useRef<{ count: number; m: boolean; y: boolean } | null>(null);
 
@@ -27,6 +32,7 @@ function ReferPage() {
       setCount(r.count);
       setMonthGranted(r.monthGranted);
       setYearGranted(r.yearGranted);
+      setReferredByCode(r.referredByCode ?? null);
       // Detect newly-granted rewards and notify
       if (prev) {
         if (!prev.y && r.yearGranted) fireReward("🎉 You just unlocked 1 YEAR of Lexiq Premium — free!");
@@ -99,6 +105,34 @@ function ReferPage() {
       } catch {/* user cancelled */}
     }
     await copy();
+  }
+
+  async function submitFriendCode(e: FormEvent) {
+    e.preventDefault();
+    const c = claimInput.trim().toUpperCase();
+    if (!c || c.length < 3) return;
+    setClaimBusy(true);
+    setClaimMsg(null);
+    try {
+      const r = await submitClaim({ data: { code: c } });
+      if (r.ok) {
+        setClaimMsg("Applied! Your friend just got credit.");
+        setClaimInput("");
+        await load();
+      } else {
+        const map: Record<string, string> = {
+          invalid_code: "That code doesn't match any user.",
+          self_referral: "You can't use your own code.",
+          already_referred: "You've already used a referral code.",
+          missing_code: "Enter a code first.",
+        };
+        setClaimMsg(map[r.reason ?? ""] ?? "Couldn't apply that code.");
+      }
+    } catch {
+      setClaimMsg("Something went wrong. Try again.");
+    } finally {
+      setClaimBusy(false);
+    }
   }
 
   return (
@@ -184,6 +218,48 @@ function ReferPage() {
         >
           <Share2 className="h-4 w-4" /> Share with friends
         </button>
+      </div>
+
+      {/* Referred by / enter a friend's code */}
+      <div className="mt-4 rounded-3xl bg-card p-4 ring-1 ring-border">
+        <div className="flex items-center gap-2">
+          <Gift className="h-4 w-4 text-gold" />
+          <p className="font-display text-sm font-bold uppercase tracking-widest">Were you invited?</p>
+        </div>
+        {referredByCode ? (
+          <div className="mt-3 flex items-center justify-between rounded-2xl bg-surface-2 p-3 ring-1 ring-border">
+            <div>
+              <p className="text-xs text-muted-foreground">You were referred by</p>
+              <p className="font-mono text-lg font-bold">{referredByCode}</p>
+            </div>
+            <Check className="h-5 w-5 text-success" />
+          </div>
+        ) : (
+          <>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Enter a friend's Lexiq code so they get credit toward their free Premium.
+            </p>
+            <form onSubmit={submitFriendCode} className="mt-3 flex items-center gap-2">
+              <input
+                value={claimInput}
+                onChange={(e) => setClaimInput(e.target.value.toUpperCase())}
+                maxLength={16}
+                placeholder="ENTER CODE"
+                className="flex-1 rounded-2xl bg-surface-2 px-3 py-2.5 text-center font-mono text-sm ring-1 ring-border outline-none focus:ring-primary"
+              />
+              <button
+                type="submit"
+                disabled={claimBusy || claimInput.trim().length < 3}
+                className="rounded-full bg-primary px-4 py-2.5 font-display text-xs font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-50"
+              >
+                {claimBusy ? "…" : "Apply"}
+              </button>
+            </form>
+            {claimMsg && (
+              <p className="mt-2 text-xs text-muted-foreground">{claimMsg}</p>
+            )}
+          </>
+        )}
       </div>
 
       {/* How it works */}
