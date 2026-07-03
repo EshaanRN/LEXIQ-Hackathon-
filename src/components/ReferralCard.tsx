@@ -23,7 +23,7 @@ export function ReferralCard() {
   }, [fetchRef]);
 
   if (!code) return null;
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://learnlexiq.com";
+  const origin = "https://learnlexiq.com";
   const shareUrl = `${origin}/?ref=${code}`;
   const monthGoal = 5;
   const yearGoal = 15;
