@@ -107,6 +107,34 @@ function ReferPage() {
     await copy();
   }
 
+  async function submitFriendCode(e: React.FormEvent) {
+    e.preventDefault();
+    const c = claimInput.trim().toUpperCase();
+    if (!c || c.length < 3) return;
+    setClaimBusy(true);
+    setClaimMsg(null);
+    try {
+      const r = await submitClaim({ data: { code: c } });
+      if (r.ok) {
+        setClaimMsg("Applied! Your friend just got credit.");
+        setClaimInput("");
+        await load();
+      } else {
+        const map: Record<string, string> = {
+          invalid_code: "That code doesn't match any user.",
+          self_referral: "You can't use your own code.",
+          already_referred: "You've already used a referral code.",
+          missing_code: "Enter a code first.",
+        };
+        setClaimMsg(map[r.reason ?? ""] ?? "Couldn't apply that code.");
+      }
+    } catch {
+      setClaimMsg("Something went wrong. Try again.");
+    } finally {
+      setClaimBusy(false);
+    }
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pt-6 pb-24">
       <div className="flex items-center gap-3">
