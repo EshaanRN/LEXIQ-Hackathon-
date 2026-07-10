@@ -133,6 +133,7 @@ function Feed() {
       if (e.target instanceof HTMLElement && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
       if (e.key === "ArrowRight") { e.preventDefault(); handleKnown(); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); handleUnknown(); }
+      else if (e.key === "Enter") { e.preventDefault(); advance(); }
       else if (e.key === " ") {
         e.preventDefault();
         const top = queue[0];
@@ -166,21 +167,11 @@ function Feed() {
       <div className="relative mx-5 my-3 flex-1 min-h-0">
 
         <AnimatePresence>
-          {queue.slice(0, 3).reverse().map((w, idx, arr) => {
-            const isTop = idx === arr.length - 1;
-            const depth = arr.length - 1 - idx;
-            return (
-              <div key={w.id + "-" + depth} className="absolute inset-0"
-                style={{
-                  transform: `translateY(${depth * 10}px) scale(${1 - depth * 0.04})`,
-                  zIndex: 10 - depth,
-                  opacity: isTop ? 1 : 0.7,
-                  pointerEvents: isTop ? "auto" : "none",
-                }}>
-                <SwipeCard word={w} onKnown={handleKnown} onUnknown={handleUnknown} active={isTop} />
-              </div>
-            );
-          })}
+          {queue.slice(0, 1).map((w) => (
+            <div key={w.id} className="absolute inset-0" style={{ zIndex: 10 }}>
+              <SwipeCard word={w} onKnown={handleKnown} onUnknown={handleUnknown} active />
+            </div>
+          ))}
         </AnimatePresence>
       </div>
 
