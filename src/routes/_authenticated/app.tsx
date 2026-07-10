@@ -177,14 +177,10 @@ function Feed() {
         ← Learn · → Know it · Space = open sheet
       </p>
 
-      <div className="mx-5 mb-2 hidden md:block">
-        <AdSlot variant="banner" />
-      </div>
-
       <XPToast />
       <LearnSheet word={learning} onLearned={handleLearned} onSkip={handleSkipLearn} />
       <LearnSheet word={viewing} viewOnly onLearned={() => setViewing(null)} onSkip={() => setViewing(null)} />
-      <AdInterstitial />
+
 
       {checkpointPrompt && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-6 backdrop-blur">
