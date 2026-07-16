@@ -167,7 +167,17 @@ function Feed() {
           setQueue(initial);
         }}
       />
-      <SearchBar onSelect={setViewing} />
+      <div className="mt-2 flex items-center gap-2 mx-5">
+        <div className="flex-1"><SearchBar onSelect={setViewing} onAddRequest={(q) => { setAddInitial(q); setAddOpen(true); }} /></div>
+        <button
+          onClick={() => { setAddInitial(""); setAddOpen(true); }}
+          className="shrink-0 grid h-10 w-10 place-items-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/30 hover:bg-primary/25"
+          aria-label="Add your own word"
+          title="Add your own word"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
 
       <div className="relative mx-5 my-3 flex-1 min-h-0">
 
