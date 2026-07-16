@@ -41,7 +41,7 @@ export function SearchBar({ onSelect, onAddRequest }: Props) {
   }
 
   return (
-    <div ref={wrapRef} className="relative mx-5 mt-2">
+    <div ref={wrapRef} className="relative">
       <div className="flex items-center gap-2 rounded-full bg-surface-2 px-3 py-2 ring-1 ring-border focus-within:ring-primary/50">
         <Search className="h-4 w-4 text-muted-foreground" />
         <input
