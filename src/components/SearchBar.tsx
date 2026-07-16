@@ -4,9 +4,10 @@ import { VOCAB, type VocabWord } from "@/data/vocab";
 
 interface Props {
   onSelect: (word: VocabWord) => void;
+  onAddRequest?: (query: string) => void;
 }
 
-export function SearchBar({ onSelect }: Props) {
+export function SearchBar({ onSelect, onAddRequest }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
