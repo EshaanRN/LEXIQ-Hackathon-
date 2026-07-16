@@ -216,6 +216,13 @@ function Feed() {
       )}
 
       {showTutorial && <NoxTutorial onDone={dismissTutorial} />}
+
+      <AddCustomWordDialog
+        open={addOpen}
+        initialWord={addInitial}
+        onClose={() => setAddOpen(false)}
+        onAdded={(w) => setViewing(w)}
+      />
     </main>
   );
 }
