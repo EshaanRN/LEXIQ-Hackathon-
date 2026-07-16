@@ -4,9 +4,10 @@ import { VOCAB, type VocabWord } from "@/data/vocab";
 
 interface Props {
   onSelect: (word: VocabWord) => void;
+  onAddRequest?: (query: string) => void;
 }
 
-export function SearchBar({ onSelect }: Props) {
+export function SearchBar({ onSelect, onAddRequest }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -40,7 +41,7 @@ export function SearchBar({ onSelect }: Props) {
   }
 
   return (
-    <div ref={wrapRef} className="relative mx-5 mt-2">
+    <div ref={wrapRef} className="relative">
       <div className="flex items-center gap-2 rounded-full bg-surface-2 px-3 py-2 ring-1 ring-border focus-within:ring-primary/50">
         <Search className="h-4 w-4 text-muted-foreground" />
         <input
@@ -80,7 +81,15 @@ export function SearchBar({ onSelect }: Props) {
 
       {open && query && results.length === 0 && (
         <div className="absolute left-0 right-0 top-full z-30 mt-2 rounded-2xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-xl">
-          No words match "{query}"
+          <p>No words match "{query}"</p>
+          {onAddRequest && (
+            <button
+              onClick={() => { onAddRequest(query); setOpen(false); }}
+              className="mt-3 rounded-full bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground glow-primary"
+            >
+              + Add "{query}" with AI
+            </button>
+          )}
         </div>
       )}
     </div>
