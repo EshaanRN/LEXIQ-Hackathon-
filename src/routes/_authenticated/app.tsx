@@ -36,6 +36,10 @@ function Feed() {
   const [viewing, setViewing] = useState<VocabWord | null>(null);
   const [checkpointPrompt, setCheckpointPrompt] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addInitial, setAddInitial] = useState("");
+
+  useEffect(() => { loadCustomVocab(); }, []);
 
   useEffect(() => {
     try {
