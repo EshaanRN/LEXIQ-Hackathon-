@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
@@ -9,6 +10,8 @@ import { SearchBar } from "@/components/SearchBar";
 import { DailyGoal } from "@/components/DailyGoal";
 import { NoxTutorial } from "@/components/NoxTutorial";
 import { StudyModeSelector } from "@/components/StudyModeSelector";
+import { AddCustomWordDialog } from "@/components/AddCustomWordDialog";
+import { loadCustomVocab } from "@/lib/custom-vocab";
 import {
   markKnown,
   markUnknown,
