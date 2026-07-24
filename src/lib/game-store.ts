@@ -44,6 +44,9 @@ interface GameState {
   ownedItems: string[];
   username: string | null;
   exam: ExamType;
+  /** Exams the user has "added" — the swipe feed unions across these.
+   *  Persisted via clientState (the DB `exam` column is locked post-onboarding). */
+  selectedExams: Exclude<ExamType, "both">[];
   checkpointInterval: number;
   /** Total NEW words the user has learned (used to trigger checkpoint prompts) */
   wordsLearnedTotal: number;
