@@ -352,6 +352,9 @@ export function applyProfile(p: {
         rootBonusGiven: Array.from(new Set([...state.rootBonusGiven, ...(cs.rootBonusGiven ?? [])])),
         activeMs: Math.max(state.activeMs, cs.activeMs ?? 0),
         lastBonusActiveMs: Math.max(state.lastBonusActiveMs, cs.lastBonusActiveMs ?? 0),
+        selectedExams: Array.isArray(cs.selectedExams) && cs.selectedExams.length > 0
+          ? cs.selectedExams
+          : state.selectedExams,
       };
       (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt = cs.syncedAt;
     }
