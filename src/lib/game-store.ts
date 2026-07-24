@@ -728,8 +728,78 @@ export function snoozeCheckpoint() {
 
 export function setExam(exam: ExamType) {
   state.exam = exam;
+  // Keep the "primary" exam in the multi-exam selection too, so a legacy
+  // single-exam switch doesn't leave the feed empty.
+  if (exam !== "both") {
+    const primary = exam as Exclude<ExamType, "both">;
+    if (!state.selectedExams.includes(primary)) {
+      state.selectedExams = [primary, ...state.selectedExams];
+    }
+  }
   persist();
 }
+
+/** Replace the full list of exams the user is studying. Must contain at least one. */
+export function setSelectedExams(exams: Exclude<ExamType, "both">[]) {
+  const uniq = Array.from(new Set(exams));
+  if (uniq.length === 0) return;
+  state.selectedExams = uniq;
+  // Reset the feed's recency buffer so new exam content appears immediately.
+  recentlyShown = [];
+  shownCounter = 0;
+  persist();
+}
+
+export function addSelectedExam(e: Exclude<ExamType, "both">) {
+  if (state.selectedExams.includes(e)) return;
+  state.selectedExams = [...state.selectedExams, e];
+  recentlyShown = [];
+  shownCounter = 0;
+  pushToast({ label: `${e.toUpperCase()} added to your study set.` });
+  persist();
+}
+
+export function removeSelectedExam(e: Exclude<ExamType, "both">) {
+  if (state.selectedExams.length <= 1) return; // never leave user with zero
+  state.selectedExams = state.selectedExams.filter((x) => x !== e);
+  recentlyShown = [];
+  shownCounter = 0;
+  persist();
+}
+
+/** Clear the module-local "recently shown" buffer so the feed reshuffles with fresh picks. */
+export function reshuffleFeed() {
+  recentlyShown = [];
+  shownCounter = 0;
+  pushToast({ label: "Feed shuffled. Fresh set of words coming up." });
+}
+
+/** Re-arm the onboarding tutorial so it plays again on next visit to /app. */
+export function restartTutorial() {
+  if (typeof window === "undefined") return;
+  try { localStorage.setItem("lexiq:show-tutorial", "1"); } catch { /* ignore */ }
+  pushToast({ label: "Tutorial ready — open the swipe feed to replay it." });
+}
+
+/** Counts of learned words per exam, based on the current selection. */
+export function examProgressBreakdown(): Array<{
+  exam: Exclude<ExamType, "both">;
+  learned: number;
+  total: number;
+}> {
+  return state.selectedExams.map((e) => {
+    let learned = 0;
+    let total = 0;
+    for (const w of VOCAB_ALL) {
+      if (!wordMatchesExam(w, e)) continue;
+      total += 1;
+      const m = state.words[w.id]?.mastery;
+      if (m && m !== "unknown") learned += 1;
+    }
+    return { exam: e, learned, total };
+  });
+}
+
 export function setCheckpointInterval(n: number) {
   const clamped = Math.max(5, Math.min(100, Math.round(n)));
   state = {
