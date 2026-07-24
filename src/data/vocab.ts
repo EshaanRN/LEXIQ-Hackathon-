@@ -1,5 +1,14 @@
 export type Difficulty = "easy" | "medium" | "hard";
-export type ExamType = "sat" | "act" | "both";
+export type ExamType = "sat" | "act" | "gre" | "lsat" | "mcat" | "toefl" | "ielts" | "both";
+
+/** Exam-specific override for a word — lets one entry adapt its definition,
+ *  student-friendly phrasing, and example sentence to the exam context. */
+export interface ExamVariant {
+  definition?: string;
+  studentDefinition?: string;
+  satContext?: string;
+  example?: string;
+}
 
 export interface VocabWord {
   id: string;
@@ -19,6 +28,10 @@ export interface VocabWord {
   mnemonic: string;
   example: string;
   synonyms?: string[];
+  antonyms?: string[];
+  /** Per-exam overrides. When an exam key is present, its fields replace the
+   *  defaults while the card is shown in that exam mode. */
+  examVariants?: Partial<Record<Exclude<ExamType, "both">, ExamVariant>>;
 }
 
 export const VOCAB: VocabWord[] = [
