@@ -266,6 +266,11 @@ export function loadStateForUser(userId: string) {
   if (next.checkpointPromptedAtTotal > next.wordsLearnedTotal) {
     next.checkpointPromptedAtTotal = next.wordsLearnedTotal;
   }
+  // Backfill selectedExams for users saved before the multi-exam era.
+  if (!Array.isArray(next.selectedExams) || next.selectedExams.length === 0) {
+    const primary = next.exam === "both" ? "sat" : next.exam;
+    next.selectedExams = [primary as Exclude<ExamType, "both">];
+  }
   state = next;
   notify();
 }
