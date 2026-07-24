@@ -22,7 +22,10 @@ export const syncClientProgress = createServerFn({ method: "POST" })
       update.avatar = data.avatar;
       update.equipped = data.avatar;
     }
-    if (data.exam) update.exam = data.exam;
+    // Note: `exam` is locked by a DB trigger after onboarding completes, and
+    // the DB column only supports "sat"/"act"/"both". Client study-mode
+    // selection (including gre/lsat/mcat/toefl/ielts) is persisted via
+    // client_state instead, so we intentionally skip exam here.
     if (data.checkpointInterval) update.checkpoint_interval = data.checkpointInterval;
     if (data.dailyGoal) update.daily_goal = data.dailyGoal;
     if (data.masteryScores) update.mastery_scores = data.masteryScores;
