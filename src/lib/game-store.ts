@@ -593,15 +593,29 @@ function checkRootMastery(root: string) {
   }
 }
 
-/** Pool of words filtered by current exam preference, with per-exam variants applied. */
+/** Pool of words for the user's selected exams, unioned and de-duplicated.
+ *  Applies each word's exam-specific variant (if any) for the first exam it
+ *  matches in the user's selection, so a shared word reads with its most
+ *  relevant framing. */
 export function examPool(): VocabWord[] {
-  const e = state.exam;
-  // Keep custom-added words from the legacy VOCAB array so users' own additions
-  // always appear regardless of exam.
+  // Custom-added words always appear regardless of exam.
   const custom = VOCAB.filter((w) => w.id.startsWith("custom-"));
-  const base = VOCAB_ALL.filter((w) => wordMatchesExam(w, e));
-  const merged = [...base, ...custom.filter((c) => !base.some((b) => b.id === c.id))];
-  return merged.map((w) => applyExamVariant(w, e));
+  const selected = state.selectedExams.length > 0 ? state.selectedExams : ["sat" as const];
+  const seen = new Set<string>();
+  const out: VocabWord[] = [];
+  for (const w of VOCAB_ALL) {
+    for (const e of selected) {
+      if (wordMatchesExam(w, e)) {
+        if (!seen.has(w.id)) {
+          seen.add(w.id);
+          out.push(applyExamVariant(w, e));
+        }
+        break;
+      }
+    }
+  }
+  for (const c of custom) if (!seen.has(c.id)) { seen.add(c.id); out.push(c); }
+  return out;
 }
 
 // Track recently shown words and cadence for spaced repetition.
