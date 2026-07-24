@@ -118,6 +118,7 @@ function defaultState(userId: string | null): GameState {
     ownedItems: defaultOwned(),
     username: null,
     exam: "sat",
+    selectedExams: ["sat"],
     checkpointInterval: 20,
     wordsLearnedTotal: 0,
     wordsAtLastCheckpoint: 0,
