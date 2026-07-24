@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { VOCAB, type VocabWord, type ExamType } from "@/data/vocab";
+import { VOCAB_ALL, wordMatchesExam, applyExamVariant } from "@/data/vocab-all";
 import { defaultAvatar, defaultOwned, type AvatarConfig } from "@/lib/avatar";
 
 export type Mastery = "unknown" | "learning" | "practicing" | "familiar" | "mastered";
@@ -578,13 +579,15 @@ function checkRootMastery(root: string) {
   }
 }
 
-/** Pool of words filtered by current exam preference */
+/** Pool of words filtered by current exam preference, with per-exam variants applied. */
 export function examPool(): VocabWord[] {
   const e = state.exam;
-  return VOCAB.filter((w) => {
-    if (e === "both") return true;
-    return w.exam === e || w.exam === "both";
-  });
+  // Keep custom-added words from the legacy VOCAB array so users' own additions
+  // always appear regardless of exam.
+  const custom = VOCAB.filter((w) => w.id.startsWith("custom-"));
+  const base = VOCAB_ALL.filter((w) => wordMatchesExam(w, e));
+  const merged = [...base, ...custom.filter((c) => !base.some((b) => b.id === c.id))];
+  return merged.map((w) => applyExamVariant(w, e));
 }
 
 // Track recently shown words and cadence for spaced repetition.

@@ -304,7 +304,12 @@ function Onboarding() {
               <div className="mt-6 space-y-3">
                 <ExamCard id="sat" active={exam === "sat"} onClick={() => setExam("sat")} title="SAT" desc="College Board vocab, evidence words, transition cues, academic language." />
                 <ExamCard id="act" active={exam === "act"} onClick={() => setExam("act")} title="ACT" desc="Reading, Science, English-section vocab and context clues." />
-                <ExamCard id="both" active={exam === "both"} onClick={() => setExam("both")} title="SAT + ACT" desc="Combined high-frequency word list — words that appear on both exams." />
+                <ExamCard id="gre" active={exam === "gre"} onClick={() => setExam("gre")} title="GRE" desc="Advanced academic vocab — nuance, tone, and register." />
+                <ExamCard id="lsat" active={exam === "lsat"} onClick={() => setExam("lsat")} title="LSAT" desc="Legal terminology and the language of logical reasoning." />
+                <ExamCard id="mcat" active={exam === "mcat"} onClick={() => setExam("mcat")} title="MCAT" desc="Bio, biochem, chem, and psych/soc terminology." />
+                <ExamCard id="toefl" active={exam === "toefl"} onClick={() => setExam("toefl")} title="TOEFL" desc="Academic English for university-level lectures and passages." />
+                <ExamCard id="ielts" active={exam === "ielts"} onClick={() => setExam("ielts")} title="IELTS" desc="Band 7–9 Task 2 vocabulary and formal alternatives." />
+                <ExamCard id="both" active={exam === "both"} onClick={() => setExam("both")} title="Mixed" desc="All exams pooled together — great for exploration." />
               </div>
               <NextBtn onClick={() => setStep(2)} label="Continue" />
             </>
