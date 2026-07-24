@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Shuffle } from "lucide-react";
 import { SwipeCard } from "@/components/SwipeCard";
 import { HUD, RankBar } from "@/components/HUD";
 import { XPToast } from "@/components/XPToast";
@@ -10,6 +10,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { DailyGoal } from "@/components/DailyGoal";
 import { NoxTutorial } from "@/components/NoxTutorial";
 import { StudyModeSelector } from "@/components/StudyModeSelector";
+import { ExamProgressStrip } from "@/components/ExamProgressStrip";
 import { AddCustomWordDialog } from "@/components/AddCustomWordDialog";
 import { loadCustomVocab } from "@/lib/custom-vocab";
 import {
@@ -21,6 +22,7 @@ import {
   snoozeCheckpoint,
   markCheckpointPromptShown,
   shouldShowCheckpointPrompt,
+  reshuffleFeed,
 } from "@/lib/game-store";
 import type { VocabWord } from "@/data/vocab";
 
@@ -167,8 +169,25 @@ function Feed() {
           setQueue(initial);
         }}
       />
+      <ExamProgressStrip />
       <div className="mt-2 flex items-center gap-2 mx-5">
         <div className="flex-1"><SearchBar onSelect={setViewing} onAddRequest={(q) => { setAddInitial(q); setAddOpen(true); }} /></div>
+        <button
+          onClick={() => {
+            reshuffleFeed();
+            const initial: VocabWord[] = [];
+            for (let i = 0; i < 3; i++) {
+              const w = nextWord(initial.map((x) => x.id));
+              initial.push(w);
+            }
+            setQueue(initial);
+          }}
+          className="shrink-0 grid h-10 w-10 place-items-center rounded-full bg-surface-2 text-muted-foreground ring-1 ring-border hover:bg-surface-3 hover:text-foreground"
+          aria-label="Shuffle to a fresh set of words"
+          title="Shuffle feed — get a new set of words"
+        >
+          <Shuffle className="h-4 w-4" />
+        </button>
         <button
           onClick={() => { setAddInitial(""); setAddOpen(true); }}
           className="shrink-0 grid h-10 w-10 place-items-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/30 hover:bg-primary/25"

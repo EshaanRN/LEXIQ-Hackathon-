@@ -44,6 +44,9 @@ interface GameState {
   ownedItems: string[];
   username: string | null;
   exam: ExamType;
+  /** Exams the user has "added" — the swipe feed unions across these.
+   *  Persisted via clientState (the DB `exam` column is locked post-onboarding). */
+  selectedExams: Exclude<ExamType, "both">[];
   checkpointInterval: number;
   /** Total NEW words the user has learned (used to trigger checkpoint prompts) */
   wordsLearnedTotal: number;
@@ -115,6 +118,7 @@ function defaultState(userId: string | null): GameState {
     ownedItems: defaultOwned(),
     username: null,
     exam: "sat",
+    selectedExams: ["sat"],
     checkpointInterval: 20,
     wordsLearnedTotal: 0,
     wordsAtLastCheckpoint: 0,
@@ -181,6 +185,7 @@ async function syncProfile() {
       rootBonusGiven: state.rootBonusGiven,
       activeMs: state.activeMs,
       lastBonusActiveMs: state.lastBonusActiveMs,
+      selectedExams: state.selectedExams,
     };
     const { syncClientProgress } = await import("@/lib/progress.functions");
     await syncClientProgress({
@@ -261,6 +266,11 @@ export function loadStateForUser(userId: string) {
   if (next.checkpointPromptedAtTotal > next.wordsLearnedTotal) {
     next.checkpointPromptedAtTotal = next.wordsLearnedTotal;
   }
+  // Backfill selectedExams for users saved before the multi-exam era.
+  if (!Array.isArray(next.selectedExams) || next.selectedExams.length === 0) {
+    const primary = next.exam === "both" ? "sat" : next.exam;
+    next.selectedExams = [primary as Exclude<ExamType, "both">];
+  }
   state = next;
   notify();
 }
@@ -312,6 +322,7 @@ export function applyProfile(p: {
     rootBonusGiven?: string[];
     activeMs?: number;
     lastBonusActiveMs?: number;
+    selectedExams?: Exclude<ExamType, "both">[];
   } | null | undefined;
   if (cs && typeof cs === "object" && cs.syncedAt) {
     const localSyncedAt = (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt ?? 0;
@@ -341,6 +352,9 @@ export function applyProfile(p: {
         rootBonusGiven: Array.from(new Set([...state.rootBonusGiven, ...(cs.rootBonusGiven ?? [])])),
         activeMs: Math.max(state.activeMs, cs.activeMs ?? 0),
         lastBonusActiveMs: Math.max(state.lastBonusActiveMs, cs.lastBonusActiveMs ?? 0),
+        selectedExams: Array.isArray(cs.selectedExams) && cs.selectedExams.length > 0
+          ? cs.selectedExams
+          : state.selectedExams,
       };
       (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt = cs.syncedAt;
     }
@@ -579,15 +593,29 @@ function checkRootMastery(root: string) {
   }
 }
 
-/** Pool of words filtered by current exam preference, with per-exam variants applied. */
+/** Pool of words for the user's selected exams, unioned and de-duplicated.
+ *  Applies each word's exam-specific variant (if any) for the first exam it
+ *  matches in the user's selection, so a shared word reads with its most
+ *  relevant framing. */
 export function examPool(): VocabWord[] {
-  const e = state.exam;
-  // Keep custom-added words from the legacy VOCAB array so users' own additions
-  // always appear regardless of exam.
+  // Custom-added words always appear regardless of exam.
   const custom = VOCAB.filter((w) => w.id.startsWith("custom-"));
-  const base = VOCAB_ALL.filter((w) => wordMatchesExam(w, e));
-  const merged = [...base, ...custom.filter((c) => !base.some((b) => b.id === c.id))];
-  return merged.map((w) => applyExamVariant(w, e));
+  const selected = state.selectedExams.length > 0 ? state.selectedExams : ["sat" as const];
+  const seen = new Set<string>();
+  const out: VocabWord[] = [];
+  for (const w of VOCAB_ALL) {
+    for (const e of selected) {
+      if (wordMatchesExam(w, e)) {
+        if (!seen.has(w.id)) {
+          seen.add(w.id);
+          out.push(applyExamVariant(w, e));
+        }
+        break;
+      }
+    }
+  }
+  for (const c of custom) if (!seen.has(c.id)) { seen.add(c.id); out.push(c); }
+  return out;
 }
 
 // Track recently shown words and cadence for spaced repetition.
@@ -700,8 +728,78 @@ export function snoozeCheckpoint() {
 
 export function setExam(exam: ExamType) {
   state.exam = exam;
+  // Keep the "primary" exam in the multi-exam selection too, so a legacy
+  // single-exam switch doesn't leave the feed empty.
+  if (exam !== "both") {
+    const primary = exam as Exclude<ExamType, "both">;
+    if (!state.selectedExams.includes(primary)) {
+      state.selectedExams = [primary, ...state.selectedExams];
+    }
+  }
   persist();
 }
+
+/** Replace the full list of exams the user is studying. Must contain at least one. */
+export function setSelectedExams(exams: Exclude<ExamType, "both">[]) {
+  const uniq = Array.from(new Set(exams));
+  if (uniq.length === 0) return;
+  state.selectedExams = uniq;
+  // Reset the feed's recency buffer so new exam content appears immediately.
+  recentlyShown = [];
+  shownCounter = 0;
+  persist();
+}
+
+export function addSelectedExam(e: Exclude<ExamType, "both">) {
+  if (state.selectedExams.includes(e)) return;
+  state.selectedExams = [...state.selectedExams, e];
+  recentlyShown = [];
+  shownCounter = 0;
+  pushToast({ label: `${e.toUpperCase()} added to your study set.` });
+  persist();
+}
+
+export function removeSelectedExam(e: Exclude<ExamType, "both">) {
+  if (state.selectedExams.length <= 1) return; // never leave user with zero
+  state.selectedExams = state.selectedExams.filter((x) => x !== e);
+  recentlyShown = [];
+  shownCounter = 0;
+  persist();
+}
+
+/** Clear the module-local "recently shown" buffer so the feed reshuffles with fresh picks. */
+export function reshuffleFeed() {
+  recentlyShown = [];
+  shownCounter = 0;
+  pushToast({ label: "Feed shuffled. Fresh set of words coming up." });
+}
+
+/** Re-arm the onboarding tutorial so it plays again on next visit to /app. */
+export function restartTutorial() {
+  if (typeof window === "undefined") return;
+  try { localStorage.setItem("lexiq:show-tutorial", "1"); } catch { /* ignore */ }
+  pushToast({ label: "Tutorial ready — open the swipe feed to replay it." });
+}
+
+/** Counts of learned words per exam, based on the current selection. */
+export function examProgressBreakdown(): Array<{
+  exam: Exclude<ExamType, "both">;
+  learned: number;
+  total: number;
+}> {
+  return state.selectedExams.map((e) => {
+    let learned = 0;
+    let total = 0;
+    for (const w of VOCAB_ALL) {
+      if (!wordMatchesExam(w, e)) continue;
+      total += 1;
+      const m = state.words[w.id]?.mastery;
+      if (m && m !== "unknown") learned += 1;
+    }
+    return { exam: e, learned, total };
+  });
+}
+
 export function setCheckpointInterval(n: number) {
   const clamped = Math.max(5, Math.min(100, Math.round(n)));
   state = {

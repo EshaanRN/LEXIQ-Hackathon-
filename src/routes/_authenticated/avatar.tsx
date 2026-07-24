@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield, Gift } from "lucide-react";
+import { ArrowLeft, LogOut, FileText, Check, Crown, CreditCard, Shield, Gift, PlayCircle } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { XPToast } from "@/components/XPToast";
-import { clearState, setAvatar, useGame } from "@/lib/game-store";
+import { clearState, setAvatar, useGame, restartTutorial } from "@/lib/game-store";
 import { PRESET_AVATARS } from "@/lib/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarBuilder } from "@/routes/_authenticated/onboarding";
@@ -92,7 +92,17 @@ function AvatarPage() {
 
       <div className="mt-8 rounded-2xl bg-surface-2 ring-1 ring-border">
         <p className="px-4 pt-4 text-[10px] uppercase tracking-widest text-muted-foreground">Account</p>
-        <Link to="/premium" className="flex items-center gap-3 px-4 py-3 text-sm font-semibold hover:bg-surface">
+        <button
+          onClick={() => {
+            restartTutorial();
+            navigate({ to: "/app" });
+          }}
+          className="flex w-full items-center gap-3 px-4 py-3 text-sm font-semibold hover:bg-surface"
+        >
+          <PlayCircle className="h-4 w-4 text-primary" />
+          Replay Tutorial
+        </button>
+        <Link to="/premium" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
           <Crown className="h-4 w-4 text-gold" />
           Lexiq Premium
         </Link>
