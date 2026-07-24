@@ -185,6 +185,7 @@ async function syncProfile() {
       rootBonusGiven: state.rootBonusGiven,
       activeMs: state.activeMs,
       lastBonusActiveMs: state.lastBonusActiveMs,
+      selectedExams: state.selectedExams,
     };
     const { syncClientProgress } = await import("@/lib/progress.functions");
     await syncClientProgress({
