@@ -322,6 +322,7 @@ export function applyProfile(p: {
     rootBonusGiven?: string[];
     activeMs?: number;
     lastBonusActiveMs?: number;
+    selectedExams?: Exclude<ExamType, "both">[];
   } | null | undefined;
   if (cs && typeof cs === "object" && cs.syncedAt) {
     const localSyncedAt = (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt ?? 0;
