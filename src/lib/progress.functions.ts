@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const SyncProgressInput = z.object({
   avatar: z.record(z.string(), z.unknown()).optional(),
-  exam: z.enum(["sat", "act", "both"]).optional(),
+  exam: z.enum(["sat", "act", "gre", "lsat", "mcat", "toefl", "ielts", "both"]).optional(),
   checkpointInterval: z.number().int().min(5).max(100).optional(),
   dailyGoal: z.number().int().min(1).max(200).optional(),
   masteryScores: z.record(z.string(), z.number().min(0).max(100)).optional(),
