@@ -7,6 +7,7 @@ import { clearState, setAvatar, useGame, restartTutorial } from "@/lib/game-stor
 import { PRESET_AVATARS } from "@/lib/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarBuilder } from "@/routes/_authenticated/onboarding";
+import { ExamProgressStrip } from "@/components/ExamProgressStrip";
 
 export const Route = createFileRoute("/_authenticated/avatar")({
   ssr: false,
@@ -49,6 +50,10 @@ function AvatarPage() {
         <Avatar equipped={g.avatar} size={140} />
         <p className="mt-3 font-display text-lg font-bold">{g.username ?? "Player"}</p>
         <p className="text-xs uppercase tracking-widest text-muted-foreground">{g.rank}</p>
+      </div>
+
+      <div className="-mx-5">
+        <ExamProgressStrip />
       </div>
 
       <div className="mt-2">

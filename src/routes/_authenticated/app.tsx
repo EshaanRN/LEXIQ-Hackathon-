@@ -10,7 +10,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { DailyGoal } from "@/components/DailyGoal";
 import { NoxTutorial } from "@/components/NoxTutorial";
 import { StudyModeSelector } from "@/components/StudyModeSelector";
-import { ExamProgressStrip } from "@/components/ExamProgressStrip";
+
 import { AddCustomWordDialog } from "@/components/AddCustomWordDialog";
 import { loadCustomVocab } from "@/lib/custom-vocab";
 import {
@@ -169,7 +169,7 @@ function Feed() {
           setQueue(initial);
         }}
       />
-      <ExamProgressStrip />
+      
       <div className="mt-2 flex items-center gap-2 mx-5">
         <div className="flex-1"><SearchBar onSelect={setViewing} onAddRequest={(q) => { setAddInitial(q); setAddOpen(true); }} /></div>
         <button
