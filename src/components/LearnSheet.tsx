@@ -91,7 +91,12 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
             </div>
 
             <Section icon={<BookOpen className="h-3.5 w-3.5" />} label="Definition" tone="primary">
-              <p className="text-sm leading-relaxed text-foreground/90">{word.studentDefinition}</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{word.definition}</p>
+              {word.studentDefinition && word.studentDefinition !== word.definition && (
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  In plain words: {word.studentDefinition}
+                </p>
+              )}
             </Section>
 
             {word.synonyms && word.synonyms.length > 0 && (
@@ -106,9 +111,12 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
               </Section>
             )}
 
+            <InterestExamples wordId={word.id} />
+
             <Section label="SAT Example" tone="accent">
               <p className="text-sm italic text-foreground/80">"{word.satContext}"</p>
             </Section>
+
 
             <Section label="Root Analysis" tone="primary">
               <div className="flex flex-wrap gap-2 font-display text-base">
