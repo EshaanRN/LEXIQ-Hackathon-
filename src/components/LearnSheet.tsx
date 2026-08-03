@@ -4,6 +4,8 @@ import { useRef, useState, useEffect } from "react";
 import type { VocabWord } from "@/data/vocab";
 import { speak } from "@/lib/speak";
 import { toggleReviewFlag, getState } from "@/lib/game-store";
+import { examplesFor, getInterests, loadInterestExamples } from "@/lib/interests";
+
 
 interface Props {
   word: VocabWord | null;
