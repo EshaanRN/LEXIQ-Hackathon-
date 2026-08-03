@@ -1,21 +1,9 @@
 import { VOCAB, type VocabWord, type ExamType } from "./vocab";
-import { VOCAB_GRE } from "./vocab-gre";
-import { VOCAB_LSAT } from "./vocab-lsat";
-import { VOCAB_MCAT } from "./vocab-mcat";
-import { VOCAB_TOEFL } from "./vocab-toefl";
-import { VOCAB_IELTS } from "./vocab-ielts";
 
 /** Merged pool of every exam's words. Custom words are appended at runtime by
  *  `src/lib/custom-vocab.ts`. This is the single source of truth for the swipe
  *  feed once exams beyond SAT/ACT are seeded. */
-export const VOCAB_ALL: VocabWord[] = [
-  ...VOCAB,
-  ...VOCAB_GRE,
-  ...VOCAB_LSAT,
-  ...VOCAB_MCAT,
-  ...VOCAB_TOEFL,
-  ...VOCAB_IELTS,
-];
+export const VOCAB_ALL: VocabWord[] = [...VOCAB];
 
 /** Apply an exam-specific variant on top of a word, if the word declares one for
  *  the active exam. Returns a shallow copy so callers can safely spread. */
@@ -53,7 +41,7 @@ export const EXAM_META: Record<Exclude<ExamType, "both">, { label: string; short
   ielts: { label: "IELTS", short: "IELTS", blurb: "Band 7–9 Task 2 vocab, formal alternatives." },
 };
 
-export const EXAM_ORDER: Exclude<ExamType, "both">[] = ["sat", "act", "gre", "lsat", "mcat", "toefl", "ielts"];
+export const EXAM_ORDER: Exclude<ExamType, "both">[] = ["sat", "act"];
 
 /** Count of eligible words for each exam, for display in pickers. */
 export function examCounts(): Record<Exclude<ExamType, "both">, number> {
