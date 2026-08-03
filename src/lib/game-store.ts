@@ -267,9 +267,14 @@ export function loadStateForUser(userId: string) {
     next.checkpointPromptedAtTotal = next.wordsLearnedTotal;
   }
   // Backfill selectedExams for users saved before the multi-exam era.
-  if (!Array.isArray(next.selectedExams) || next.selectedExams.length === 0) {
-    const primary = next.exam === "both" ? "sat" : next.exam;
+  if (!Array.isArray(next.selectedExams)) next.selectedExams = [];
+  next.selectedExams = next.selectedExams.filter((e) => e === "sat" || e === "act");
+  if (next.selectedExams.length === 0) {
+    const primary = next.exam === "act" ? "act" : "sat";
     next.selectedExams = [primary as Exclude<ExamType, "both">];
+  }
+  if (next.exam !== "sat" && next.exam !== "act" && next.exam !== "both") {
+    next.exam = next.selectedExams[0];
   }
   state = next;
   notify();
@@ -352,9 +357,10 @@ export function applyProfile(p: {
         rootBonusGiven: Array.from(new Set([...state.rootBonusGiven, ...(cs.rootBonusGiven ?? [])])),
         activeMs: Math.max(state.activeMs, cs.activeMs ?? 0),
         lastBonusActiveMs: Math.max(state.lastBonusActiveMs, cs.lastBonusActiveMs ?? 0),
-        selectedExams: Array.isArray(cs.selectedExams) && cs.selectedExams.length > 0
-          ? cs.selectedExams
-          : state.selectedExams,
+        selectedExams: (() => {
+          const remote = (cs.selectedExams ?? []).filter((e) => e === "sat" || e === "act");
+          return remote.length > 0 ? remote : state.selectedExams;
+        })(),
       };
       (state as unknown as { _lastSyncedAt?: number })._lastSyncedAt = cs.syncedAt;
     }
