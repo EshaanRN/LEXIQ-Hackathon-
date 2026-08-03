@@ -166,8 +166,67 @@ function ScoreGain() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Interest-tuned example rotator                                            */
+/* -------------------------------------------------------------------------- */
+
+const INTEREST_PROOF = [
+  {
+    tag: "⚽ Sports",
+    word: "lament",
+    sentence: "LeBron lamented the Lakers' collapse, insisting one player cannot carry a title run alone.",
+  },
+  {
+    tag: "🎮 Gaming",
+    word: "tenacious",
+    sentence: "Only the most tenacious players ever finish an Elden Ring no-hit run.",
+  },
+  {
+    tag: "🎵 Music",
+    word: "prolific",
+    sentence: "Taylor Swift is so prolific that fans need a spreadsheet to track the re-releases.",
+  },
+  {
+    tag: "🔬 Science",
+    word: "empirical",
+    sentence: "Rosalind Franklin's empirical X-ray images made the double helix impossible to deny.",
+  },
+  {
+    tag: "🍕 Food",
+    word: "meticulous",
+    sentence: "A meticulous ramen chef will time the egg to the second, every single bowl.",
+  },
+];
+
+function InterestProof() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % INTEREST_PROOF.length), 3400);
+    return () => clearInterval(t);
+  }, []);
+  const e = INTEREST_PROOF[i];
+  return (
+    <div className="mx-auto mt-8 w-full max-w-lg rounded-2xl border border-border/60 bg-card/60 p-4 text-left backdrop-blur lg:mx-0">
+      <div className="flex items-center justify-between">
+        <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground ring-1 ring-border">
+          {e.tag}
+        </span>
+        <span className="font-display text-sm font-bold text-primary">{e.word}</span>
+      </div>
+      <p key={e.word} className="animate-in fade-in slide-in-from-bottom-1 duration-500 mt-3 text-sm leading-relaxed text-foreground/90">
+        “{e.sentence}”
+      </p>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        Same word. Twelve different worlds. Pick yours in onboarding.
+      </p>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Main landing page                                                         */
 /* -------------------------------------------------------------------------- */
+
+
 
 export function LandingPage() {
   useEffect(() => {
@@ -204,16 +263,24 @@ export function LandingPage() {
         <div className="relative text-center lg:text-left">
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 inline-flex items-center gap-2 rounded-full bg-surface-2/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground ring-1 ring-border backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Built for SAT &amp; ACT
+            2,000+ real SAT &amp; ACT words
           </div>
 
-          <h1 className="animate-in fade-in slide-in-from-bottom-4 duration-700 mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight sm:text-7xl">
-            Vocabulary,
-            <br />
+          <h1 className="animate-in fade-in slide-in-from-bottom-4 duration-700 mt-6 font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
+            <span className="block">1,000 words</span>
+            <span className="block text-muted-foreground/70">between you</span>
             <span className="relative inline-block">
               <span className="bg-gradient-to-br from-primary via-accent to-primary bg-[length:200%_200%] bg-clip-text text-transparent [animation:lex-aurora_6s_ease-in-out_infinite]">
-                reimagined.
+                and a 1500.
               </span>
+              <svg
+                aria-hidden
+                viewBox="0 0 300 12"
+                className="absolute -bottom-2 left-0 h-3 w-full text-primary/60"
+                preserveAspectRatio="none"
+              >
+                <path d="M2 8 C 60 2, 120 11, 180 5 S 260 3, 298 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
             </span>
           </h1>
           <style>{`
@@ -223,23 +290,16 @@ export function LandingPage() {
             }
           `}</style>
 
-          <p className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 mx-auto mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl lg:mx-0">
-            Swipe through the words that actually show up on the SAT and ACT.
-            Personalized. Addictive. Designed to make every minute count.
+          <p className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 mx-auto mt-8 max-w-xl text-lg text-muted-foreground sm:text-xl lg:mx-0">
+            Lexiq learns what you like — basketball, anime, chemistry, whatever —
+            then writes every example sentence around it. Swipe five minutes a
+            day and the words stop feeling like flashcards.
           </p>
 
-          {/* Star rating ribbon */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs lg:justify-start">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3 py-1.5 backdrop-blur">
-              <div className="flex gap-0.5 text-gold">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                ))}
-              </div>
-              <span className="font-semibold">4.9</span>
-              <span className="text-muted-foreground">· loved by 12,000+ students</span>
-            </div>
-          </div>
+          {/* Example-sentence rotator — shows the personalization promise */}
+          <InterestProof />
+
+
 
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 mt-8 flex flex-col items-center gap-3 sm:flex-row lg:items-start">
             <Link
