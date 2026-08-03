@@ -93,8 +93,8 @@ function PrivacyPage() {
           <Block title="5. Subprocessors and data sharing">
             We share data with the following categories of service providers strictly to operate the Service:
             <ul className="mt-2 list-disc space-y-1 pl-5">
-              <li><strong>Hosting & database:</strong> the Lovable platform (Cloudflare, Supabase Auth & Postgres).</li>
-              <li><strong>AI pronunciation:</strong> the Lovable AI Gateway routing to OpenAI for text-to-speech.</li>
+              <li><strong>Hosting & database:</strong> managed cloud infrastructure (edge hosting, managed Postgres, and managed authentication).</li>
+              <li><strong>AI pronunciation:</strong> our AI gateway, routing to OpenAI for text-to-speech.</li>
               <li><strong>Identity:</strong> Google (for Google Sign-In).</li>
               <li>
                 <strong>Payments and Merchant of Record:</strong>{" "}

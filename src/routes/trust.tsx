@@ -49,7 +49,7 @@ function TrustPage() {
           </Block>
 
           <Block title="Hosting & platform">
-            Lexiq runs on the Lovable platform, which provides hosting, the application
+            Lexiq runs on managed cloud infrastructure that provides hosting, the application
             database, authentication, and serverless functions. This describes enabled platform
             capabilities; it is not a third-party certification.
           </Block>
@@ -66,9 +66,9 @@ function TrustPage() {
           </Block>
 
           <Block title="Subprocessors & integrations">
-            Lexiq uses Lovable (hosting, database, auth, functions) and an AI provider routed
-            through the Lovable AI Gateway to generate pronunciations and learning content.
-            Voice and text requests are sent to that gateway to produce a response and are not
+            Lexiq uses managed cloud providers (hosting, database, auth, serverless functions)
+            and an AI provider routed through our AI gateway to generate pronunciations and
+            learning content. Voice and text requests are sent to that gateway to produce a response and are not
             used to identify you to third parties by Lexiq.
           </Block>
 
@@ -83,8 +83,8 @@ function TrustPage() {
           </Block>
 
           <Block title="Shared responsibility">
-            Lexiq is responsible for the application code and configuration. The Lovable
-            platform is responsible for the underlying hosting, database, and auth
+            Lexiq is responsible for the application code and configuration. Our cloud
+            infrastructure providers are responsible for the underlying hosting, database, and auth
             infrastructure. You are responsible for keeping your login credentials secure and
             for the content you submit.
           </Block>

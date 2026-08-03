@@ -1,3 +1,4 @@
+import { saveInterests } from "@/lib/interests";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -133,6 +134,7 @@ function Onboarding() {
     const startingRank = rankFromScore(correct);
     const finalUsername = username.trim() || `Player${Math.floor(Math.random() * 9999)}`;
     const owned = defaultOwned();
+    saveInterests(interests);
     try {
       await completeOnboarding({
         data: {

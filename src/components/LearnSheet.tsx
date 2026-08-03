@@ -4,6 +4,8 @@ import { useRef, useState, useEffect } from "react";
 import type { VocabWord } from "@/data/vocab";
 import { speak } from "@/lib/speak";
 import { toggleReviewFlag, getState } from "@/lib/game-store";
+import { examplesFor, getInterests, loadInterestExamples } from "@/lib/interests";
+
 
 interface Props {
   word: VocabWord | null;
@@ -91,7 +93,12 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
             </div>
 
             <Section icon={<BookOpen className="h-3.5 w-3.5" />} label="Definition" tone="primary">
-              <p className="text-sm leading-relaxed text-foreground/90">{word.studentDefinition}</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{word.definition}</p>
+              {word.studentDefinition && word.studentDefinition !== word.definition && (
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  In plain words: {word.studentDefinition}
+                </p>
+              )}
             </Section>
 
             {word.synonyms && word.synonyms.length > 0 && (
@@ -106,9 +113,12 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
               </Section>
             )}
 
+            <InterestExamples wordId={word.id} />
+
             <Section label="SAT Example" tone="accent">
               <p className="text-sm italic text-foreground/80">"{word.satContext}"</p>
             </Section>
+
 
             <Section label="Root Analysis" tone="primary">
               <div className="flex flex-wrap gap-2 font-display text-base">
@@ -172,6 +182,47 @@ export function LearnSheet({ word, onLearned, onSkip, viewOnly }: Props) {
     </AnimatePresence>
   );
 }
+
+/** Example sentences tuned to what the student actually cares about. */
+function InterestExamples({ wordId }: { wordId: string }) {
+  const [items, setItems] = useState<{ key: string; label: string; sentence: string }[]>([]);
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    setIdx(0);
+    loadInterestExamples().then((bank) => {
+      if (!alive) return;
+      setItems(examplesFor(wordId, getInterests(), bank));
+    });
+    return () => { alive = false; };
+  }, [wordId]);
+
+  if (items.length === 0) return null;
+  const it = items[Math.min(idx, items.length - 1)];
+
+  return (
+    <Section label="In your world" tone="dashed">
+      <div className="flex flex-wrap gap-1.5">
+        {items.slice(0, 6).map((x, i) => (
+          <button
+            key={x.key}
+            onClick={() => setIdx(i)}
+            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1 transition ${
+              i === Math.min(idx, items.length - 1)
+                ? "bg-primary/20 text-primary ring-primary/40"
+                : "bg-surface-2 text-muted-foreground ring-border hover:text-primary"
+            }`}
+          >
+            {x.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-foreground/90">“{it.sentence}”</p>
+    </Section>
+  );
+}
+
 
 function Section({
   icon,
