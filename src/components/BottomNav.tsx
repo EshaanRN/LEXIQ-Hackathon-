@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Layers, ShoppingBag, Target, BarChart3, History, User, MessageCircle } from "lucide-react";
-import owl from "@/assets/lexiq-owl-transparent.png";
+import owlAsset from "@/assets/lexiq-owl-transparent.png.asset.json";
+
+const owl = owlAsset.url;
 
 export function BottomNav() {
   const isTransitioning = useRouterState({ select: (s) => s.isLoading || s.isTransitioning });

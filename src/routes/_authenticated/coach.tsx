@@ -4,7 +4,9 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import owl from "@/assets/lexiq-owl-transparent.png";
+import owlAsset from "@/assets/lexiq-owl-transparent.png.asset.json";
+
+const owl = owlAsset.url;
 import {
   Conversation,
   ConversationContent,
