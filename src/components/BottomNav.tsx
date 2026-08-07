@@ -15,7 +15,7 @@ export function BottomNav() {
           to="/coach"
           preload="intent"
           aria-label="Ask Nox about a word"
-          className="fixed bottom-28 right-3 z-40 flex items-center gap-2 rounded-full border border-primary/40 bg-card/90 py-2 pl-2 pr-4 shadow-lg backdrop-blur transition hover:-translate-y-0.5 hover:border-primary active:scale-95 mb-[env(safe-area-inset-bottom)]"
+          className="fixed bottom-44 right-3 z-40 flex items-center gap-2 rounded-full border border-primary/40 bg-card/90 py-2 pl-2 pr-4 shadow-lg backdrop-blur transition hover:-translate-y-0.5 hover:border-primary active:scale-95 mb-[env(safe-area-inset-bottom)]"
         >
           <img src={owl} alt="" className="h-7 w-7 object-contain" />
           <span className="font-display text-[11px] font-bold uppercase tracking-widest text-primary">
