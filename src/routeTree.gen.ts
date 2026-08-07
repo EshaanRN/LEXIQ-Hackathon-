@@ -32,6 +32,7 @@ import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedReferRouteImport } from './routes/_authenticated/refer'
 import { Route as AuthenticatedSatPracticeRouteImport } from './routes/_authenticated/sat-practice'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -151,6 +152,11 @@ const AuthenticatedShopRoute = AuthenticatedShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/refer': typeof AuthenticatedReferRoute
   '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
+  '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/refer': typeof AuthenticatedReferRoute
   '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
+  '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/_authenticated/refer': typeof AuthenticatedReferRoute
   '/_authenticated/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
+  '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/refer'
     | '/sat-practice'
     | '/shop'
+    | '/api/chat'
     | '/blog/$slug'
     | '/blog/'
     | '/api/public/payments/webhook'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/refer'
     | '/sat-practice'
     | '/shop'
+    | '/api/chat'
     | '/blog/$slug'
     | '/blog'
     | '/api/public/payments/webhook'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/_authenticated/refer'
     | '/_authenticated/sat-practice'
     | '/_authenticated/shop'
+    | '/api/chat'
     | '/blog/$slug'
     | '/blog/'
     | '/api/public/payments/webhook'
@@ -348,6 +360,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   WelcomeRoute: typeof WelcomeRoute
+  ApiChatRoute: typeof ApiChatRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -516,6 +529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShopRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -585,6 +605,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   WelcomeRoute: WelcomeRoute,
+  ApiChatRoute: ApiChatRoute,
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -592,13 +613,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
