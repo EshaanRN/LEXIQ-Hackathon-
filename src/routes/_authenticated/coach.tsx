@@ -88,7 +88,7 @@ function CoachPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 pb-28 pt-4">
+    <div className="mx-auto flex h-screen w-full max-w-2xl flex-col px-4 pb-[13rem] pt-4">
       <header className="flex items-center gap-3">
         <Link
           to="/app"
