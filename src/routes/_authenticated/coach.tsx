@@ -88,7 +88,7 @@ function CoachPage() {
   }
 
   return (
-    <div className="mx-auto flex h-screen w-full max-w-2xl flex-col px-4 pb-[13rem] pt-4">
+    <div className="mx-auto flex h-screen w-full max-w-2xl flex-col px-4 pb-24 pt-4">
       <header className="flex items-center gap-3">
         <Link
           to="/app"
@@ -104,7 +104,7 @@ function CoachPage() {
         </div>
       </header>
 
-      <Conversation className="mt-4 flex-1">
+      <Conversation className="mt-4 min-h-0 flex-1">
         <ConversationContent className="gap-4">
           {messages.length === 0 && (
             <div className="mt-6 text-center">
