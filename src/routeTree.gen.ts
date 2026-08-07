@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAvatarRouteImport } from './routes/_authenticated/avatar'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedCheckpointRouteImport } from './routes/_authenticated/checkpoint'
+import { Route as AuthenticatedCoachRouteImport } from './routes/_authenticated/coach'
 import { Route as AuthenticatedCustomTestRouteImport } from './routes/_authenticated/custom-test'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
@@ -111,6 +112,11 @@ const AuthenticatedCheckpointRoute = AuthenticatedCheckpointRouteImport.update({
   path: '/checkpoint',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCoachRoute = AuthenticatedCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCustomTestRoute = AuthenticatedCustomTestRouteImport.update({
   id: '/custom-test',
   path: '/custom-test',
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/coach': typeof AuthenticatedCoachRoute
   '/custom-test': typeof AuthenticatedCustomTestRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
@@ -217,6 +224,7 @@ export interface FileRoutesByTo {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/coach': typeof AuthenticatedCoachRoute
   '/custom-test': typeof AuthenticatedCustomTestRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/_authenticated/coach': typeof AuthenticatedCoachRoute
   '/_authenticated/custom-test': typeof AuthenticatedCustomTestRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/billing'
     | '/checkpoint'
+    | '/coach'
     | '/custom-test'
     | '/dashboard'
     | '/history'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/billing'
     | '/checkpoint'
+    | '/coach'
     | '/custom-test'
     | '/dashboard'
     | '/history'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/_authenticated/avatar'
     | '/_authenticated/billing'
     | '/_authenticated/checkpoint'
+    | '/_authenticated/coach'
     | '/_authenticated/custom-test'
     | '/_authenticated/dashboard'
     | '/_authenticated/history'
@@ -473,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckpointRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/coach': {
+      id: '/_authenticated/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof AuthenticatedCoachRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/custom-test': {
       id: '/_authenticated/custom-test'
       path: '/custom-test'
@@ -565,6 +584,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvatarRoute: typeof AuthenticatedAvatarRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCheckpointRoute: typeof AuthenticatedCheckpointRoute
+  AuthenticatedCoachRoute: typeof AuthenticatedCoachRoute
   AuthenticatedCustomTestRoute: typeof AuthenticatedCustomTestRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
@@ -580,6 +600,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvatarRoute: AuthenticatedAvatarRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCheckpointRoute: AuthenticatedCheckpointRoute,
+  AuthenticatedCoachRoute: AuthenticatedCoachRoute,
   AuthenticatedCustomTestRoute: AuthenticatedCustomTestRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
