@@ -155,7 +155,7 @@ function CoachPage() {
         <ConversationScrollButton />
       </Conversation>
 
-      <div className="fixed inset-x-0 bottom-[4.25rem] z-40 mx-auto w-full max-w-2xl border-t border-border bg-background px-4 pb-3 pt-3">
+      <div className="shrink-0 pt-3">
         <PromptInput
           onSubmit={(msg) => {
             void send(msg.text ?? "");
