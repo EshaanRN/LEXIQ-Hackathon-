@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAvatarRouteImport } from './routes/_authenticated/avatar'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedCheckpointRouteImport } from './routes/_authenticated/checkpoint'
+import { Route as AuthenticatedCoachRouteImport } from './routes/_authenticated/coach'
 import { Route as AuthenticatedCustomTestRouteImport } from './routes/_authenticated/custom-test'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
@@ -32,6 +33,7 @@ import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedReferRouteImport } from './routes/_authenticated/refer'
 import { Route as AuthenticatedSatPracticeRouteImport } from './routes/_authenticated/sat-practice'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -110,6 +112,11 @@ const AuthenticatedCheckpointRoute = AuthenticatedCheckpointRouteImport.update({
   path: '/checkpoint',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCoachRoute = AuthenticatedCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCustomTestRoute = AuthenticatedCustomTestRouteImport.update({
   id: '/custom-test',
   path: '/custom-test',
@@ -151,6 +158,11 @@ const AuthenticatedShopRoute = AuthenticatedShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -183,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/coach': typeof AuthenticatedCoachRoute
   '/custom-test': typeof AuthenticatedCustomTestRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
@@ -191,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/refer': typeof AuthenticatedReferRoute
   '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
+  '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -210,6 +224,7 @@ export interface FileRoutesByTo {
   '/avatar': typeof AuthenticatedAvatarRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/coach': typeof AuthenticatedCoachRoute
   '/custom-test': typeof AuthenticatedCustomTestRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
@@ -218,6 +233,7 @@ export interface FileRoutesByTo {
   '/refer': typeof AuthenticatedReferRoute
   '/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/shop': typeof AuthenticatedShopRoute
+  '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -239,6 +255,7 @@ export interface FileRoutesById {
   '/_authenticated/avatar': typeof AuthenticatedAvatarRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/checkpoint': typeof AuthenticatedCheckpointRoute
+  '/_authenticated/coach': typeof AuthenticatedCoachRoute
   '/_authenticated/custom-test': typeof AuthenticatedCustomTestRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
@@ -247,6 +264,7 @@ export interface FileRoutesById {
   '/_authenticated/refer': typeof AuthenticatedReferRoute
   '/_authenticated/sat-practice': typeof AuthenticatedSatPracticeRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
+  '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -268,6 +286,7 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/billing'
     | '/checkpoint'
+    | '/coach'
     | '/custom-test'
     | '/dashboard'
     | '/history'
@@ -276,6 +295,7 @@ export interface FileRouteTypes {
     | '/refer'
     | '/sat-practice'
     | '/shop'
+    | '/api/chat'
     | '/blog/$slug'
     | '/blog/'
     | '/api/public/payments/webhook'
@@ -295,6 +315,7 @@ export interface FileRouteTypes {
     | '/avatar'
     | '/billing'
     | '/checkpoint'
+    | '/coach'
     | '/custom-test'
     | '/dashboard'
     | '/history'
@@ -303,6 +324,7 @@ export interface FileRouteTypes {
     | '/refer'
     | '/sat-practice'
     | '/shop'
+    | '/api/chat'
     | '/blog/$slug'
     | '/blog'
     | '/api/public/payments/webhook'
@@ -323,6 +345,7 @@ export interface FileRouteTypes {
     | '/_authenticated/avatar'
     | '/_authenticated/billing'
     | '/_authenticated/checkpoint'
+    | '/_authenticated/coach'
     | '/_authenticated/custom-test'
     | '/_authenticated/dashboard'
     | '/_authenticated/history'
@@ -331,6 +354,7 @@ export interface FileRouteTypes {
     | '/_authenticated/refer'
     | '/_authenticated/sat-practice'
     | '/_authenticated/shop'
+    | '/api/chat'
     | '/blog/$slug'
     | '/blog/'
     | '/api/public/payments/webhook'
@@ -348,6 +372,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   WelcomeRoute: typeof WelcomeRoute
+  ApiChatRoute: typeof ApiChatRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -460,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckpointRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/coach': {
+      id: '/_authenticated/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof AuthenticatedCoachRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/custom-test': {
       id: '/_authenticated/custom-test'
       path: '/custom-test'
@@ -516,6 +548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShopRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -545,6 +584,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvatarRoute: typeof AuthenticatedAvatarRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCheckpointRoute: typeof AuthenticatedCheckpointRoute
+  AuthenticatedCoachRoute: typeof AuthenticatedCoachRoute
   AuthenticatedCustomTestRoute: typeof AuthenticatedCustomTestRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
@@ -560,6 +600,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvatarRoute: AuthenticatedAvatarRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCheckpointRoute: AuthenticatedCheckpointRoute,
+  AuthenticatedCoachRoute: AuthenticatedCoachRoute,
   AuthenticatedCustomTestRoute: AuthenticatedCustomTestRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
@@ -585,6 +626,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   WelcomeRoute: WelcomeRoute,
+  ApiChatRoute: ApiChatRoute,
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -592,13 +634,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
