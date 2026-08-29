@@ -8,9 +8,8 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/_authenticated/premium")({
   ssr: false,
-  validateSearch: (s: Record<string, unknown>) => ({
-    checkout: s.checkout === "success" ? ("success" as const) : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { checkout?: "success" } =>
+    s.checkout === "success" ? { checkout: "success" } : {},
   component: PremiumPage,
 });
 

@@ -152,7 +152,7 @@ function Feed() {
   }, [queue, learning]);
 
   return (
-    <main className="mx-auto flex h-screen w-full max-w-2xl flex-col pb-20">
+    <main className="mx-auto flex h-[100dvh] min-h-[100dvh] w-full max-w-2xl flex-col pb-20">
       <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
@@ -198,15 +198,19 @@ function Feed() {
         </button>
       </div>
 
-      <div className="relative mx-5 my-3 flex-1 min-h-0">
-
-        <AnimatePresence>
-          {queue.slice(0, 1).map((w) => (
-            <div key={w.id} className="absolute inset-0" style={{ zIndex: 10 }}>
-              <SwipeCard word={w} onKnown={handleKnown} onUnknown={handleUnknown} active />
-            </div>
-          ))}
-        </AnimatePresence>
+      {/* Keep the card portrait (TikTok-like) on every screen: height drives the
+          card and the aspect ratio derives the width, so short laptop/iPad
+          viewports get a narrower card instead of a flattened one. */}
+      <div className="mx-5 my-3 flex flex-1 min-h-[380px] items-center justify-center">
+        <div className="relative h-full max-h-[40rem] w-full max-w-[26rem] sm:aspect-[9/14] sm:w-auto">
+          <AnimatePresence>
+            {queue.slice(0, 1).map((w) => (
+              <div key={w.id} className="absolute inset-0" style={{ zIndex: 10 }}>
+                <SwipeCard word={w} onKnown={handleKnown} onUnknown={handleUnknown} active />
+              </div>
+            ))}
+          </AnimatePresence>
+        </div>
       </div>
 
       <p className="hidden md:block pb-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground">
