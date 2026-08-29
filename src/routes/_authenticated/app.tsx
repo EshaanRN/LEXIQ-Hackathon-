@@ -152,7 +152,7 @@ function Feed() {
   }, [queue, learning]);
 
   return (
-    <main className="mx-auto flex h-screen w-full max-w-2xl flex-col pb-20">
+    <main className="mx-auto flex h-[100dvh] min-h-[100dvh] w-full max-w-2xl flex-col pb-20">
       <h1 className="sr-only">Lexiq vocabulary feed</h1>
       <HUD />
       <RankBar />
