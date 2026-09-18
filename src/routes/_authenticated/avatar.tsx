@@ -132,6 +132,14 @@ function AvatarPage() {
           <Shield className="h-4 w-4 text-muted-foreground" />
           Privacy Policy
         </Link>
+        <Link to="/cookies" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
+          <Shield className="h-4 w-4 text-muted-foreground" />
+          Cookie Policy
+        </Link>
+        <Link to="/data-request" className="flex items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold hover:bg-surface">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          Delete account or export my data
+        </Link>
         <button
           onClick={handleLogout}
           disabled={loggingOut}

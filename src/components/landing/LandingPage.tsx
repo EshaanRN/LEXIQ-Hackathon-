@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { openCookieSettings } from "@/components/CookieConsent";
 import {
   ArrowRight,
   Sparkles,
