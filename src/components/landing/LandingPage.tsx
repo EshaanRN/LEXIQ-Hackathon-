@@ -12,7 +12,6 @@ import {
   Zap,
   Heart,
   ShoppingBag,
-  Star,
   CheckCircle2,
   X,
   Mic,
