@@ -655,9 +655,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-  );
-}
-
 function PhoneMockup() {
   return (
     <div className="relative [transform-style:preserve-3d] [transform:rotateY(-10deg)_rotateX(6deg)]">
