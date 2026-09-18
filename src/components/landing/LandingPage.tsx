@@ -129,13 +129,13 @@ function ScoreGain() {
   return (
     <div id="score-gain" className="rounded-3xl border border-border bg-card/60 p-8 backdrop-blur">
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-        <span>Avg. SAT reading score</span>
-        <span className="text-success">+{after - before} pts</span>
+        <span>Example reading goal</span>
+        <span className="text-success">Illustration</span>
       </div>
       <div className="mt-6 space-y-5">
         <div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-muted-foreground">Before Lexiq</span>
+            <span className="font-semibold text-muted-foreground">Starting score</span>
             <span className="font-display font-bold">{before}</span>
           </div>
           <div className="mt-2 h-3 overflow-hidden rounded-full bg-surface-2">
@@ -147,7 +147,7 @@ function ScoreGain() {
         </div>
         <div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-primary">After 6 weeks</span>
+            <span className="font-semibold text-primary">Your target</span>
             <span className="font-display font-bold text-primary">{after}</span>
           </div>
           <div className="mt-2 h-3 overflow-hidden rounded-full bg-surface-2">
@@ -159,8 +159,8 @@ function ScoreGain() {
         </div>
       </div>
       <p className="mt-6 text-xs text-muted-foreground">
-        Based on self-reported practice-section scores from 1,200+ beta users
-        who used Lexiq at least 5 minutes a day.
+        Example numbers only — you set your own starting point and target score in Lexiq.
+        Lexiq does not promise or guarantee a score increase.
       </p>
     </div>
   );
