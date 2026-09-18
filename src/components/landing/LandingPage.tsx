@@ -380,25 +380,23 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* HOW IT FITS A STUDY ROUTINE */}
       <section className="mx-auto w-full max-w-6xl px-6 py-20">
-        <SectionLabel>What students say</SectionLabel>
+        <SectionLabel>How students use it</SectionLabel>
         <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight sm:text-5xl">
-          The reviews write themselves.
+          Five minutes that fit anywhere.
         </h2>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          Lexiq is new, so we'd rather show you the app than quote reviews we can't prove.
+          Here's how a study day usually looks.
+        </p>
         <div className="mt-12 grid gap-4 md:grid-cols-3">
-          <Quote
-            text="I went from skipping vocab to opening Lexiq before bed. It just feels good to swipe."
-            author="Maya, junior" gain="+120 reading"
-          />
-          <Quote
-            text="The AI checkpoints actually called me out when I faked a definition. My SAT reading jumped 80."
-            author="Devon, senior" gain="+80 reading"
-          />
-          <Quote
-            text="Other apps make me feel like I'm studying. This one feels like a game I happen to win."
-            author="Priya, sophomore" gain="+150 reading"
-          />
+          <Feature icon={<Clock className="h-5 w-5" />} title="Morning: one deck"
+            body="Swipe through today's words on the bus. Right if you know it, left if you don't." />
+          <Feature icon={<Target className="h-5 w-5" />} title="Evening: one checkpoint"
+            body="Prove a handful of words by typing or speaking the meaning, and see what still needs work." />
+          <Feature icon={<Brain className="h-5 w-5" />} title="Stuck? Ask Nox"
+            body="The built-in coach breaks a confusing word down into roots, synonyms, and test context." />
         </div>
       </section>
 
