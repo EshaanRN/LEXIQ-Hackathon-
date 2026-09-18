@@ -38,6 +38,13 @@ function CookiesPage() {
             <Row name="Advertising (future)" purpose="If we partner with an ad network, that network may set its own cookies. You will see a consent banner where required, and Premium users see no ads at all." consent="Opt-in (EEA/UK)" />
           </Block>
 
+          <Block title="Your consent">
+            The first time you visit, a banner asks whether you allow optional analytics and advertising
+            cookies. Nothing optional loads until you say yes, and rejecting them keeps every learning
+            feature working. You can change or withdraw consent at any time using the
+            {" "}<strong className="text-white">Cookie settings</strong> link in the site footer.
+          </Block>
+
           <Block title="Managing cookies">
             You can clear cookies and local storage at any time from your browser settings. Disabling strictly-necessary
             cookies will sign you out and prevent the Service from saving your progress. To opt out of Google's ads

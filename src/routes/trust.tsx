@@ -78,8 +78,46 @@ function TrustPage() {
           </Block>
 
           <Block title="Retention & deletion">
-            We keep your account data while your account is active. To request deletion of your
-            account and associated learning data, contact us at the address below.
+            We keep your account data while your account is active. You can request an export or full
+            deletion of your account and learning data at any time from our{" "}
+            <Link to="/data-request" className="text-primary underline">
+              data requests page
+            </Link>
+            . We confirm within 7 days and complete requests within 30 days, free of charge.
+          </Block>
+
+          <Block title="Data minimisation">
+            We ask only for what the app needs: an email address to hold your account, the study
+            preferences you choose, and your learning progress. We do not request your phone number,
+            location, contacts, camera, or files, and the microphone is used only while you are in
+            Speaking Mode.
+          </Block>
+
+          <Block title="Third-party code in the app">
+            The app loads: our hosting and database provider (sign-in, data), our AI gateway (word
+            explanations and pronunciations), Paddle (checkout, only on payment pages), and — only if
+            you accept advertising cookies — Google's ad script on the free tier. Optional analytics
+            and advertising scripts are never loaded before you consent, and consent can be changed
+            at any time from "Cookie settings" in the footer.
+          </Block>
+
+          <Block title="Emails we send">
+            Account, security, and billing emails are required while your account is open. Product or
+            marketing emails are optional, sent only with your consent, and every one includes a
+            one-click unsubscribe link; you can also opt out from the data requests page.
+          </Block>
+
+          <Block title="Fonts, artwork & content licensing">
+            Lexiq uses self-hosted open-source typefaces licensed under the SIL Open Font License.
+            Illustrations, the Nox mascot, and screenshots are original work owned by LEXIQ or licensed
+            for commercial use. Vocabulary definitions and examples are written for Lexiq.
+          </Block>
+
+          <Block title="Pricing & claims">
+            Premium pricing is shown in full before checkout with no setup or hidden fees, taxes are
+            calculated by Paddle at checkout, and subscriptions can be cancelled at any time. Any
+            score figures in our marketing are student-reported goals and illustrative examples, not
+            guaranteed results, and we do not publish reviews or testimonials we cannot verify.
           </Block>
 
           <Block title="Shared responsibility">

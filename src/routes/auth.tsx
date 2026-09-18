@@ -229,11 +229,15 @@ function AuthPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-white"
               />
               <span>
-                I accept the{" "}
+                I'm at least 13 years old and I accept the{" "}
                 <Link to="/terms" className="font-semibold text-white underline underline-offset-2">
-                  Terms and Privacy Policy
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="font-semibold text-white underline underline-offset-2">
+                  Privacy Policy
                 </Link>
-                .
+                . If I'm under 16, a parent or guardian has approved my use of Lexiq.
               </span>
             </label>
           )}

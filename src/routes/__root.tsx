@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { applyProfile, clearState, loadStateForUser } from "@/lib/game-store";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { CookieConsent } from "@/components/CookieConsent";
 
 function NotFoundComponent() {
   return (
@@ -108,13 +109,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Fonts are self-hosted via @fontsource (imported in src/styles.css) — no Google Fonts round-trip.
     ],
     scripts: [
-      ...(ADSENSE_CLIENT
-        ? [{
-            async: true,
-            src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`,
-            crossOrigin: "anonymous",
-          } as const]
-        : []),
+      // The ad script is injected only after the visitor accepts advertising
+      // cookies (see src/components/CookieConsent.tsx).
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -164,6 +160,7 @@ function RootComponent() {
       <AuthBridge />
       <PaymentTestModeBanner />
       <Outlet />
+      <CookieConsent />
     </QueryClientProvider>
   );
 }

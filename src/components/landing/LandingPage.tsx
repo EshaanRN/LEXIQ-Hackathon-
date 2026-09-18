@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { openCookieSettings } from "@/components/CookieConsent";
 import {
   ArrowRight,
   Sparkles,
@@ -11,7 +12,6 @@ import {
   Zap,
   Heart,
   ShoppingBag,
-  Star,
   CheckCircle2,
   X,
   Mic,
@@ -73,14 +73,14 @@ function FloatingWords() {
 /* -------------------------------------------------------------------------- */
 
 const TICKER_EVENTS = [
-  { who: "Maya", word: "perfunctory", verb: "mastered" },
-  { who: "Devon", word: "sanguine", verb: "swiped right on" },
-  { who: "Priya", word: "obfuscate", verb: "leveled up on" },
-  { who: "Jordan", word: "ephemeral", verb: "nailed the checkpoint for" },
-  { who: "Sofia", word: "quixotic", verb: "added to known" },
-  { who: "Alex", word: "ubiquitous", verb: "pronounced correctly" },
-  { who: "Riya", word: "laconic", verb: "defined" },
-  { who: "Eli", word: "pellucid", verb: "mastered" },
+  { word: "perfunctory", verb: "done without real care" },
+  { word: "sanguine", verb: "cheerfully optimistic" },
+  { word: "obfuscate", verb: "to muddy on purpose" },
+  { word: "ephemeral", verb: "gone in a blink" },
+  { word: "quixotic", verb: "nobly unrealistic" },
+  { word: "ubiquitous", verb: "everywhere at once" },
+  { word: "laconic", verb: "few words, full point" },
+  { word: "pellucid", verb: "crystal clear" },
 ];
 
 function LiveTicker() {
@@ -97,9 +97,9 @@ function LiveTicker() {
         <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
       </span>
       <span className="text-muted-foreground">
-        <span className="font-semibold text-foreground">{e.who}</span>{" "}
-        just {e.verb}{" "}
-        <span className="font-semibold text-primary">{e.word}</span>
+        <span className="font-semibold text-foreground">In today's deck:</span>{" "}
+        <span className="font-semibold text-primary">{e.word}</span>{" "}
+        — {e.verb}
       </span>
     </div>
   );
@@ -128,13 +128,13 @@ function ScoreGain() {
   return (
     <div id="score-gain" className="rounded-3xl border border-border bg-card/60 p-8 backdrop-blur">
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-        <span>Avg. SAT reading score</span>
-        <span className="text-success">+{after - before} pts</span>
+        <span>Example reading goal</span>
+        <span className="text-success">Illustration</span>
       </div>
       <div className="mt-6 space-y-5">
         <div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-muted-foreground">Before Lexiq</span>
+            <span className="font-semibold text-muted-foreground">Starting score</span>
             <span className="font-display font-bold">{before}</span>
           </div>
           <div className="mt-2 h-3 overflow-hidden rounded-full bg-surface-2">
@@ -146,7 +146,7 @@ function ScoreGain() {
         </div>
         <div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-primary">After 6 weeks</span>
+            <span className="font-semibold text-primary">Your target</span>
             <span className="font-display font-bold text-primary">{after}</span>
           </div>
           <div className="mt-2 h-3 overflow-hidden rounded-full bg-surface-2">
@@ -158,8 +158,8 @@ function ScoreGain() {
         </div>
       </div>
       <p className="mt-6 text-xs text-muted-foreground">
-        Based on self-reported practice-section scores from 1,200+ beta users
-        who used Lexiq at least 5 minutes a day.
+        Example numbers only — you set your own starting point and target score in Lexiq.
+        Lexiq does not promise or guarantee a score increase.
       </p>
     </div>
   );
@@ -379,25 +379,23 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* HOW IT FITS A STUDY ROUTINE */}
       <section className="mx-auto w-full max-w-6xl px-6 py-20">
-        <SectionLabel>What students say</SectionLabel>
+        <SectionLabel>How students use it</SectionLabel>
         <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight sm:text-5xl">
-          The reviews write themselves.
+          Five minutes that fit anywhere.
         </h2>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          Lexiq is new, so we'd rather show you the app than quote reviews we can't prove.
+          Here's how a study day usually looks.
+        </p>
         <div className="mt-12 grid gap-4 md:grid-cols-3">
-          <Quote
-            text="I went from skipping vocab to opening Lexiq before bed. It just feels good to swipe."
-            author="Maya, junior" gain="+120 reading"
-          />
-          <Quote
-            text="The AI checkpoints actually called me out when I faked a definition. My SAT reading jumped 80."
-            author="Devon, senior" gain="+80 reading"
-          />
-          <Quote
-            text="Other apps make me feel like I'm studying. This one feels like a game I happen to win."
-            author="Priya, sophomore" gain="+150 reading"
-          />
+          <Feature icon={<Clock className="h-5 w-5" />} title="Morning: one deck"
+            body="Swipe through today's words on the bus. Right if you know it, left if you don't." />
+          <Feature icon={<Target className="h-5 w-5" />} title="Evening: one checkpoint"
+            body="Prove a handful of words by typing or speaking the meaning, and see what still needs work." />
+          <Feature icon={<Brain className="h-5 w-5" />} title="Stuck? Ask Nox"
+            body="The built-in coach breaks a confusing word down into roots, synonyms, and test context." />
         </div>
       </section>
 
@@ -536,10 +534,26 @@ export function LandingPage() {
           <Link to="/refund" className="hover:text-foreground">Refunds</Link>
           <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
           <Link to="/trust" className="hover:text-foreground">Trust & Security</Link>
+          <Link to="/data-request" className="hover:text-foreground">Data requests</Link>
+          <button
+            type="button"
+            onClick={() => openCookieSettings()}
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Cookie settings
+          </button>
         </nav>
         <div>© {new Date().getFullYear()} LEXIQ. All rights reserved.</div>
         <div className="mt-1 text-[11px] text-muted-foreground/70">
-          Payments processed by Paddle.com — our Merchant of Record.
+          LEXIQ · learnlexiq.com · <a href="mailto:support@learnlexiq.com" className="underline hover:text-foreground">support@learnlexiq.com</a>
+        </div>
+        <div className="mt-1 text-[11px] text-muted-foreground/70">
+          Payments processed by Paddle.com — our Merchant of Record. Prices shown include applicable
+          taxes at checkout; no setup or hidden fees.
+        </div>
+        <div className="mt-1 text-[11px] text-muted-foreground/70">
+          Score figures are student-reported goals, not guaranteed outcomes. Fonts are self-hosted open-source
+          families (SIL Open Font License); artwork is original or licensed for commercial use.
         </div>
       </footer>
 
@@ -637,27 +651,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       </summary>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
     </details>
-  );
-}
-
-function Quote({ text, author, gain }: { text: string; author: string; gain?: string }) {
-  return (
-    <div className="relative rounded-3xl border border-border bg-card/60 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-primary/40">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-0.5 text-gold">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="h-3.5 w-3.5 fill-current" />
-          ))}
-        </div>
-        {gain && (
-          <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-success ring-1 ring-success/30">
-            {gain}
-          </span>
-        )}
-      </div>
-      <p className="mt-3 text-sm leading-relaxed">"{text}"</p>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">— {author}</p>
-    </div>
   );
 }
 

@@ -122,9 +122,13 @@ function PrivacyPage() {
           </Block>
 
           <Block title="8. Account deletion & data export">
-            You can request account deletion or a copy of your data at any time by emailing
+            You can request account deletion or a copy of your data at any time from our
+            <a className="underline" href="/data-request"> data requests page</a>, or by emailing
             <a className="underline" href="mailto:support@learnlexiq.com"> support@learnlexiq.com</a> from the address on
-            your account. We confirm receipt within 7 days and complete the request within 30 days.
+            your account. We confirm receipt within 7 days and complete the request within 30 days, free of charge.
+            A parent or guardian may make the same request on behalf of a user under 16.
+            Optional product emails always include a one-click unsubscribe link; account, security, and
+            billing emails are required while your account is open.
           </Block>
 
           <Block title="9. Your rights">
