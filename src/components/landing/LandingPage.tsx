@@ -74,14 +74,14 @@ function FloatingWords() {
 /* -------------------------------------------------------------------------- */
 
 const TICKER_EVENTS = [
-  { who: "Maya", word: "perfunctory", verb: "mastered" },
-  { who: "Devon", word: "sanguine", verb: "swiped right on" },
-  { who: "Priya", word: "obfuscate", verb: "leveled up on" },
-  { who: "Jordan", word: "ephemeral", verb: "nailed the checkpoint for" },
-  { who: "Sofia", word: "quixotic", verb: "added to known" },
-  { who: "Alex", word: "ubiquitous", verb: "pronounced correctly" },
-  { who: "Riya", word: "laconic", verb: "defined" },
-  { who: "Eli", word: "pellucid", verb: "mastered" },
+  { word: "perfunctory", verb: "done without real care" },
+  { word: "sanguine", verb: "cheerfully optimistic" },
+  { word: "obfuscate", verb: "to muddy on purpose" },
+  { word: "ephemeral", verb: "gone in a blink" },
+  { word: "quixotic", verb: "nobly unrealistic" },
+  { word: "ubiquitous", verb: "everywhere at once" },
+  { word: "laconic", verb: "few words, full point" },
+  { word: "pellucid", verb: "crystal clear" },
 ];
 
 function LiveTicker() {
@@ -98,9 +98,9 @@ function LiveTicker() {
         <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
       </span>
       <span className="text-muted-foreground">
-        <span className="font-semibold text-foreground">{e.who}</span>{" "}
-        just {e.verb}{" "}
-        <span className="font-semibold text-primary">{e.word}</span>
+        <span className="font-semibold text-foreground">In today's deck:</span>{" "}
+        <span className="font-semibold text-primary">{e.word}</span>{" "}
+        — {e.verb}
       </span>
     </div>
   );
