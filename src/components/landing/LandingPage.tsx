@@ -536,10 +536,26 @@ export function LandingPage() {
           <Link to="/refund" className="hover:text-foreground">Refunds</Link>
           <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
           <Link to="/trust" className="hover:text-foreground">Trust & Security</Link>
+          <Link to="/data-request" className="hover:text-foreground">Data requests</Link>
+          <button
+            type="button"
+            onClick={() => openCookieSettings()}
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Cookie settings
+          </button>
         </nav>
         <div>© {new Date().getFullYear()} LEXIQ. All rights reserved.</div>
         <div className="mt-1 text-[11px] text-muted-foreground/70">
-          Payments processed by Paddle.com — our Merchant of Record.
+          LEXIQ · learnlexiq.com · <a href="mailto:support@learnlexiq.com" className="underline hover:text-foreground">support@learnlexiq.com</a>
+        </div>
+        <div className="mt-1 text-[11px] text-muted-foreground/70">
+          Payments processed by Paddle.com — our Merchant of Record. Prices shown include applicable
+          taxes at checkout; no setup or hidden fees.
+        </div>
+        <div className="mt-1 text-[11px] text-muted-foreground/70">
+          Score figures are student-reported goals, not guaranteed outcomes. Fonts are self-hosted open-source
+          families (SIL Open Font License); artwork is original or licensed for commercial use.
         </div>
       </footer>
 
