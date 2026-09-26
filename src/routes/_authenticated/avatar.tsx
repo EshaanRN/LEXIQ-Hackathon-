@@ -141,6 +141,14 @@ function AvatarPage() {
           Delete account or export my data
         </Link>
         <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("lexiq:open-cookie-settings"))}
+          className="flex w-full items-center gap-3 border-t border-border px-4 py-3 text-left text-sm font-semibold hover:bg-surface"
+        >
+          <Shield className="h-4 w-4 text-muted-foreground" />
+          Cookie settings
+        </button>
+        <button
           onClick={handleLogout}
           disabled={loggingOut}
           className="flex w-full items-center gap-3 border-t border-border px-4 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-500/10 disabled:opacity-60"
