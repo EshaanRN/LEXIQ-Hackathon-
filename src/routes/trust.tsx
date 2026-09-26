@@ -98,7 +98,7 @@ function TrustPage() {
             explanations and pronunciations), Paddle (checkout, only on payment pages), and — only if
             you accept advertising cookies — Google's ad script on the free tier. Optional analytics
             and advertising scripts are never loaded before you consent, and consent can be changed
-            at any time from "Cookie settings" in the footer.
+            at any time from "Cookie settings" on the Cookie Policy page, your profile, or the home page footer.
           </Block>
 
           <Block title="Emails we send">

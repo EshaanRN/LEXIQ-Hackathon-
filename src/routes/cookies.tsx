@@ -41,8 +41,17 @@ function CookiesPage() {
           <Block title="Your consent">
             The first time you visit, a banner asks whether you allow optional analytics and advertising
             cookies. Nothing optional loads until you say yes, and rejecting them keeps every learning
-            feature working. You can change or withdraw consent at any time using the
-            {" "}<strong className="text-white">Cookie settings</strong> link in the site footer.
+            feature working. You can change or withdraw consent at any time with the button below,
+            from <strong className="text-white">Cookie settings</strong> in your profile, or in the home page footer.
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("lexiq:open-cookie-settings"))}
+                className="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                Change cookie settings
+              </button>
+            </div>
           </Block>
 
           <Block title="Managing cookies">
